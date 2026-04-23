@@ -1,5 +1,4 @@
-﻿// client/src/features/wanted/components/browse/SearchFilters.jsx
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   X, 

@@ -1,5 +1,4 @@
-﻿// client/src/features/wanted/components/browse/EmptyState.jsx
-import { motion } from 'framer-motion';
+﻿import { motion } from 'framer-motion';
 import { Heart, Search, Inbox, UserPlus, MessageCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '../../../../lib/i18n';

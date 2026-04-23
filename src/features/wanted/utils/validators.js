@@ -13,6 +13,4 @@ export const validateYear = (year) => {
   return !isNaN(num) && num >= 1900 && num <= new Date().getFullYear();
 };
 
-export const validateSecretAnswer = (answer) => {
-  return answer && answer.trim().length >= 2;
-};
+

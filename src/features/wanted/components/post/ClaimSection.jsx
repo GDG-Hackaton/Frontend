@@ -1,20 +1,18 @@
-﻿// client/src/features/wanted/components/post/ClaimSection.jsx
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  Lock, 
+  MessageCircle, 
   Shield, 
   CheckCircle, 
   AlertCircle,
-  MessageCircle,
-  ArrowRight,
-  Users,
   Clock,
-  X
+  X,
+  Send,
+  Users,
+  ArrowRight
 } from 'lucide-react';
 import { useLanguage } from '../../../../lib/i18n';
 import { useAuth } from '../../../../hooks/useAuth';
-import { SecretQuestions } from './SecretQuestions';
 import { useSubmitClaim } from '../../hooks/useClaims';
 
 export const ClaimSection = ({ post, onClaimSubmitted }) => {
@@ -22,6 +20,7 @@ export const ClaimSection = ({ post, onClaimSubmitted }) => {
   const { user } = useAuth();
   const { mutate: submitClaim, isPending } = useSubmitClaim();
   const [showClaimForm, setShowClaimForm] = useState(false);
+  const [message, setMessage] = useState('');
   const [selectedPersonIndex, setSelectedPersonIndex] = useState(null);
 
   const isOwner = user?.id === post.poster;
@@ -30,6 +29,49 @@ export const ClaimSection = ({ post, onClaimSubmitted }) => {
   const availableSpots = post.isGroupPost 
     ? post.maxClaimants - (post.approvedClaimants?.length || 0)
     : post.status === 'active' ? 1 : 0;
+
+const handleSubmitClaim = () => {
+  if (!message.trim() || message.length < 10) {
+    toast.error(
+      language === 'am' 
+        ? 'እባክዎ ቢያንስ 10 ቁምፊዎች ያስገቡ' 
+        : 'Please enter at least 10 characters'
+    );
+    return;
+  }
+
+  const claimData = {
+    messageToPoster: message.trim(),
+  };
+  
+  if (post.isGroupPost && selectedPersonIndex !== null) {
+    claimData.claimedPersonIndex = selectedPersonIndex;
+  }
+
+  console.log('📤 Submitting claim with data:', claimData);
+
+  submitClaim(
+    { 
+      postId: post._id, 
+      ...claimData
+    },
+    {
+      onSuccess: () => {
+        setShowClaimForm(false);
+        setMessage('');
+        setSelectedPersonIndex(null);
+        onClaimSubmitted?.();
+      },
+      onError: (error) => {
+        console.error('Claim submission failed:', error);
+        toast.error(
+          error.response?.data?.message || 
+          (language === 'am' ? 'ጥያቄ ማቅረብ አልተሳካም' : 'Failed to submit claim')
+        );
+      },
+    }
+  );
+};
 
   if (post.status === 'reconnected') {
     return (
@@ -40,8 +82,8 @@ export const ClaimSection = ({ post, onClaimSubmitted }) => {
         </h3>
         <p className="text-stone">
           {language === 'am'
-            ? 'ይህ ልጥፍ አሁን ተዘግቷል። ሌሎች የስኬት ታሪኮችን ይመልከቱ።'
-            : 'This post is now closed. Check out other success stories!'
+            ? 'ይህ ልጥፍ አሁን ተዘግቷል።'
+            : 'This post is now closed.'
           }
         </p>
       </div>
@@ -78,10 +120,13 @@ export const ClaimSection = ({ post, onClaimSubmitted }) => {
           </div>
 
           {post.claims?.length > 0 && (
-            <button className="w-full mt-4 btn-outline flex items-center justify-center gap-2">
+            <Link
+              to="/wanted/claims"
+              className="w-full mt-4 btn-outline flex items-center justify-center gap-2"
+            >
               {language === 'am' ? 'ጥያቄዎችን ይገምግሙ' : 'Review Claims'}
               <ArrowRight className="w-4 h-4" />
-            </button>
+            </Link>
           )}
         </div>
       </div>
@@ -95,7 +140,9 @@ export const ClaimSection = ({ post, onClaimSubmitted }) => {
       <div className={`rounded-2xl p-6 border ${
         myClaim?.status === 'approved' 
           ? 'bg-hope-green/5 border-hope-green/20'
-          : 'bg-warmth/5 border-warmth/20'
+          : myClaim?.status === 'pending'
+          ? 'bg-warmth/5 border-warmth/20'
+          : 'bg-error/5 border-error/20'
       }`}>
         <div className="text-center">
           {myClaim?.status === 'approved' ? (
@@ -110,10 +157,13 @@ export const ClaimSection = ({ post, onClaimSubmitted }) => {
                   : 'You can now start chatting'
                 }
               </p>
-              <button className="btn-primary inline-flex items-center gap-2">
+              <Link
+                to={`/wanted/chat/${myClaim.chatRoomId}`}
+                className="btn-primary inline-flex items-center gap-2"
+              >
                 <MessageCircle className="w-4 h-4" />
                 {language === 'am' ? 'ቻት ክፈት' : 'Open Chat'}
-              </button>
+              </Link>
             </>
           ) : myClaim?.status === 'pending' ? (
             <>
@@ -123,7 +173,7 @@ export const ClaimSection = ({ post, onClaimSubmitted }) => {
               </h3>
               <p className="text-stone">
                 {language === 'am'
-                  ? 'የይገባኛል ጥያቄዎ በመገምገም ላይ ነው። ውሳኔ ሲደረግ እናሳውቅዎታለን።'
+                  ? 'ጥያቄዎ በመገምገም ላይ ነው። ውሳኔ ሲደረግ እናሳውቅዎታለን።'
                   : 'Your claim is being reviewed. We\'ll notify you when there\'s a decision.'
                 }
               </p>
@@ -132,11 +182,11 @@ export const ClaimSection = ({ post, onClaimSubmitted }) => {
             <>
               <X className="w-12 h-12 text-error mx-auto mb-3" />
               <h3 className="font-display text-lg font-semibold text-charcoal mb-2">
-                {language === 'am' ? 'አልተሳካም' : 'Not Successful'}
+                {language === 'am' ? 'አልተሳካም' : 'Not Approved'}
               </h3>
               <p className="text-stone">
                 {language === 'am'
-                  ? 'በሚያሳዝን ሁኔታ የይገባኛል ጥያቄዎ አልጸደቀም።'
+                  ? 'በሚያሳዝን ሁኔታ ጥያቄዎ አልጸደቀም።'
                   : 'Unfortunately, your claim was not approved.'
                 }
               </p>
@@ -166,21 +216,6 @@ export const ClaimSection = ({ post, onClaimSubmitted }) => {
 
   return (
     <div className="space-y-4">
-      {/* Available Spots Banner */}
-      {post.isGroupPost && (
-        <div className="bg-warmth/5 rounded-xl p-4 border border-warmth/20">
-          <div className="flex items-center justify-between">
-            <span className="text-sm text-stone">
-              {language === 'am' ? 'የቀሩ ቦታዎች' : 'Available Spots'}
-            </span>
-            <span className="font-display text-2xl font-bold text-terracotta">
-              {availableSpots}
-            </span>
-          </div>
-        </div>
-      )}
-
-      {/* Claim Form Toggle */}
       {!showClaimForm ? (
         <motion.div
           initial={{ opacity: 0 }}
@@ -188,20 +223,20 @@ export const ClaimSection = ({ post, onClaimSubmitted }) => {
           className="bg-cream rounded-2xl p-8 border border-warm-gray/30 text-center"
         >
           <div className="w-16 h-16 rounded-full bg-terracotta/10 flex items-center justify-center mx-auto mb-4">
-            <Lock className="w-8 h-8 text-terracotta" />
+            <User className="w-8 h-8 text-terracotta" />
           </div>
           
           <h3 className="font-display text-xl font-semibold text-charcoal mb-2">
             {language === 'am' 
-              ? 'ይህ እርስዎ የሚፈልጉት ሰው ነው?'
-              : 'Is this who you\'re looking for?'
+              ? 'ይህ እርስዎ ነዎት?'
+              : 'Is this you?'
             }
           </h3>
           
           <p className="text-stone mb-6">
             {language === 'am'
-              ? 'ማንነትዎን ለማረጋገጥ ሚስጥራዊ ጥያቄዎችን ይመለሳሉ'
-              : 'You\'ll answer secret questions to verify your identity'
+              ? 'ከለጣፊው ጋር ለመገናኘት መልእክት ይላኩ'
+              : 'Send a message to connect with the poster'
             }
           </p>
 
@@ -209,17 +244,9 @@ export const ClaimSection = ({ post, onClaimSubmitted }) => {
             onClick={() => setShowClaimForm(true)}
             className="btn-primary inline-flex items-center gap-2"
           >
-            <Shield className="w-4 h-4" />
-            {language === 'am' ? 'የይገባኛል ጥያቄ ያቅርቡ' : 'Submit a Claim'}
+            <MessageCircle className="w-4 h-4" />
+            {language === 'am' ? 'መልእክት ላክ' : 'Send Message'}
           </button>
-
-          <p className="text-xs text-stone mt-4 flex items-center justify-center gap-1">
-            <Lock className="w-3 h-3" />
-            {language === 'am'
-              ? 'ማንነትዎ እስኪጸድቅ ድረስ አይገለጽም'
-              : 'Your identity stays private until approved'
-            }
-          </p>
         </motion.div>
       ) : (
         <AnimatePresence>
@@ -229,64 +256,129 @@ export const ClaimSection = ({ post, onClaimSubmitted }) => {
             exit={{ opacity: 0, y: -20 }}
             className="bg-cream rounded-2xl p-6 border border-warm-gray/30"
           >
-            {/* Group Post Person Selection */}
-            {post.isGroupPost && post.soughtPeople?.length > 0 && (
-              <div className="mb-6">
-                <label className="block text-sm font-medium text-charcoal mb-3">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-display text-lg font-semibold text-charcoal">
+                {language === 'am' ? 'መልእክትዎን ይጻፉ' : 'Write Your Message'}
+              </h3>
+              <button
+                onClick={() => setShowClaimForm(false)}
+                className="p-1.5 text-stone hover:text-charcoal rounded-full hover:bg-warm-gray/20"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              {/* Group Post Person Selection */}
+              {post.isGroupPost && post.soughtPeople?.length > 0 && (
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-charcoal mb-2">
+                    {language === 'am' 
+                      ? 'ማን ነዎት?'
+                      : 'Who are you?'
+                    }
+                  </label>
+                  <div className="space-y-2">
+                    {post.soughtPeople.map((person, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => setSelectedPersonIndex(idx)}
+                        disabled={person.claimedBy}
+                        className={`w-full p-3 rounded-xl border text-left transition-all ${
+                          selectedPersonIndex === idx
+                            ? 'border-terracotta bg-terracotta/5'
+                            : 'border-warm-gray/30 hover:border-terracotta/50'
+                        } ${person.claimedBy ? 'opacity-50 cursor-not-allowed' : ''}`}
+                      >
+                        <div className="flex items-center justify-between">
+                          <span className="font-medium text-charcoal">{person.name}</span>
+                          {person.claimedBy ? (
+                            <span className="text-xs text-stone">
+                              {language === 'am' ? 'ተጠይቋል' : 'Claimed'}
+                            </span>
+                          ) : selectedPersonIndex === idx && (
+                            <CheckCircle className="w-4 h-4 text-terracotta" />
+                          )}
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Message Input */}
+              <div>
+                <label className="block text-sm font-medium text-charcoal mb-2">
                   {language === 'am' 
-                    ? 'ማንን ነው የሚጠይቁት?'
-                    : 'Who are you claiming?'
+                    ? 'እራስዎን ያስተዋውቁ *' 
+                    : 'Introduce yourself *'
                   }
                 </label>
-                <div className="space-y-2">
-                  {post.soughtPeople.map((person, idx) => (
-                    <button
-                      key={idx}
-                      onClick={() => setSelectedPersonIndex(idx)}
-                      disabled={person.claimedBy}
-                      className={`w-full p-3 rounded-xl border text-left transition-all ${
-                        selectedPersonIndex === idx
-                          ? 'border-terracotta bg-terracotta/5'
-                          : 'border-warm-gray/30 hover:border-terracotta/50'
-                      } ${person.claimedBy ? 'opacity-50 cursor-not-allowed' : ''}`}
-                    >
-                      <div className="flex items-center justify-between">
-                        <span className="font-medium text-charcoal">{person.name}</span>
-                        {person.claimedBy ? (
-                          <span className="text-xs text-stone">
-                            {language === 'am' ? 'ተጠይቋል' : 'Claimed'}
-                          </span>
-                        ) : selectedPersonIndex === idx && (
-                          <CheckCircle className="w-4 h-4 text-terracotta" />
-                        )}
-                      </div>
-                      {person.description && (
-                        <p className="text-xs text-stone mt-1">{person.description}</p>
-                      )}
-                    </button>
-                  ))}
+                <textarea
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                  placeholder={language === 'am'
+                    ? 'ለምሳሌ፡ ሰላም! እኔ አበበ ነኝ። አብረን ትምህርት ቤት ነበርን...'
+                    : 'e.g., Hi! I\'m Abebe. We went to school together...'
+                  }
+                  rows={5}
+                  maxLength={500}
+                  className="w-full px-4 py-3 bg-white border border-warm-gray rounded-xl resize-none focus:border-terracotta focus:ring-2 focus:ring-terracotta/20 outline-none transition-all"
+                />
+                <div className="flex justify-between mt-1">
+                  <p className="text-xs text-stone">
+                    {language === 'am'
+                      ? 'ቢያንስ 10 ቁምፊዎች'
+                      : 'Minimum 10 characters'
+                    }
+                  </p>
+                  <p className="text-xs text-stone">
+                    {message.length} / 500
+                  </p>
                 </div>
               </div>
-            )}
 
-            <SecretQuestions
-              questions={post.secretQuestions}
-              onSubmit={(answers, message) => {
-                submitClaim({
-                  postId: post._id,
-                  answers,
-                  messageToPoster: message,
-                  claimedPersonIndex: selectedPersonIndex,
-                }, {
-                  onSuccess: () => {
-                    setShowClaimForm(false);
-                    onClaimSubmitted?.();
-                  },
-                });
-              }}
-              onCancel={() => setShowClaimForm(false)}
-              isSubmitting={isPending}
-            />
+              {/* Privacy Notice */}
+              <div className="p-3 bg-warmth/5 rounded-lg border border-warmth/20">
+                <p className="text-xs text-stone flex items-start gap-2">
+                  <Shield className="w-4 h-4 text-warmth flex-shrink-0 mt-0.5" />
+                  <span>
+                    {language === 'am'
+                      ? 'መልእክትዎ ለለጣፊው ብቻ ይታያል። ማንነትዎ እስኪጸድቅ ድረስ አይገለጽም።'
+                      : 'Your message is only visible to the poster. Your identity remains private until approved.'
+                    }
+                  </span>
+                </p>
+              </div>
+
+              {/* Actions */}
+              <div className="flex gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setShowClaimForm(false)}
+                  className="flex-1 px-6 py-2.5 border border-warm-gray rounded-full text-stone hover:bg-warm-gray/20 transition-colors"
+                >
+                  {language === 'am' ? 'ይቅር' : 'Cancel'}
+                </button>
+                <button
+                  onClick={handleSubmitClaim}
+                  disabled={isPending || message.length < 10}
+                  className="flex-1 px-6 py-2.5 bg-terracotta text-white rounded-full font-medium hover:bg-clay transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                >
+                  {isPending ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      <span>{language === 'am' ? 'በመላክ ላይ...' : 'Sending...'}</span>
+                    </>
+                  ) : (
+                    <>
+                      <Send className="w-4 h-4" />
+                      <span>{language === 'am' ? 'ላክ' : 'Send'}</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
           </motion.div>
         </AnimatePresence>
       )}

@@ -17,7 +17,6 @@ export const MainFooter = () => {
               <Heart className="w-7 h-7 text-terracotta" />
               <span className="font-display text-xl font-bold text-white">
                 Reunite
-                <span className="text-white/60 text-sm ml-1">× Falagiye</span>
               </span>
             </Link>
             <p className="text-sm text-white/60 mb-4">
@@ -96,7 +95,7 @@ export const MainFooter = () => {
 
         {/* Copyright */}
         <div className="text-center text-xs text-white/30 mt-6">
-          © {year} Reunite × Falagiye. {language === 'am' ? 'መብቱ በህግ የተጠበቀ ነው።' : 'All rights reserved.'}
+          © {year} Reunite. {language === 'am' ? 'መብቱ በህግ የተጠበቀ ነው።' : 'All rights reserved.'}
         </div>
       </div>
     </footer>

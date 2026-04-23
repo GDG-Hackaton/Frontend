@@ -88,7 +88,6 @@ export const LoginPage = () => {
             <Heart className="w-8 h-8 text-terracotta" />
             <span className="font-display text-2xl font-bold text-charcoal">
               Reunite
-              <span className="text-stone text-base ml-1">× Falagiye</span>
             </span>
           </Link>
           <h2 className="font-display text-3xl font-bold text-charcoal mb-2">

@@ -1,5 +1,4 @@
-﻿// client/src/features/wanted/components/post/SecretQuestions.jsx
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Lock, HelpCircle, ArrowRight, AlertCircle } from 'lucide-react';
 import { useLanguage } from '../../../../lib/i18n';

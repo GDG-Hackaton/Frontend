@@ -24,6 +24,7 @@ import {
 import { Link } from 'react-router-dom';
 import { useLanguage } from '../lib/i18n';
 import {useImpactStats} from "../features/wanted/hooks/useImpactStats"
+import { ImpactStats } from '../features/wanted/components/layout/ImpactStats';
 
  
 const getAsset = (name) => assetImages[`../assets/images/${name}.png`] || '';
@@ -64,8 +65,8 @@ const HeroSection = () => {
             <Heart className="w-4 h-4 text-terracotta" />
             <span className="text-white/90 text-sm font-medium">
               {language === 'am' 
-                ? '847+ በላይ ሰዎች እንደገና ተገናኝተዋል'
-                : '847+ people already reunited'
+                ? '147+ በላይ ሰዎች እንደገና ተገናኝተዋል'
+                : '147+ people already reunited'
               }
             </span>
           </div>
@@ -443,60 +444,12 @@ const ImpactSection = () => {
         </motion.div>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-16">
-          <motion.div
-            initial={{ scale: 0 }}
-            animate={isInView ? { scale: 1 } : {}}
-            transition={{ delay: 0.1 }}
-            className="text-center p-6 bg-white rounded-2xl shadow-sm"
-          >
-            <div className="text-4xl font-display font-bold text-terracotta mb-2">
-              {stats?.reunited || '847'}+
-            </div>
-            <div className="text-stone text-sm">
-              {language === 'am' ? 'የተገናኙ' : 'Reunited'}
-            </div>
-          </motion.div>
-          <motion.div
-            initial={{ scale: 0 }}
-            animate={isInView ? { scale: 1 } : {}}
-            transition={{ delay: 0.2 }}
-            className="text-center p-6 bg-white rounded-2xl shadow-sm"
-          >
-            <div className="text-4xl font-display font-bold text-sahara mb-2">
-              {stats?.countries || '9'}
-            </div>
-            <div className="text-stone text-sm">
-              {language === 'am' ? 'ሀገራት' : 'Countries'}
-            </div>
-          </motion.div>
-          <motion.div
-            initial={{ scale: 0 }}
-            animate={isInView ? { scale: 1 } : {}}
-            transition={{ delay: 0.3 }}
-            className="text-center p-6 bg-white rounded-2xl shadow-sm"
-          >
-            <div className="text-4xl font-display font-bold text-hope-green mb-2">
-              {stats?.successRate || '74'}%
-            </div>
-            <div className="text-stone text-sm">
-              {language === 'am' ? 'የስኬት መጠን' : 'Success Rate'}
-            </div>
-          </motion.div>
-          <motion.div
-            initial={{ scale: 0 }}
-            animate={isInView ? { scale: 1 } : {}}
-            transition={{ delay: 0.4 }}
-            className="text-center p-6 bg-white rounded-2xl shadow-sm"
-          >
-            <div className="text-4xl font-display font-bold text-warmth mb-2">
-              {stats?.activeSearches || '4K'}+
-            </div>
-            <div className="text-stone text-sm">
-              {language === 'am' ? 'በመፈለግ ላይ' : 'Searching'}
-            </div>
-          </motion.div>
+        <section className="py-8 border-y border-warm-gray/30 bg-cream/30">
+        <div className="container">
+          <ImpactStats compact />
         </div>
+      </section>
+        
 
         {/* Impact Stories */}
         <div className="grid md:grid-cols-2 gap-8">

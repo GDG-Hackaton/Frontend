@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+// client/src/components/layout/MainHeader.jsx
+import { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
@@ -16,11 +17,13 @@ import {
   HelpCircle,
   Shield,
   Users,
-  Sparkles
+  Sparkles,
+  Inbox
 } from 'lucide-react';
 import { useLanguage } from '../../lib/i18n';
 import { useAuth } from '../../hooks/useAuth';
 import { TrustBadge } from '../../features/wanted/components/profile/TrustBadge';
+import { wantedApi } from '../../features/wanted/services/wantedApi';
 
 export const MainHeader = () => {
   const { language, setLanguage } = useLanguage();
@@ -32,12 +35,35 @@ export const MainHeader = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const [isLangMenuOpen, setIsLangMenuOpen] = useState(false);
+  
+  // ✅ Add pending claims count
+  const [pendingClaimsCount, setPendingClaimsCount] = useState(0);
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 20);
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  // ✅ Fetch pending claims count
+  useEffect(() => {
+    if (isAuthenticated && profile) {
+      const fetchPendingCount = async () => {
+        try {
+          const response = await wantedApi.getPendingClaims();
+          setPendingClaimsCount(response?.length || 0);
+        } catch (error) {
+          console.error('Failed to fetch pending claims:', error);
+        }
+      };
+      
+      fetchPendingCount();
+      
+      // Refresh every 30 seconds
+      const interval = setInterval(fetchPendingCount, 30000);
+      return () => clearInterval(interval);
+    }
+  }, [isAuthenticated, profile]);
 
   const navLinks = [
     { 
@@ -48,15 +74,9 @@ export const MainHeader = () => {
     },
     { 
       path: '/wanted/create', 
-      label: { en: 'Post Memory', am: 'ትዝታ አካፍል' },
+      label: { en: 'Post', am: 'ልጥፍ' },
       icon: PenTool,
       description: { en: 'Start a search', am: 'ፍለጋ ጀምር' }
-    },
-    { 
-      path: '/wanted/stories', 
-      label: { en: 'Stories', am: 'ታሪኮች' },
-      icon: Sparkles,
-      description: { en: 'Success stories', am: 'የስኬት ታሪኮች' }
     },
   ];
 
@@ -96,9 +116,7 @@ export const MainHeader = () => {
                 <span className="font-display text-xl md:text-2xl font-bold text-charcoal leading-tight">
                   Reunite
                 </span>
-                <span className="text-xs text-stone -mt-1">
-                  × Falagiye
-                </span>
+
               </div>
             </Link>
 
@@ -125,7 +143,6 @@ export const MainHeader = () => {
                       </span>
                     </div>
                     
-                    {/* Active Indicator */}
                     {active && (
                       <motion.div
                         layoutId="activeNav"
@@ -186,14 +203,25 @@ export const MainHeader = () => {
               {/* Auth Actions */}
               {isAuthenticated && profile ? (
                 <>
+                  {/* ✅ Claims Link with Badge */}
+                  <Link
+                    to="/wanted/claims"
+                    className="relative p-2 text-stone hover:text-charcoal rounded-full hover:bg-cream transition-colors"
+                  >
+                    <Inbox className="w-5 h-5" />
+                    {pendingClaimsCount > 0 && (
+                      <span className="absolute -top-1 -right-1 w-5 h-5 bg-terracotta text-white text-xs font-medium rounded-full flex items-center justify-center">
+                        {pendingClaimsCount > 9 ? '9+' : pendingClaimsCount}
+                      </span>
+                    )}
+                  </Link>
+
                   {/* Messages */}
                   <Link
                     to="/wanted/chat"
                     className="relative p-2 text-stone hover:text-charcoal rounded-full hover:bg-cream transition-colors"
                   >
                     <MessageCircle className="w-5 h-5" />
-                    {/* Unread indicator - would come from real data */}
-                    <span className="absolute top-1 right-1 w-2 h-2 bg-terracotta rounded-full" />
                   </Link>
 
                   {/* Profile Menu */}
@@ -216,7 +244,6 @@ export const MainHeader = () => {
                           exit={{ opacity: 0, y: -10 }}
                           className="absolute right-0 mt-2 w-64 bg-white rounded-xl shadow-lg border border-warm-gray overflow-hidden"
                         >
-                          {/* User Info */}
                           <div className="p-4 border-b border-warm-gray/30">
                             <p className="font-medium text-charcoal">{profile.realName}</p>
                             <p className="text-sm text-stone">{user?.email}</p>
@@ -225,7 +252,6 @@ export const MainHeader = () => {
                             </div>
                           </div>
 
-                          {/* Menu Items */}
                           <div className="py-2">
                             <Link
                               to="/wanted/profile"
@@ -237,41 +263,17 @@ export const MainHeader = () => {
                             </Link>
                             
                             <Link
-                              to="/wanted/my-posts"
-                              onClick={() => setIsProfileMenuOpen(false)}
-                              className="w-full px-4 py-2.5 text-left hover:bg-cream transition-colors flex items-center gap-3 text-sm"
-                            >
-                              <PenTool className="w-4 h-4 text-stone" />
-                              <span>{language === 'am' ? 'የኔ ልጥፎች' : 'My Posts'}</span>
-                            </Link>
-                            
-                            <Link
                               to="/wanted/claims"
                               onClick={() => setIsProfileMenuOpen(false)}
                               className="w-full px-4 py-2.5 text-left hover:bg-cream transition-colors flex items-center gap-3 text-sm"
                             >
-                              <Users className="w-4 h-4 text-stone" />
+                              <Inbox className="w-4 h-4 text-stone" />
                               <span>{language === 'am' ? 'ጥያቄዎች' : 'Claims'}</span>
-                            </Link>
-                          </div>
-
-                          <div className="border-t border-warm-gray/30 py-2">
-                            <Link
-                              to="/settings"
-                              onClick={() => setIsProfileMenuOpen(false)}
-                              className="w-full px-4 py-2.5 text-left hover:bg-cream transition-colors flex items-center gap-3 text-sm"
-                            >
-                              <Settings className="w-4 h-4 text-stone" />
-                              <span>{language === 'am' ? 'ቅንብሮች' : 'Settings'}</span>
-                            </Link>
-                            
-                            <Link
-                              to="/help"
-                              onClick={() => setIsProfileMenuOpen(false)}
-                              className="w-full px-4 py-2.5 text-left hover:bg-cream transition-colors flex items-center gap-3 text-sm"
-                            >
-                              <HelpCircle className="w-4 h-4 text-stone" />
-                              <span>{language === 'am' ? 'እርዳታ' : 'Help'}</span>
+                              {pendingClaimsCount > 0 && (
+                                <span className="ml-auto bg-terracotta text-white text-xs px-2 py-0.5 rounded-full">
+                                  {pendingClaimsCount}
+                                </span>
+                              )}
                             </Link>
                           </div>
 
@@ -338,15 +340,10 @@ export const MainHeader = () => {
             >
               <div className="p-6">
                 <div className="flex items-center justify-between mb-8">
-                  <Link to="/" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-2">
-                    <Heart className="w-6 h-6 text-terracotta" />
-                    <span className="font-display text-xl font-bold text-charcoal">Reunite</span>
-                  </Link>
                   <button
                     onClick={() => setIsMobileMenuOpen(false)}
                     className="p-2 text-stone hover:text-charcoal"
                   >
-                    <X className="w-5 h-5" />
                   </button>
                 </div>
 
@@ -374,6 +371,24 @@ export const MainHeader = () => {
                       </Link>
                     );
                   })}
+                  
+                  {isAuthenticated && (
+                    <Link
+                      to="/wanted/claims"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-cream text-charcoal"
+                    >
+                      <Inbox className="w-5 h-5" />
+                      <div className="flex-1">
+                        <p className="font-medium">{language === 'am' ? 'ጥያቄዎች' : 'Claims'}</p>
+                      </div>
+                      {pendingClaimsCount > 0 && (
+                        <span className="bg-terracotta text-white text-xs px-2 py-0.5 rounded-full">
+                          {pendingClaimsCount}
+                        </span>
+                      )}
+                    </Link>
+                  )}
                 </nav>
 
                 {!isAuthenticated && (
@@ -406,7 +421,6 @@ export const MainHeader = () => {
         )}
       </AnimatePresence>
 
-      {/* Spacer for fixed header */}
       <div className="h-16 md:h-20" />
     </>
   );

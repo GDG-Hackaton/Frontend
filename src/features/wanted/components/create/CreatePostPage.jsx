@@ -1,133 +1,130 @@
-﻿import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  Heart, 
-  MapPin, 
-  Calendar, 
-  Users, 
-  Lock, 
+﻿import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  Heart,
+  MapPin,
+  Calendar,
+  Users,
+  Lock,
   ChevronRight,
   ChevronLeft,
   Sparkles,
   CheckCircle2,
-  AlertCircle
-} from 'lucide-react';
-import { useCreatePost } from '../../hooks/usePosts';
-import { useLanguage } from '../../../../lib/i18n';
-import { MemoryInput } from './MemoryInput';
-import { LocationPicker } from './LocationPicker';
-import { QuestionBuilder } from './QuestionBuilder';
-import { CategorySelector } from './CategorySelector';
-import { GroupPostSettings } from './GroupPostSettings';
+  AlertCircle,
+} from "lucide-react";
+import { useCreatePost } from "../../hooks/usePosts";
+import { useLanguage } from "../../../../lib/i18n";
+import { MemoryInput } from "./MemoryInput";
+import { LocationPicker } from "./LocationPicker";
+import { QuestionBuilder } from "./QuestionBuilder";
+import { CategorySelector } from "./CategorySelector";
+import { GroupPostSettings } from "./GroupPostSettings";
 
 const STEPS = [
-  { id: 'memory', label: { en: 'Memory', am: 'ትዝታ' } },
-  { id: 'details', label: { en: 'Details', am: 'ዝርዝሮች' } },
-  { id: 'questions', label: { en: 'Questions', am: 'ጥያቄዎች' } },
-  { id: 'review', label: { en: 'Review', am: 'ግምገማ' } },
+  { id: "memory", label: { en: "Memory", am: "ትዝታ" } },
+  { id: "details", label: { en: "Details", am: "ዝርዝሮች" } },
+  { id: "review", label: { en: "Review", am: "ግምገማ" } },
 ];
 
 export const CreatePostPage = () => {
   const navigate = useNavigate();
   const { language } = useLanguage();
   const { mutate: createPost, isPending } = useCreatePost();
-  
+
   const [currentStep, setCurrentStep] = useState(0);
   const [formData, setFormData] = useState({
     personDetails: {
-    personName: '',
-    nickname: '',
-    knownAs: '',
-  },
-    memoryText: { en: '', am: '' },
-    city: '',
-    country: '',
-    year: '',
-    timeframe: '',
-    category: '',
+      personName: "",
+      nickname: "",
+      knownAs: "",
+    },
+    memoryText: { en: "", am: "" },
+    city: "",
+    country: "",
+    year: "",
+    timeframe: "",
+    category: "",
     isGroupPost: false,
     maxClaimants: 1,
     soughtPeople: [],
-    secretQuestions: [],
   });
-  
+
   const [errors, setErrors] = useState({});
 
   const updateFormData = (updates) => {
-  setFormData(prev => {
-    if (updates.personDetails) {
-      return {
-        ...prev,
-        ...updates,
-        personDetails: {
-          ...prev.personDetails,
-          ...updates.personDetails
-        }
-      };
-    }
-    return { ...prev, ...updates };
-  });
-};
+    setFormData((prev) => {
+      if (updates.personDetails) {
+        return {
+          ...prev,
+          ...updates,
+          personDetails: {
+            ...prev.personDetails,
+            ...updates.personDetails,
+          },
+        };
+      }
+      return { ...prev, ...updates };
+    });
+  };
 
   const validateStep = () => {
     const newErrors = {};
-    
+
     switch (currentStep) {
-      case 0: 
+      case 0:
         if (!formData.memoryText.en && !formData.memoryText.am) {
-          newErrors.memoryText = language === 'am' 
-            ? 'ቢያንስ በአንድ ቋንቋ ትዝታ ያስፈልጋል' 
-            : 'Memory text is required in at least one language';
+          newErrors.memoryText =
+            language === "am"
+              ? "ቢያንስ በአንድ ቋንቋ ትዝታ ያስፈልጋል"
+              : "Memory text is required in at least one language";
+        }
+        if (!formData.personDetails?.personName) {
+          newErrors.personName = "Full name is required";
+        }
+
+        if (!formData.personDetails?.knownAs) {
+          newErrors.knownAs = "This field is required";
         }
         break;
       case 1: // Details
-        if (!formData.city) newErrors.city = 'Required';
-        if (!formData.year) newErrors.year = 'Required';
-        if (!formData.category) newErrors.category = 'Required';
-        break;
-      case 2: // Questions
-        if (formData.secretQuestions.length < 2) {
-          newErrors.secretQuestions = language === 'am'
-            ? 'ቢያንስ 2 ሚስጥራዊ ጥያቄዎች ያስፈልጋሉ'
-            : 'At least 2 secret questions are required';
-        } else {
-          const incomplete = formData.secretQuestions.some(
-            q => !q.question.en || !q.question.am || !q.answer
-          );
-          if (incomplete) {
-            newErrors.secretQuestions = language === 'am'
-              ? 'እባክዎ ለሁሉም ጥያቄዎች እንግሊዝኛ እና አማርኛ ጥያቄዎችን እና መልሶችን ይሙሉ'
-              : 'Please fill both English and Amharic questions and answers for all items';
-          }
-        }
+        if (!formData.city) newErrors.city = "Required";
+        if (!formData.year) newErrors.year = "Required";
+        if (!formData.category) newErrors.category = "Required";
         break;
     }
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleNext = () => {
     if (validateStep()) {
-      setCurrentStep(prev => Math.min(prev + 1, STEPS.length - 1));
+      setCurrentStep((prev) => Math.min(prev + 1, STEPS.length - 1));
     }
   };
 
   const handleBack = () => {
-    setCurrentStep(prev => Math.max(prev - 1, 0));
+    setCurrentStep((prev) => Math.max(prev - 1, 0));
   };
 
   const handleSubmit = () => {
     if (validateStep()) {
       const submissionData = {
         ...formData,
-        year: parseInt(formData.year, 10),
+        year: formData.year ? parseInt(formData.year, 10) : undefined,
       };
 
       createPost(submissionData, {
         onSuccess: (post) => {
           navigate(`/wanted/post/${post._id}`);
+        },
+        onError: (error) => {
+          console.log(error.response?.data);
+
+          setErrors({
+            api: error.response?.data?.message || "Something went wrong",
+          });
         },
       });
     }
@@ -146,11 +143,11 @@ export const CreatePostPage = () => {
               <ChevronLeft className="w-6 h-6" />
             </button>
             <h1 className="font-display text-xl font-semibold text-charcoal">
-              {language === 'am' ? 'ልጥፍ ይፍጠሩ' : 'Create a Post'}
+              {language === "am" ? "ልጥፍ ይፍጠሩ" : "Create a Post"}
             </h1>
             <div className="w-6" />
           </div>
-          
+
           {/* Progress Steps */}
           <div className="flex items-center justify-between max-w-2xl mx-auto">
             {STEPS.map((step, idx) => (
@@ -159,10 +156,10 @@ export const CreatePostPage = () => {
                   <div
                     className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium transition-all ${
                       idx < currentStep
-                        ? 'bg-hope-green text-white'
+                        ? "bg-hope-green text-white"
                         : idx === currentStep
-                        ? 'bg-terracotta text-white'
-                        : 'bg-warm-gray/30 text-stone'
+                          ? "bg-terracotta text-white"
+                          : "bg-warm-gray/30 text-stone"
                     }`}
                   >
                     {idx < currentStep ? (
@@ -172,13 +169,13 @@ export const CreatePostPage = () => {
                     )}
                   </div>
                   <span className="text-xs text-stone mt-1 hidden sm:block">
-                    {language === 'am' ? step.label.am : step.label.en}
+                    {language === "am" ? step.label.am : step.label.en}
                   </span>
                 </div>
                 {idx < STEPS.length - 1 && (
                   <div
                     className={`w-12 sm:w-24 h-0.5 mx-2 ${
-                      idx < currentStep ? 'bg-hope-green' : 'bg-warm-gray/30'
+                      idx < currentStep ? "bg-hope-green" : "bg-warm-gray/30"
                     }`}
                   />
                 )}
@@ -206,28 +203,25 @@ export const CreatePostPage = () => {
                     <div className="inline-flex items-center gap-2 px-4 py-2 bg-terracotta/10 rounded-full mb-4">
                       <Heart className="w-4 h-4 text-terracotta" />
                       <span className="text-sm font-medium text-olive">
-                        {language === 'am' 
-                          ? 'ትዝታዎን ያካፍሉ' 
-                          : 'Share Your Memory'
-                        }
+                        {language === "am" ? "ትዝታዎን ያካፍሉ" : "Share Your Memory"}
                       </span>
                     </div>
 
                     <h2 className="font-display text-3xl font-bold text-charcoal mb-3">
-                      {language === 'am'
-                        ? 'ስለነሱ ምን ያስታውሳሉ?'
-                        : 'What do you remember about them?'
-                      }
+                      {language === "am"
+                        ? "ስለነሱ ምን ያስታውሳሉ?"
+                        : "What do you remember about them?"}
                     </h2>
-                  
                   </div>
-                  <div className='font-bold text-2xl text-center'> {language === 'am'
-                        ? 'እባኮ ፍለጋዎትን ለማፋጠን ከዚህ በታች ያሉትን ጥያቄዎች በቻሉት መጠን ለመሙላት ይሞክሩ መረጃውን መበድም በሞሉ ቁጥር ፍለጋዎት የዛኑ ያህል ይፋጠናል!!!'
-                        : 'The more details you share, the easier it will be to find the right person.'
-                      }</div>
+                  <div className="font-bold text-2xl text-center">
+                    {" "}
+                    {language === "am"
+                      ? "እባኮ ፍለጋዎትን ለማፋጠን ከዚህ በታች ያሉትን ጥያቄዎች በቻሉት መጠን ለመሙላት ይሞክሩ መረጃውን መበድም በሞሉ ቁጥር ፍለጋዎት የዛኑ ያህል ይፋጠናል!!!"
+                      : "The more details you share, the easier it will be to find the right person."}
+                  </div>
                   <MemoryInput
-                    value={formData.memoryText}
-                    onChange={(memoryText) => updateFormData({ memoryText })}
+                    value={formData}
+                    onChange={updateFormData}
                     error={errors.memoryText}
                   />
                 </div>
@@ -238,13 +232,12 @@ export const CreatePostPage = () => {
                 <div className="space-y-8">
                   <div className="text-center mb-8">
                     <h2 className="font-display text-3xl font-bold text-charcoal mb-3">
-                      {language === 'am' ? 'መቼ እና የት?' : 'When and Where?'}
+                      {language === "am" ? "መቼ እና የት?" : "When and Where?"}
                     </h2>
                     <p className="text-stone">
-                      {language === 'am'
-                        ? 'እነዚህ ዝርዝሮች ፍለጋውን ለማጥበብ ይረዳሉ'
-                        : 'These details help narrow down the search'
-                      }
+                      {language === "am"
+                        ? "እነዚህ ዝርዝሮች ፍለጋውን ለማጥበብ ይረዳሉ"
+                        : "These details help narrow down the search"}
                     </p>
                   </div>
 
@@ -252,7 +245,9 @@ export const CreatePostPage = () => {
                     <LocationPicker
                       city={formData.city}
                       country={formData.country}
-                      onChange={({ city, country }) => updateFormData({ city, country })}
+                      onChange={({ city, country }) =>
+                        updateFormData({ city, country })
+                      }
                       error={errors.city}
                     />
 
@@ -260,33 +255,47 @@ export const CreatePostPage = () => {
                       <div>
                         <label className="block text-sm font-medium text-charcoal mb-2">
                           <Calendar className="inline w-4 h-4 mr-1" />
-                          {language === 'am' ? 'ዓመት' : 'Year'}
+                          {language === "am" ? "ዓመት" : "Year"}
                         </label>
                         <input
                           type="number"
                           value={formData.year}
-                          onChange={(e) => updateFormData({ year: e.target.value })}
-                          placeholder={language === 'am' ? 'ለምሳሌ 2010' : 'e.g., 2010'}
-                          min="1900"
+                          onChange={(e) =>
+                            updateFormData({ year: e.target.value })
+                          }
+                          placeholder={
+                            language === "am" ? "ለምሳሌ 2010" : "e.g., 2010"
+                          }
+                          min="1950"
                           max={new Date().getFullYear()}
                           className={`w-full px-4 py-3 bg-cream/50 border rounded-xl focus:border-terracotta focus:ring-2 focus:ring-terracotta/20 outline-none transition-all ${
-                            errors.year ? 'border-error' : 'border-warm-gray'
+                            errors.year ? "border-error" : "border-warm-gray"
                           }`}
                         />
                         {errors.year && (
-                          <p className="text-sm text-error mt-1">{errors.year}</p>
+                          <p className="text-sm text-error mt-1">
+                            {errors.year}
+                          </p>
                         )}
                       </div>
 
                       <div>
                         <label className="block text-sm font-medium text-charcoal mb-2">
-                          {language === 'am' ? 'የጊዜ ክልል (አማራጭ)' : 'Timeframe (Optional)'}
+                          {language === "am"
+                            ? "የጊዜ ክልል (አማራጭ)"
+                            : "Timeframe (Optional)"}
                         </label>
                         <input
                           type="text"
                           value={formData.timeframe}
-                          onChange={(e) => updateFormData({ timeframe: e.target.value })}
-                          placeholder={language === 'am' ? 'ለምሳሌ "በ2000ዎቹ መጀመሪያ"' : 'e.g., "Early 2000s"'}
+                          onChange={(e) =>
+                            updateFormData({ timeframe: e.target.value })
+                          }
+                          placeholder={
+                            language === "am"
+                              ? 'ለምሳሌ "በ2000ዎቹ መጀመሪያ"'
+                              : 'e.g., "Early 2000s"'
+                          }
                           className="w-full px-4 py-3 bg-cream/50 border border-warm-gray rounded-xl focus:border-terracotta focus:ring-2 focus:ring-terracotta/20 outline-none transition-all"
                         />
                       </div>
@@ -307,74 +316,43 @@ export const CreatePostPage = () => {
                   </div>
                 </div>
               )}
-
-              {/* Step 2: Questions */}
+              {/* Step 2: Review */}
               {currentStep === 2 && (
-                <div className="space-y-8">
-                  <div className="text-center mb-8">
-                    <div className="inline-flex items-center gap-2 px-4 py-2 bg-terracotta/10 rounded-full mb-4">
-                      <Lock className="w-4 h-4 text-terracotta" />
-                      <span className="text-sm font-medium text-olive">
-                        {language === 'am' 
-                          ? 'ሚስጥራዊ ጥያቄዎች' 
-                          : 'Secret Questions'
-                        }
-                      </span>
-                    </div>
-                    <h2 className="font-display text-3xl font-bold text-charcoal mb-3">
-                      {language === 'am'
-                        ? 'ማንነት ማረጋገጫ ይፍጠሩ'
-                        : 'Create Identity Verification'
-                      }
-                    </h2>
-                    <p className="text-stone max-w-lg mx-auto">
-                      {language === 'am'
-                        ? 'ትክክለኛው ሰው ብቻ ሊያውቃቸው የሚችላቸውን ጥያቄዎች ይጠይቁ።'
-                        : 'Ask questions that only the right person would know the answer to.'
-                      }
-                    </p>
-                  </div>
-
-                  <QuestionBuilder
-                    questions={formData.secretQuestions}
-                    onChange={(secretQuestions) => updateFormData({ secretQuestions })}
-                    error={errors.secretQuestions}
-                  />
-                </div>
-              )}
-
-              {/* Step 3: Review */}
-              {currentStep === 3 && (
                 <div className="space-y-8">
                   <div className="text-center mb-8">
                     <div className="inline-flex items-center gap-2 px-4 py-2 bg-hope-green/10 rounded-full mb-4">
                       <Sparkles className="w-4 h-4 text-hope-green" />
                       <span className="text-sm font-medium text-olive">
-                        {language === 'am' ? 'ልጥፍዎን ይገምግሙ' : 'Review Your Post'}
+                        {language === "am" ? "ልጥፍዎን ይገምግሙ" : "Review Your Post"}
                       </span>
                     </div>
                     <h2 className="font-display text-3xl font-bold text-charcoal mb-3">
-                      {language === 'am' ? 'ለማተም ዝግጁ ነዎት?' : 'Ready to Publish?'}
+                      {language === "am"
+                        ? "ለማተም ዝግጁ ነዎት?"
+                        : "Ready to Publish?"}
                     </h2>
                   </div>
 
                   {/* Post Preview */}
                   <div className="bg-cream rounded-2xl p-6 border border-warm-gray/30">
                     <h3 className="font-display text-lg font-semibold text-charcoal mb-4">
-                      {language === 'am' ? 'ቅድመ እይታ' : 'Preview'}
+                      {language === "am" ? "ቅድመ እይታ" : "Preview"}
                     </h3>
-                    
+
                     <div className="space-y-4">
                       <div className="prose">
                         <p className="text-charcoal">
-                          {formData.memoryText[language] || formData.memoryText.en || formData.memoryText.am}
+                          {formData.memoryText[language] ||
+                            formData.memoryText.en ||
+                            formData.memoryText.am}
                         </p>
                       </div>
-                      
+
                       <div className="flex flex-wrap gap-4 text-sm text-stone">
                         <span className="flex items-center gap-1">
                           <MapPin className="w-4 h-4" />
-                          {formData.city}{formData.country && `, ${formData.country}`}
+                          {formData.city}
+                          {formData.country && `, ${formData.country}`}
                         </span>
                         <span className="flex items-center gap-1">
                           <Calendar className="w-4 h-4" />
@@ -383,16 +361,15 @@ export const CreatePostPage = () => {
                         {formData.isGroupPost && (
                           <span className="flex items-center gap-1">
                             <Users className="w-4 h-4" />
-                            {language === 'am' ? 'የቡድን ልጥፍ' : 'Group Post'} ({formData.maxClaimants})
+                            {language === "am" ? "የቡድን ልጥፍ" : "Group Post"} (
+                            {formData.maxClaimants})
                           </span>
                         )}
-                      </div>
-
-                      <div className="pt-4 border-t border-warm-gray/30">
-                        <p className="text-sm text-stone">
-                          <Lock className="inline w-3.5 h-3.5 mr-1" />
-                          {formData.secretQuestions.length} {language === 'am' ? 'ሚስጥራዊ ጥያቄዎች' : 'secret questions'}
-                        </p>
+                        {errors.api && (
+                          <div className="p-4 bg-red-50 border border-red-200 rounded-xl text-red-600">
+                            {errors.api}
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -403,21 +380,26 @@ export const CreatePostPage = () => {
                       <AlertCircle className="w-5 h-5 text-warmth flex-shrink-0 mt-0.5" />
                       <div className="text-sm text-stone">
                         <p className="font-medium text-charcoal mb-1">
-                          {language === 'am' ? 'ከማተምዎ በፊት' : 'Before you publish'}
+                          {language === "am"
+                            ? "ከማተምዎ በፊት"
+                            : "Before you publish"}
                         </p>
                         <ul className="list-disc list-inside space-y-1">
-                          <li>{language === 'am' 
-                            ? 'ልጥፍዎ በይፋ ይታያል እና ማንም ሊያገኘው ይችላል' 
-                            : 'Your post will be publicly visible and searchable'
-                          }</li>
-                          <li>{language === 'am'
-                            ? 'ማንነትዎ በልጥፉ ላይ ይታያል'
-                            : 'Your profile name will be shown on the post'
-                          }</li>
-                          <li>{language === 'am'
-                            ? 'ልጥፍዎ ለ90 ቀናት ንቁ ሆኖ ይቆያል'
-                            : 'Your post will remain active for 90 days'
-                          }</li>
+                          <li>
+                            {language === "am"
+                              ? "ልጥፍዎ በይፋ ይታያል እና ማንም ሊያገኘው ይችላል"
+                              : "Your post will be publicly visible and searchable"}
+                          </li>
+                          <li>
+                            {language === "am"
+                              ? "ማንነትዎ በልጥፉ ላይ ይታያል"
+                              : "Your profile name will be shown on the post"}
+                          </li>
+                          <li>
+                            {language === "am"
+                              ? "ልጥፍዎ ለ90 ቀናት ንቁ ሆኖ ይቆያል"
+                              : "Your post will remain active for 90 days"}
+                          </li>
                         </ul>
                       </div>
                     </div>
@@ -432,16 +414,16 @@ export const CreatePostPage = () => {
             <button
               onClick={handleBack}
               className={`px-6 py-3 text-olive hover:text-terracotta transition-colors ${
-                currentStep === 0 ? 'invisible' : ''
+                currentStep === 0 ? "invisible" : ""
               }`}
             >
               <ChevronLeft className="inline w-5 h-5 mr-1" />
-              {language === 'am' ? 'ወደ ኋላ' : 'Back'}
+              {language === "am" ? "ወደ ኋላ" : "Back"}
             </button>
 
             {currentStep < STEPS.length - 1 ? (
               <button onClick={handleNext} className="btn-primary">
-                {language === 'am' ? 'ቀጥል' : 'Continue'}
+                {language === "am" ? "ቀጥል" : "Continue"}
                 <ChevronRight className="inline w-5 h-5 ml-1" />
               </button>
             ) : (
@@ -453,12 +435,12 @@ export const CreatePostPage = () => {
                 {isPending ? (
                   <>
                     <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2" />
-                    {language === 'am' ? 'በማተም ላይ...' : 'Publishing...'}
+                    {language === "am" ? "በማተም ላይ..." : "Publishing..."}
                   </>
                 ) : (
                   <>
                     <Sparkles className="inline w-5 h-5 mr-2" />
-                    {language === 'am' ? 'አትም' : 'Publish Post'}
+                    {language === "am" ? "አትም" : "Publish Post"}
                   </>
                 )}
               </button>

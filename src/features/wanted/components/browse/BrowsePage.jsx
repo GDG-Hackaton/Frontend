@@ -39,18 +39,8 @@ export const BrowsePage = () => {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="max-w-3xl mx-auto text-center space-y-6"
+            className="max-w-3xl mx-auto text-center space-y-2"
           >
-            {/* Mission Statement */}
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-warmth/10 rounded-full">
-              <Sparkles className="w-4 h-4 text-terracotta" />
-              <span className="text-sm font-medium text-olive">
-                {language === "am"
-                  ? "በዓለም ዙሪያ ከ89 ሀገራት የመጡ ልጥፎች"
-                  : "Posts from 89 countries around the world"}
-              </span>
-            </div>
-
             <h1 className="text-4xl md:text-5xl font-display font-bold text-charcoal">
               {language === "am"
                 ? "የሚፈልጉትን ሰው ያግኙ"

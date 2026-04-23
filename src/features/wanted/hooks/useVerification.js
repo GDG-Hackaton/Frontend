@@ -1,5 +1,4 @@
-﻿// client/src/features/wanted/hooks/useVerification.js
-import { useMutation } from '@tanstack/react-query';
+﻿import { useMutation } from '@tanstack/react-query';
 import { useQueryClient } from '@tanstack/react-query';
 import { wantedApi } from '../services/wantedApi';
 import { useLanguage } from '../../../lib/i18n';

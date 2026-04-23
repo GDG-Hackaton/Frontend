@@ -9,25 +9,25 @@ export const ImpactStats = ({ compact = false }) => {
 
   const items = [
     {
-      value: stats?.reunited || '2,847',
+      value: stats?.reunited || '147',
       label: { en: 'People Reunited', am: 'የተገናኙ ሰዎች' },
       icon: Heart,
       color: 'text-terracotta',
     },
     {
-      value: stats?.activePosts || '12,450',
+      value: stats?.activePosts || '450',
       label: { en: 'Active Searches', am: 'ንቁ ፍለጋዎች' },
       icon: Users,
       color: 'text-sahara',
     },
     {
-      value: stats?.countries || '89',
+      value: stats?.countries || '9',
       label: { en: 'Countries', am: 'ሀገራት' },
       icon: Globe,
       color: 'text-hope-green',
     },
     {
-      value: stats?.successRate || '94%',
+      value: stats?.successRate || '74%',
       label: { en: 'Success Rate', am: 'የስኬት መጠን' },
       icon: Star,
       color: 'text-warmth',

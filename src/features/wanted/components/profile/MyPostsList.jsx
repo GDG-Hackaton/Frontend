@@ -51,7 +51,7 @@ const PostMenu = ({ post, onClose }) => {
       <button
         onClick={() => {
           navigator.share?.({
-            title: 'Falagiye Post',
+            title: 'Reunite Post',
             url: `${window.location.origin}/wanted/post/${post._id}`,
           });
         }}

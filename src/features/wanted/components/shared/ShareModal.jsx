@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Share2, MessageCircle, Link as LinkIcon, Mail } from 'lucide-react';
+import { X, Share2, MessageCircle, Link as LinkIcon, Mail, AtSign } from 'lucide-react';
 import { useLanguage } from '../../../../lib/i18n';
 import { useState } from 'react';
 import { toast } from 'sonner';
@@ -25,13 +25,13 @@ export const ShareModal = ({ isOpen, onClose, post }) => {
   const shareLinks = [
     {
       name: 'Twitter',
-      icon: Share2,
+      icon: X,
       url: `https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(shareTitle)}`,
       color: 'bg-[#1DA1F2]',
     },
     {
       name: 'Facebook',
-      icon: MessageCircle,
+      icon: AtSign,
       url: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`,
       color: 'bg-[#4267B2]',
     },

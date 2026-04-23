@@ -11,11 +11,10 @@ export const MemoryInput = ({
   const { language } = useLanguage();
   const [activeLanguage, setActiveLanguage] = useState(language);
 
-  // Separate state for person details
   const [personDetails, setPersonDetails] = useState({
-    personName: "", // The person being searched for
-    nickname: "", // Their nickname (optional)
-    knownAs: "", // What they knew YOU as
+    personName: "", 
+    nickname: "",
+    knownAs: "", 
   });
 
   const [charCount, setCharCount] = useState({
@@ -26,24 +25,23 @@ export const MemoryInput = ({
   const MAX_CHARS = 2000;
 
   const handleChange = (lang, text) => {
-    const newValue = {
-      ...value,
+  setCharCount({ ...charCount, [lang]: text.length });
+
+  onChange({
+    memoryText: {
+      ...value.memoryText,
       [lang]: text,
-      personDetails: value.personDetails || personDetails,
-    };
-    setCharCount({ ...charCount, [lang]: text.length });
-    onChange(newValue);
-  };
+    },
+  });
+};
 
   const handlePersonDetailChange = (field, fieldValue) => {
     const updatedDetails = { ...personDetails, [field]: fieldValue };
     setPersonDetails(updatedDetails);
     if (onChange) {
-      onChange({
-        ...value,
-        personDetails: updatedDetails,
-      });
-    }
+onChange({
+  personDetails: updatedDetails,
+});    }
   };
   const languages = [
     { code: "en", label: "English", flag: "🇺🇸", hint: "Write in English" },
@@ -71,7 +69,6 @@ export const MemoryInput = ({
       <div className="p-4 bg-cream/30 rounded-xl border border-warm-gray/20 space-y-3">
         {activeLanguage === "am" ? (
           <>
-            {/* Row 1: Full Name + Nickname */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <div className="space-y-1">
                 <label className="text-sm font-medium text-charcoal flex items-center gap-1">
@@ -196,7 +193,7 @@ export const MemoryInput = ({
           >
             <span className="text-lg">{lang.flag}</span>
             <span>{lang.label}</span>
-            {value[lang.code] && (
+            {value.memoryText?.[lang.code] && (
               <span className="w-1.5 h-1.5 bg-hope-green rounded-full" />
             )}
             {activeLanguage === lang.code && (
@@ -242,9 +239,9 @@ export const MemoryInput = ({
           >
             <div className="relative">
               <textarea
-                value={value.en || ""}
+                value={value.memoryText?.en || ""}
                 onChange={(e) => handleChange("en", e.target.value)}
-                placeholder="Share your memory in English... 
+                placeholder="Share your memory in here... 
 For example: We met at Lideta Catholic Cathedral school in Addis Ababa. We used to play soccer together after school..."
                 rows={8}
                 className={`
@@ -284,7 +281,7 @@ For example: We met at Lideta Catholic Cathedral school in Addis Ababa. We used 
           >
             <div className="relative">
               <textarea
-                value={value.am || ""}
+                value={value.memoryText?.am || ""}
                 onChange={(e) => handleChange("am", e.target.value)}
                 placeholder="ትዝታዎን በትክክል ያካፍሉ...
 ለምሳሌ፡ በአዲስ አበባ ልደታ ካቶሊክ ካቴድራል ትምህርት ቤት ተገናኘን። ከትምህርት በኋላ አብረን እግር ኳስ እንጫወት ነበር..."

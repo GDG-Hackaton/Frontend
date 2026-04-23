@@ -1,9 +1,10 @@
 ﻿import { useState, useEffect, useRef } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useAuth } from '../../../../hooks/useAuth';
 import { 
   Send, 
-  Image, 
+  Image as ImageIcon, 
   Phone, 
   Video, 
   MoreVertical,
@@ -12,22 +13,26 @@ import {
   CheckCheck,
   Smile,
   Paperclip,
-  Shield
+  MessageCircle,
+  Shield,
+  User,
+  ArrowLeft
 } from 'lucide-react';
 import { useChat } from '../../hooks/useChat';
 import { useSocket } from '../../hooks/useSocket';
 import { useLanguage } from '../../../../lib/i18n';
-import { useAuth } from '../../../../hooks/useAuth';
 import { ChatSidebar } from './ChatSidebar';
 import { MessageBubble } from './MessageBubble';
 import { VideoCallModal } from './VideoCallModal';
 import { TrustBadge } from '../profile/TrustBadge';
+import { ChatSkeleton } from './ChatSkeleton';
 import { formatMessageTime } from '../../utils/formatters';
+import { toast } from 'sonner';
 
 export const ChatPage = () => {
   const { roomId } = useParams();
+  const navigate = useNavigate();
   const { language } = useLanguage();
-  const { user } = useAuth();
   const { 
     rooms, 
     currentRoom, 
@@ -45,6 +50,7 @@ export const ChatPage = () => {
   const [showVideoCall, setShowVideoCall] = useState(false);
   const messagesEndRef = useRef(null);
   const typingTimeoutRef = useRef(null);
+  const inputRef = useRef(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -64,7 +70,7 @@ export const ChatPage = () => {
     typingTimeoutRef.current = setTimeout(() => {
       setIsTyping(false);
       sendTyping(false);
-    }, 1000);
+    }, 1500);
   };
 
   const handleSend = () => {
@@ -78,14 +84,50 @@ export const ChatPage = () => {
     
     setMessageInput('');
     setIsTyping(false);
+    inputRef.current?.focus();
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSend();
+    }
   };
 
   const otherParticipant = currentRoom?.participants?.find(
-    p => p.role === 'poster' || p.role === 'claimant'
+    p => p.user !== currentUser?.id
   );
 
   if (isLoading) {
     return <ChatSkeleton />;
+  }
+
+  // If no room selected, show empty state
+  if (!roomId) {
+    return (
+      <div className="h-screen flex bg-warm-white">
+        <ChatSidebar 
+          rooms={rooms}
+          currentRoomId={roomId}
+          isOpen={showSidebar}
+          onClose={() => setShowSidebar(false)}
+        />
+        <div className="hidden lg:flex flex-1 items-center justify-center">
+          <div className="text-center">
+            <MessageCircle className="w-16 h-16 text-stone mx-auto mb-4 opacity-30" />
+            <h3 className="font-display text-xl font-semibold text-charcoal mb-2">
+              {language === 'am' ? 'ውይይት ይምረጡ' : 'Select a conversation'}
+            </h3>
+            <p className="text-stone">
+              {language === 'am'
+                ? 'ለመጀመር ከግራ በኩል ውይይት ይምረጡ'
+                : 'Choose a conversation from the sidebar to start chatting'
+              }
+            </p>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -104,6 +146,14 @@ export const ChatPage = () => {
         <header className="flex-shrink-0 bg-cream/95 backdrop-blur-md border-b border-warm-gray/30 px-4 py-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
+              {/* Mobile Back Button */}
+              <button
+                onClick={() => navigate('/wanted')}
+                className="lg:hidden p-2 text-olive hover:text-terracotta transition-colors"
+              >
+                <ArrowLeft className="w-5 h-5" />
+              </button>
+
               {/* Mobile Menu Button */}
               <button
                 onClick={() => setShowSidebar(true)}
@@ -126,7 +176,7 @@ export const ChatPage = () => {
                   <div>
                     <div className="flex items-center gap-2">
                       <h2 className="font-display font-semibold text-charcoal">
-                        {otherParticipant.profile?.realName || 'User'}
+                        {otherParticipant.profile?.realName || (language === 'am' ? 'ተጠቃሚ' : 'User')}
                       </h2>
                       <TrustBadge score={otherParticipant.profile?.trustScore} size="sm" />
                     </div>
@@ -177,8 +227,8 @@ export const ChatPage = () => {
             <Shield className="w-4 h-4 text-hope-green" />
             <span className="text-olive">
               {language === 'am'
-                ? 'ግንኙነቱ እስኪጸና ድረስ የእውቂያ መረጃ አይለዋወጡ'
-                : 'Keep conversations here until you\'re ready to exchange contact info'
+                ? 'አሁን በአስተማማኝ ሁኔታ ተገናኝተዋል! በነፃነት ይነጋገሩ።'
+                : 'You\'re now safely connected! Feel free to chat.'
               }
             </span>
           </div>
@@ -186,13 +236,13 @@ export const ChatPage = () => {
 
         {/* Messages Area */}
         <div className="flex-1 overflow-y-auto p-4 space-y-3">
-          <AnimatePresence>
+          <AnimatePresence initial={false}>
             {messages.map((message, idx) => (
               <MessageBubble
-                key={message._id}
+                key={message._id || idx}
                 message={message}
-                isOwn={message.sender?._id === user?.id || message.sender === user?.id}
-                showAvatar={idx === 0 || (messages[idx - 1]?.sender?._id || messages[idx - 1]?.sender) !== (message.sender?._id || message.sender)}
+                isOwn={message.sender === currentUser?.id}
+                showAvatar={idx === 0 || messages[idx - 1]?.sender !== message.sender}
               />
             ))}
           </AnimatePresence>
@@ -207,7 +257,7 @@ export const ChatPage = () => {
                 className="flex items-center gap-2"
               >
                 <div className="w-8 h-8 rounded-full bg-gradient-to-br from-terracotta/30 to-sahara/30" />
-                <div className="bg-cream rounded-2xl rounded-tl-sm px-4 py-2">
+                <div className="bg-cream rounded-2xl rounded-tl-sm px-4 py-2 border border-warm-gray/30">
                   <div className="flex gap-1">
                     <span className="w-2 h-2 bg-stone rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
                     <span className="w-2 h-2 bg-stone rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
@@ -224,22 +274,25 @@ export const ChatPage = () => {
         {/* Message Input */}
         <div className="flex-shrink-0 p-4 bg-cream/50 border-t border-warm-gray/30">
           <div className="flex items-end gap-2">
+            <button
+              className="p-2 text-olive hover:text-terracotta transition-colors rounded-full hover:bg-warm-gray/20"
+              title={language === 'am' ? 'ፎቶ አያይዝ' : 'Attach photo'}
+            >
+              <ImageIcon className="w-5 h-5" />
+            </button>
+            
             <div className="flex-1 relative">
               <textarea
+                ref={inputRef}
                 value={messageInput}
                 onChange={(e) => {
                   setMessageInput(e.target.value);
                   handleTyping();
                 }}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
-                    handleSend();
-                  }
-                }}
+                onKeyDown={handleKeyDown}
                 placeholder={language === 'am' ? 'መልእክት ይጻፉ...' : 'Type a message...'}
                 rows={1}
-                className="w-full px-4 py-3 pr-24 bg-warm-white border border-warm-gray rounded-2xl resize-none focus:border-terracotta focus:ring-2 focus:ring-terracotta/20 outline-none transition-all"
+                className="w-full px-4 py-3 pr-20 bg-white border border-warm-gray rounded-2xl resize-none focus:border-terracotta focus:ring-2 focus:ring-terracotta/20 outline-none transition-all"
                 style={{ maxHeight: '120px' }}
                 onInput={(e) => {
                   e.target.style.height = 'auto';
@@ -251,16 +304,11 @@ export const ChatPage = () => {
                   className="p-1.5 text-stone hover:text-terracotta transition-colors rounded-full"
                   title={language === 'am' ? 'ኢሞጂ' : 'Emoji'}
                 >
-                  <Smile className="w-5 h-5" />
-                </button>
-                <button
-                  className="p-1.5 text-stone hover:text-terracotta transition-colors rounded-full"
-                  title={language === 'am' ? 'ፋይል አያይዝ' : 'Attach file'}
-                >
-                  <Paperclip className="w-5 h-5" />
+                  <Smile className="w-4 h-4" />
                 </button>
               </div>
             </div>
+            
             <button
               onClick={handleSend}
               disabled={!messageInput.trim()}
@@ -277,7 +325,10 @@ export const ChatPage = () => {
         isOpen={showVideoCall}
         onClose={() => setShowVideoCall(false)}
         roomId={currentRoom?._id}
+        otherParticipant={otherParticipant}
       />
     </div>
   );
 };
+
+

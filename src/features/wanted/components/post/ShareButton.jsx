@@ -27,7 +27,7 @@ export const ShareButton = ({ post, variant = 'icon', className = '' }) => {
   const shareLinks = [
     {
       name: 'Twitter',
-      icon: Share2,
+      icon: X,
       url: `https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(shareTitle)}`,
       color: 'bg-[#1DA1F2] hover:bg-[#1a8cd8]',
     },

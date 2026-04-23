@@ -3,41 +3,37 @@ import { wantedApi } from '../services/wantedApi';
 import { useLanguage } from '../../../lib/i18n';
 import { toast } from 'sonner';
 
-export const useClaims = () => {
+export const useSubmitClaim = () => {
   const queryClient = useQueryClient();
   const { language } = useLanguage();
 
-  const submitClaim = useMutation({
-    mutationFn: ({ postId, answers, messageToPoster }) => 
-      wantedApi.submitClaim(postId, { answers, messageToPoster }),
+  return useMutation({
+    mutationFn: ({ postId, messageToPoster, claimedPersonIndex }) =>
+      wantedApi.submitClaim(postId, { messageToPoster, claimedPersonIndex }),
     onSuccess: (data) => {
       toast.success(
-        language === 'am' 
-          ? 'የይገባኛል ጥያቄዎ በተሳካ ሁኔታ ቀርቧል' 
+        language === 'am'
+          ? 'የይገባኛል ጥያቄዎ በተሳካ ሁኔታ ቀርቧል'
           : 'Your claim has been submitted successfully'
       );
       queryClient.invalidateQueries({ queryKey: ['wanted', 'claims'] });
+      queryClient.invalidateQueries({ queryKey: ['wanted', 'post'] });
     },
     onError: (error) => {
       toast.error(
         language === 'am'
-          ? 'የይገባኛል ጥያቄ ማቅረብ አልተሳካም'
-          : error.message || 'Failed to submit claim'
+          ? error.response?.data?.message || 'የይገባኛል ጥያቄ ማቅረብ አልተሳካም'
+          : error.response?.data?.message || 'Failed to submit claim'
       );
     },
   });
-
-  return {
-    submitClaim: submitClaim.mutate,
-    isSubmitting: submitClaim.isPending,
-  };
 };
 
 export const usePendingClaims = () => {
   return useQuery({
     queryKey: ['wanted', 'claims', 'pending'],
     queryFn: () => wantedApi.getPendingClaims(),
-    staleTime: 30 * 1000, // 30 seconds
+    staleTime: 30 * 1000,
   });
 };
 
@@ -58,15 +54,28 @@ export const useReviewClaim = () => {
     onSuccess: (data) => {
       toast.success(
         language === 'am'
-          ? data.status === 'approved' ? 'ጥያቄው ጸድቋል' : 'ጥያቄው ውድቅ ተደርጓል'
-          : data.status === 'approved' ? 'Claim approved' : 'Claim rejected'
+          ? data.status === 'approved'
+            ? 'ጥያቄው ጸድቋል'
+            : 'ጥያቄው ውድቅ ተደርጓል'
+          : data.status === 'approved'
+            ? 'Claim approved'
+            : 'Claim rejected'
       );
       queryClient.invalidateQueries({ queryKey: ['wanted', 'claims'] });
       queryClient.invalidateQueries({ queryKey: ['wanted', 'chat'] });
+      queryClient.invalidateQueries({ queryKey: ['wanted', 'post'] });
+    },
+    onError: (error) => {
+      toast.error(
+        language === 'am'
+          ? 'ግምገማ አልተሳካም'
+          : error.response?.data?.message || 'Review failed'
+      );
     },
   });
 };
 
+// Withdraw claim (for claimant)
 export const useWithdrawClaim = () => {
   const queryClient = useQueryClient();
   const { language } = useLanguage();
@@ -81,5 +90,27 @@ export const useWithdrawClaim = () => {
       );
       queryClient.invalidateQueries({ queryKey: ['wanted', 'claims'] });
     },
+    onError: (error) => {
+      toast.error(
+        language === 'am'
+          ? 'መሰረዝ አልተሳካም'
+          : error.response?.data?.message || 'Failed to withdraw claim'
+      );
+    },
   });
+};
+
+export const useClaims = () => {
+  const submitClaim = useSubmitClaim();
+  const reviewClaim = useReviewClaim();
+  const withdrawClaim = useWithdrawClaim();
+
+  return {
+    submitClaim: submitClaim.mutate,
+    isSubmitting: submitClaim.isPending,
+    reviewClaim: reviewClaim.mutate,
+    isReviewing: reviewClaim.isPending,
+    withdrawClaim: withdrawClaim.mutate,
+    isWithdrawing: withdrawClaim.isPending,
+  };
 };

@@ -1,5 +1,4 @@
-﻿// client/src/features/wanted/components/browse/PostGrid.jsx
-import { useEffect } from 'react';
+﻿import { useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { PostCard } from './PostCard';
 import { EmptyState } from './EmptyState';

@@ -130,7 +130,7 @@ const ErrorFallback = ({ error, onReset, language = 'en' }) => {
         {/* Heart Footer */}
         <div className="mt-12 flex items-center justify-center gap-1 text-stone">
           <Heart className="w-4 h-4" />
-          <span className="text-xs">Falagiye</span>
+          <span className="text-xs">Reunite</span>
         </div>
       </div>
     </motion.div>

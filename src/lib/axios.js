@@ -53,7 +53,7 @@ instance.interceptors.response.use(
         if (!refreshToken) {
           clearStoredAuth();
           if (typeof window !== "undefined") {
-            window.location.assign("/login");
+            window.location.assign("/auth/login");
           }
           return Promise.reject(error);
         }
@@ -68,7 +68,7 @@ instance.interceptors.response.use(
       } catch (refreshError) {
         clearStoredAuth();
         if (typeof window !== "undefined") {
-          window.location.assign("/login");
+          window.location.assign("/auth/login");
         }
         return Promise.reject(refreshError);
       }
