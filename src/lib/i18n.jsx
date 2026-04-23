@@ -13,9 +13,7 @@ export const LanguageProvider = ({ children }) => {
   }, [language]);
 
   const t = (key, replacements = {}) => {
-    // Simple translation function
     const translations = {
-      // Add translations as needed
     };
     
     let text = translations[key]?.[language] || key;

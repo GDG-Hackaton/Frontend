@@ -1,4 +1,3 @@
-// client/src/features/wanted/components/shared/OfflineIndicator.jsx
 import React from 'react';
 import { Wifi, WifiOff, RefreshCw, Trash2 } from 'lucide-react';
 import { useOfflineSync } from '../../hooks/useOfflineSync';

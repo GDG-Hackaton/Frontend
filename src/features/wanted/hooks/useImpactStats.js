@@ -1,4 +1,3 @@
-// client/src/features/wanted/hooks/useImpactStats.js
 import { useQuery } from '@tanstack/react-query';
 import { wantedApi } from '../services/wantedApi';
 

@@ -21,7 +21,7 @@ import {
 import { useChat } from '../../hooks/useChat';
 import { useSocket } from '../../hooks/useSocket';
 import { useLanguage } from '../../../../lib/i18n';
-import { ChatSidebar } from './ChatSidebar';
+import{ChatSidebar} from './ChatSidebar';
 import { MessageBubble } from './MessageBubble';
 import { VideoCallModal } from './VideoCallModal';
 import { TrustBadge } from '../profile/TrustBadge';
@@ -51,6 +51,7 @@ export const ChatPage = () => {
   const messagesEndRef = useRef(null);
   const typingTimeoutRef = useRef(null);
   const inputRef = useRef(null);
+  const { user: currentUser } = useAuth();
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -102,23 +103,20 @@ export const ChatPage = () => {
     return <ChatSkeleton />;
   }
 
-  // If no room selected, show empty state
   if (!roomId) {
     return (
-      <div className="h-screen flex bg-warm-white">
+      <div className="h-screen flex bg-gray-50 font-sans">
         <ChatSidebar 
           rooms={rooms}
           currentRoomId={roomId}
           isOpen={showSidebar}
           onClose={() => setShowSidebar(false)}
         />
-        <div className="hidden lg:flex flex-1 items-center justify-center">
-          <div className="text-center">
-            <MessageCircle className="w-16 h-16 text-stone mx-auto mb-4 opacity-30" />
-            <h3 className="font-display text-xl font-semibold text-charcoal mb-2">
-              {language === 'am' ? 'ውይይት ይምረጡ' : 'Select a conversation'}
-            </h3>
-            <p className="text-stone">
+        <div className="hidden lg:flex flex-1 items-center justify-center px-8">
+          <div className="text-center max-w-md mx-auto text-gray-400 space-y-4">
+            <MessageCircle className="w-20 h-20 mx-auto mb-4" />
+            <h3 className="text-xl font-semibold">{language === 'am' ? 'ውይይት ይምረጡ' : 'Select a conversation'}</h3>
+            <p className="text-sm">
               {language === 'am'
                 ? 'ለመጀመር ከግራ በኩል ውይይት ይምረጡ'
                 : 'Choose a conversation from the sidebar to start chatting'
@@ -131,7 +129,7 @@ export const ChatPage = () => {
   }
 
   return (
-    <div className="h-screen flex bg-warm-white">
+    <div className="h-screen flex bg-gray-50 font-sans">
       {/* Sidebar */}
       <ChatSidebar 
         rooms={rooms}
@@ -140,113 +138,109 @@ export const ChatPage = () => {
         onClose={() => setShowSidebar(false)}
       />
 
-      {/* Main Chat Area */}
-      <div className="flex-1 flex flex-col">
+      {/* Main Chat Container */}
+      <div className="flex-1 flex flex-col bg-white shadow-lg rounded-l-2xl overflow-hidden">
         {/* Chat Header */}
-        <header className="flex-shrink-0 bg-cream/95 backdrop-blur-md border-b border-warm-gray/30 px-4 py-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              {/* Mobile Back Button */}
-              <button
-                onClick={() => navigate('/wanted')}
-                className="lg:hidden p-2 text-olive hover:text-terracotta transition-colors"
-              >
-                <ArrowLeft className="w-5 h-5" />
-              </button>
+        <header className="flex-shrink-0 bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between shadow-sm">
+          {/* Left Buttons */}
+          <div className="flex items-center space-x-2">
+            {/* Back Button */}
+            <button
+              onClick={() => navigate('/wanted')}
+              className="p-2 rounded-full hover:bg-gray-100 transition"
+              title={language === 'am' ? 'የድምጽ ጥሪ' : 'Back'}
+            >
+              <ArrowLeft className="w-5 h-5 text-gray-600" />
+            </button>
+            {/* Sidebar Toggle */}
+            <button
+              onClick={() => setShowSidebar(true)}
+              className="p-2 rounded-full hover:bg-gray-100 transition"
+              title={language === 'am' ? 'ማውጫ' : 'Menu'}
+            >
+              <ChevronLeft className="w-5 h-5 text-gray-600" />
+            </button>
+          </div>
 
-              {/* Mobile Menu Button */}
-              <button
-                onClick={() => setShowSidebar(true)}
-                className="lg:hidden p-2 text-olive hover:text-terracotta transition-colors"
-              >
-                <ChevronLeft className="w-5 h-5" />
-              </button>
-
-              {/* Participant Info */}
-              {otherParticipant && (
-                <div className="flex items-center gap-3">
-                  <div className="relative">
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-terracotta to-sahara flex items-center justify-center text-white font-medium">
-                      {otherParticipant.profile?.realName?.[0]?.toUpperCase() || '?'}
-                    </div>
-                    {isConnected && (
-                      <span className="absolute bottom-0 right-0 w-3 h-3 bg-hope-green rounded-full border-2 border-cream" />
-                    )}
-                  </div>
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <h2 className="font-display font-semibold text-charcoal">
-                        {otherParticipant.profile?.realName || (language === 'am' ? 'ተጠቃሚ' : 'User')}
-                      </h2>
-                      <TrustBadge score={otherParticipant.profile?.trustScore} size="sm" />
-                    </div>
-                    <p className="text-xs text-stone">
-                      {isTyping ? (
-                        <span className="text-hope-green">
-                          {language === 'am' ? 'እየጻፈ ነው...' : 'Typing...'}
-                        </span>
-                      ) : isConnected ? (
-                        language === 'am' ? 'በመስመር ላይ' : 'Online'
-                      ) : (
-                        language === 'am' ? 'ከመስመር ውጭ' : 'Offline'
-                      )}
-                    </p>
-                  </div>
+          {/* Participant Info */}
+          {otherParticipant && (
+            <div className="flex items-center space-x-4">
+              {/* Avatar */}
+              <div className="relative">
+                <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center font-semibold text-gray-700 text-lg shadow-md transition-transform hover:scale-105">
+                  {otherParticipant.profile?.realName?.[0]?.toUpperCase() || '?'}
                 </div>
-              )}
+                {isConnected && (
+                  <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full" />
+                )}
+              </div>
+              {/* Name & Status */}
+              <div className="flex flex-col">
+                <h2 className="text-lg font-semibold text-gray-800">{otherParticipant.profile?.realName || (language === 'am' ? 'ተጠቃሚ' : 'User')}</h2>
+                <div className="flex items-center space-x-2 mt-1 text-sm text-gray-500">
+                  <TrustBadge score={otherParticipant.profile?.trustScore} size="sm" />
+                </div>
+                <p className="text-sm text-gray-400 mt-1">
+                  {isTyping ? (
+                    <span className="text-green-500">{language === 'am' ? 'እየጻፈ ነው...' : 'Typing...'}</span>
+                  ) : isConnected ? (
+                    language === 'am' ? 'በመስመር ላይ' : 'Online'
+                  ) : (
+                    language === 'am' ? 'ከመስመር ውጭ' : 'Offline'
+                  )}
+                </p>
+              </div>
             </div>
+          )}
 
-            {/* Actions */}
-            <div className="flex items-center gap-1">
-              <button
-                className="p-2 text-olive hover:text-terracotta transition-colors rounded-full hover:bg-warm-gray/20"
-                title={language === 'am' ? 'የድምጽ ጥሪ' : 'Voice Call'}
-              >
-                <Phone className="w-5 h-5" />
-              </button>
-              <button
-                onClick={() => setShowVideoCall(true)}
-                className="p-2 text-olive hover:text-terracotta transition-colors rounded-full hover:bg-warm-gray/20"
-                title={language === 'am' ? 'የቪድዮ ጥሪ' : 'Video Call'}
-              >
-                <Video className="w-5 h-5" />
-              </button>
-              <button
-                className="p-2 text-olive hover:text-terracotta transition-colors rounded-full hover:bg-warm-gray/20"
-                title={language === 'am' ? 'ተጨማሪ' : 'More'}
-              >
-                <MoreVertical className="w-5 h-5" />
-              </button>
-            </div>
+          {/* Action Buttons */}
+          <div className="flex items-center space-x-2">
+            <button
+              className="p-2 rounded-full hover:bg-gray-100 transition"
+              title={language === 'am' ? 'የድምጽ ጥሪ' : 'Voice Call'}
+            >
+              <Phone className="w-5 h-5 text-gray-600" />
+            </button>
+            <button
+              onClick={() => setShowVideoCall(true)}
+              className="p-2 rounded-full hover:bg-gray-100 transition"
+              title={language === 'am' ? 'የቪድዮ ጥሪ' : 'Video Call'}
+            >
+              <Video className="w-5 h-5 text-gray-600" />
+            </button>
+            <button
+              className="p-2 rounded-full hover:bg-gray-100 transition"
+              title={language === 'am' ? 'ተጨማሪ' : 'More'}
+            >
+              <MoreVertical className="w-5 h-5 text-gray-600" />
+            </button>
           </div>
         </header>
 
-        {/* Trust Banner */}
-        <div className="flex-shrink-0 px-4 py-2 bg-hope-green/5 border-b border-hope-green/20">
-          <div className="flex items-center justify-center gap-2 text-sm">
-            <Shield className="w-4 h-4 text-hope-green" />
-            <span className="text-olive">
-              {language === 'am'
-                ? 'አሁን በአስተማማኝ ሁኔታ ተገናኝተዋል! በነፃነት ይነጋገሩ።'
-                : 'You\'re now safely connected! Feel free to chat.'
-              }
-            </span>
-          </div>
+        {/* Trust Badge Banner */}
+        <div className="bg-gray-100 border-b border-gray-200 px-4 py-2 flex items-center justify-center space-x-2 text-sm text-gray-600">
+          <Shield className="w-4 h-4" />
+          <span>
+            {language === 'am'
+              ? 'አሁን በአስተማማኝ ሁኔታ ተገናኝተዋል! በነፃነት ይነጋገሩ።'
+              : 'You are now safely connected! Feel free to chat.'
+            }
+          </span>
         </div>
 
-        {/* Messages Area */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-3">
+        {/* Messages Section */}
+        <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-white">
           <AnimatePresence initial={false}>
-            {messages.map((message, idx) => (
+            {messages.map((msg, index) => (
               <MessageBubble
-                key={message._id || idx}
-                message={message}
-                isOwn={message.sender === currentUser?.id}
-                showAvatar={idx === 0 || messages[idx - 1]?.sender !== message.sender}
+                key={msg._id || index}
+                message={msg}
+                isOwn={msg.sender === currentUser?.id}
+                showAvatar={index === 0 || messages[index - 1]?.sender !== msg.sender}
               />
             ))}
           </AnimatePresence>
-          
+
           {/* Typing Indicator */}
           <AnimatePresence>
             {isTyping && (
@@ -254,33 +248,33 @@ export const ChatPage = () => {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
-                className="flex items-center gap-2"
+                className="flex items-center space-x-3"
               >
-                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-terracotta/30 to-sahara/30" />
-                <div className="bg-cream rounded-2xl rounded-tl-sm px-4 py-2 border border-warm-gray/30">
-                  <div className="flex gap-1">
-                    <span className="w-2 h-2 bg-stone rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                    <span className="w-2 h-2 bg-stone rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                    <span className="w-2 h-2 bg-stone rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                <div className="w-10 h-10 rounded-full bg-gray-200 shadow-md" />
+                <div className="bg-gray-50 border border-gray-300 rounded-xl px-4 py-2 shadow-sm">
+                  <div className="flex space-x-2">
+                    <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                    <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                    <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
                   </div>
                 </div>
               </motion.div>
             )}
           </AnimatePresence>
-          
           <div ref={messagesEndRef} />
         </div>
 
         {/* Message Input */}
-        <div className="flex-shrink-0 p-4 bg-cream/50 border-t border-warm-gray/30">
-          <div className="flex items-end gap-2">
+        <div className="border-t border-gray-200 bg-white p-4 shadow-inner">
+          <div className="flex items-center space-x-3">
+            {/* Attach Button */}
             <button
-              className="p-2 text-olive hover:text-terracotta transition-colors rounded-full hover:bg-warm-gray/20"
+              className="p-2 rounded-full hover:bg-gray-100 transition"
               title={language === 'am' ? 'ፎቶ አያይዝ' : 'Attach photo'}
             >
-              <ImageIcon className="w-5 h-5" />
+              <ImageIcon className="w-5 h-5 text-gray-600" />
             </button>
-            
+            {/* Textarea */}
             <div className="flex-1 relative">
               <textarea
                 ref={inputRef}
@@ -292,27 +286,28 @@ export const ChatPage = () => {
                 onKeyDown={handleKeyDown}
                 placeholder={language === 'am' ? 'መልእክት ይጻፉ...' : 'Type a message...'}
                 rows={1}
-                className="w-full px-4 py-3 pr-20 bg-white border border-warm-gray rounded-2xl resize-none focus:border-terracotta focus:ring-2 focus:ring-terracotta/20 outline-none transition-all"
+                className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-full resize-none focus:outline-none focus:ring-2 focus:ring-gray-400 transition"
                 style={{ maxHeight: '120px' }}
                 onInput={(e) => {
                   e.target.style.height = 'auto';
                   e.target.style.height = Math.min(e.target.scrollHeight, 120) + 'px';
                 }}
               />
-              <div className="absolute right-2 bottom-2 flex items-center gap-1">
+              {/* Emoji Button */}
+              <div className="absolute right-2 bottom-2 flex items-center space-x-2">
                 <button
-                  className="p-1.5 text-stone hover:text-terracotta transition-colors rounded-full"
+                  className="p-1 rounded-full hover:bg-gray-200 transition"
                   title={language === 'am' ? 'ኢሞጂ' : 'Emoji'}
                 >
-                  <Smile className="w-4 h-4" />
+                  <Smile className="w-4 h-4 text-gray-600" />
                 </button>
               </div>
             </div>
-            
+            {/* Send Button */}
             <button
               onClick={handleSend}
               disabled={!messageInput.trim()}
-              className="p-3 bg-terracotta text-white rounded-full hover:bg-clay transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+              className="p-3 bg-gray-700 text-white rounded-full hover:bg-gray-800 transition shadow-lg"
             >
               <Send className="w-5 h-5" />
             </button>
@@ -330,5 +325,3 @@ export const ChatPage = () => {
     </div>
   );
 };
-
-

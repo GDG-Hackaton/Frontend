@@ -1,5 +1,4 @@
-﻿// client/src/features/wanted/services/offlineStorage.js
-import { openDB } from 'idb';
+﻿import { openDB } from 'idb';
 
 const DB_NAME = 'falagiye_offline';
 const DB_VERSION = 2;

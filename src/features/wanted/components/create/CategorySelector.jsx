@@ -1,5 +1,4 @@
-﻿// client/src/features/wanted/components/create/CategorySelector.jsx
-import { motion } from 'framer-motion';
+﻿import { motion } from 'framer-motion';
 import { 
   Heart, 
   Home, 

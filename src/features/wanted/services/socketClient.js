@@ -1,124 +1,91 @@
 import { io } from 'socket.io-client';
-import { socketServerUrl } from '../../../lib/apiConfig';
 
 class SocketClient {
   constructor() {
     this.socket = null;
     this.listeners = new Map();
-    this.currentToken = null;
-  }
-
-  notifyListeners(event, ...args) {
-    const listeners = this.listeners.get(event);
-
-    if (!listeners) {
-      return;
-    }
-
-    listeners.forEach((callback) => {
-      try {
-        callback(...args);
-      } catch (error) {
-        console.error('Socket listener error:', { event, error });
-      }
-    });
+    this.manualDisconnect = false;
   }
 
   connect(token) {
-    const normalizedToken = typeof token === 'string' ? token.trim() : '';
-
-    if (!normalizedToken) {
-      console.error('Socket connection skipped because the auth token is missing.');
-      return null;
+    if (this.socket?.connected) return;
+    if (this.manualDisconnect) return;
+    if (!token) {
+      console.warn('No token for socket');
+      return;
     }
 
-    if (this.socket?.connected && this.currentToken === normalizedToken) {
-      return this.socket;
-    }
+    const socketUrl = import.meta.env.DEV 
+      ? 'http://localhost:5500'  
+      : import.meta.env.VITE_API_URL; 
 
-    if (this.socket) {
-      this.disconnect();
-    }
+    console.log('🔌 Connecting socket to:', socketUrl);
 
-    this.currentToken = normalizedToken;
-    this.socket = io(socketServerUrl, {
-      auth: { token: normalizedToken },
-      transports: ['websocket'],
+    this.socket = io(socketUrl, {
+      auth: { token },
+      transports: ['websocket', 'polling'],
       reconnection: true,
-      reconnectionDelay: 1000,
-      reconnectionDelayMax: 5000,
-      reconnectionAttempts: 10,
+      reconnectionDelay: 2000,
+      reconnectionAttempts: 5,
+      timeout: 10000,
+      autoConnect: false,
     });
 
     this.socket.on('connect', () => {
-      console.log('Socket connected');
-      this.notifyListeners('connect');
-    });
-
-    this.socket.on('disconnect', (reason) => {
-      console.log('Socket disconnected');
-      this.notifyListeners('disconnect', reason);
+      console.log('✅ Socket connected');
+      this.emit('connect');
     });
 
     this.socket.on('connect_error', (error) => {
-      console.error('Socket connection error:', error);
-      this.notifyListeners('error', error);
+      console.error('❌ Socket connect error:', error.message);
+    });
+
+    this.socket.on('disconnect', (reason) => {
+      console.log('🔌 Socket disconnected:', reason);
+      this.emit('disconnect');
+      if (reason === 'io client disconnect') {
+        this.manualDisconnect = true;
+      }
     });
 
     this.socket.onAny((event, ...args) => {
-      this.notifyListeners(event, ...args);
+      const listeners = this.listeners.get(event) || [];
+      listeners.forEach(callback => callback(...args));
     });
 
-    return this.socket;
+    // ✅ Manually connect
+    this.socket.connect();
   }
 
   disconnect() {
+    this.manualDisconnect = true;
     if (this.socket) {
       this.socket.disconnect();
       this.socket = null;
     }
-
-    this.currentToken = null;
   }
 
   on(event, callback) {
-    if (typeof callback !== 'function') {
-      throw new TypeError(`Socket listener for "${event}" must be a function.`);
-    }
-
     if (!this.listeners.has(event)) {
-      this.listeners.set(event, new Set());
+      this.listeners.set(event, []);
     }
-
-    this.listeners.get(event).add(callback);
+    this.listeners.get(event).push(callback);
   }
 
   off(event, callback) {
-    const listeners = this.listeners.get(event);
-
-    if (!listeners) {
-      return;
-    }
-
-    listeners.delete(callback);
-
-    if (listeners.size === 0) {
-      this.listeners.delete(event);
+    const listeners = this.listeners.get(event) || [];
+    const index = listeners.indexOf(callback);
+    if (index > -1) {
+      listeners.splice(index, 1);
     }
   }
 
   emit(event, ...args) {
-    if (typeof event !== 'string' || !event.trim()) {
-      throw new TypeError('Socket event name must be a non-empty string.');
+    if (this.socket?.connected) {
+      this.socket.emit(event, ...args);
+    } else {
+      console.warn('⚠️ Socket not connected, cannot emit:', event);
     }
-
-    if (!this.socket?.connected) {
-      console.warn('Socket not connected, cannot emit:', event);
-      return false;
-    }
-
-    this.socket.emit(event, ...args);
-    return true;
   }
 
   isConnected() {

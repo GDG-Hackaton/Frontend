@@ -89,6 +89,7 @@ export default defineConfig({
       '/socket.io': {
         target: 'http://127.0.0.1:5500',
         ws: true,
+        changeOrigin: true,
       },
     },
   },

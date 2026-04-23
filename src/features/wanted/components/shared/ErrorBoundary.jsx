@@ -1,5 +1,4 @@
-﻿// client/src/features/wanted/components/shared/ErrorBoundary.jsx
-import { Component } from 'react';
+﻿import { Component } from 'react';
 import { motion } from 'framer-motion';
 import { AlertTriangle, RefreshCw, Home, Heart } from 'lucide-react';
 import { Link } from 'react-router-dom';

@@ -1,4 +1,3 @@
-// client/src/features/wanted/hooks/useSocket.js
 import { useEffect, useState } from 'react';
 import { socketClient } from '../services/socketClient';
 import { useAuth } from '../../../hooks/useAuth';

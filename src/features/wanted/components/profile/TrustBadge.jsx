@@ -1,5 +1,4 @@
-﻿// client/src/features/wanted/components/profile/TrustBadge.jsx
-import { Shield, ShieldCheck, ShieldAlert, Award } from 'lucide-react';
+﻿import { Shield, ShieldCheck, ShieldAlert, Award } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useLanguage } from '../../../../lib/i18n';
 

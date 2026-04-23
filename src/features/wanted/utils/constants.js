@@ -1,5 +1,4 @@
-﻿// client/src/features/wanted/utils/constants.js
-export const CATEGORIES = [
+﻿export const CATEGORIES = [
   { value: 'childhood_friend', en: 'Childhood Friend', am: 'የልጅነት ጓደኛ' },
   { value: 'old_neighbor', en: 'Old Neighbor', am: 'የቀድሞ ጎረቤት' },
   { value: 'former_colleague', en: 'Former Colleague', am: 'የቀድሞ የስራ ባልደረባ' },

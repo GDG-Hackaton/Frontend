@@ -4,8 +4,7 @@ import { offlineStorage } from '../services/offlineStorage';
 import { toast } from 'sonner';
 import { useLanguage } from '../../../lib/i18n';
 
-// Get posts with infinite scroll
-// client/src/features/wanted/hooks/usePosts.js
+
 export const usePosts = (filters = {}) => {
   const cleanFilters = Object.fromEntries(
     Object.entries(filters).filter(([_, value]) => 

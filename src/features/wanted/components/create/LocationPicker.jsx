@@ -1,5 +1,4 @@
-﻿// client/src/features/wanted/components/create/LocationPicker.jsx
-import { useState, useEffect, useRef } from 'react';
+﻿import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MapPin, Globe, Search, X, Navigation, ChevronRight, AlertCircle} from 'lucide-react';
 import { useLanguage } from '../../../../lib/i18n';

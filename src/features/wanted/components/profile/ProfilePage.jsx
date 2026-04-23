@@ -70,12 +70,13 @@ export const ProfilePage = () => {
               : 'Please complete your profile to continue'
             }
           </p>
-          <button
+          <Link
+            to={'/wanted/profile/create'}
             onClick={() => setIsEditing(true)}
             className="btn-primary"
           >
             {language === 'am' ? 'መገለጫ ይፍጠሩ' : 'Create Profile'}
-          </button>
+          </Link>
         </div>
       </div>
     );

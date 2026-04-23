@@ -1,5 +1,4 @@
-﻿// client/src/features/wanted/components/shared/ImpactCounter.jsx
-import { useEffect, useState, useRef } from 'react';
+﻿import { useEffect, useState, useRef } from 'react';
 import { motion, useInView } from 'framer-motion';
 import { Heart, Users, Globe, Award, TrendingUp } from 'lucide-react';
 import { useLanguage } from '../../../../lib/i18n';

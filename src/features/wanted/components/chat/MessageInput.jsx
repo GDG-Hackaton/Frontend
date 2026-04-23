@@ -1,5 +1,4 @@
-﻿// client/src/features/wanted/components/chat/MessageInput.jsx
-import { useState, useRef, useEffect } from 'react';
+﻿import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Send, 

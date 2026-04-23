@@ -1,5 +1,4 @@
-﻿// client/src/features/wanted/components/layout/WantedHero.jsx
-import { motion } from 'framer-motion';
+﻿import { motion } from 'framer-motion';
 import { Heart, Users, MapPin, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '../../../../lib/i18n';

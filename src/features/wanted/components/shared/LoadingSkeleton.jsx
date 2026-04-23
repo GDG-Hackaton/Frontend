@@ -1,5 +1,4 @@
-﻿// client/src/features/wanted/components/shared/LoadingSkeleton.jsx
-import { motion } from 'framer-motion';
+﻿import { motion } from 'framer-motion';
 
 export const LoadingSkeleton = ({ type = 'card', count = 1 }) => {
   const skeletons = {

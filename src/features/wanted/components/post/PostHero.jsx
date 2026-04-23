@@ -1,5 +1,4 @@
-﻿// client/src/features/wanted/components/post/PostHero.jsx
-import { motion } from 'framer-motion';
+﻿import { motion } from 'framer-motion';
 import { 
   Heart, 
   MapPin, 

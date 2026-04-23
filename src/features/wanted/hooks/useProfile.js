@@ -1,5 +1,4 @@
-﻿// client/src/features/wanted/hooks/useProfile.js
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+﻿import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { wantedApi } from '../services/wantedApi';
 import { useLanguage } from '../../../lib/i18n';
 import { toast } from 'sonner';
