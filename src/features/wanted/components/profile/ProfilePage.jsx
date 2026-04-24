@@ -92,7 +92,7 @@ export const ProfilePage = () => {
               {/* Avatar */}
               <div className="relative">
                 <div className="w-24 h-24 md:w-32 md:h-32 rounded-full bg-gradient-to-br from-terracotta to-sahara flex items-center justify-center text-white text-3xl md:text-4xl font-medium shadow-lg">
-                  {profile.realName?.[0]?.toUpperCase() || '?'}
+                  {profile.realName?.[0]?.toUpperCase() || 'U'}
                 </div>
                 {profile.verifiedReconnector && (
                   <div className="absolute -bottom-2 -right-2 bg-hope-green text-white p-2 rounded-full shadow-md">

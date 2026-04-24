@@ -1,528 +1,386 @@
-import { useEffect, useRef, useState } from 'react';
-import { motion, useScroll, useTransform, useInView } from 'framer-motion';
+import React, { useEffect } from "react";
+import { Link } from "react-router-dom";
+import { motion, useAnimation } from "framer-motion";
+import { useInView } from "react-intersection-observer";
+import { useLanguage } from '../lib/i18n';
 const assetImages = import.meta.glob('../assets/images/*.{png,jpg,jpeg,svg}', { 
   eager: true, 
   import: 'default' 
 });
-import { 
-  Heart, 
-  Users, 
-  Globe, 
-  Shield, 
-  ArrowRight, 
-  Play,
-  ChevronLeft,
-  ChevronRight,
-  Star,
-  Quote,
-  Search,
-  PenTool,
-  CheckCircle,
-  Lock,
-  Award
-} from 'lucide-react';
-import { Link } from 'react-router-dom';
-import { useLanguage } from '../lib/i18n';
 import {useImpactStats} from "../features/wanted/hooks/useImpactStats"
 import { ImpactStats } from '../features/wanted/components/layout/ImpactStats';
+import { 
+  ArrowRight, 
+  Shield, 
+  Users, 
+  MapPin, 
+  Clock, 
+  Heart,
+  Search,
+  MessageCircle,
+  Share2,
+  Sparkles
+} from "lucide-react";
 
- 
-const getAsset = (name) => assetImages[`../assets/images/${name}.png`] || '';
 
-// Hero Section
-const HeroSection = () => {
+
+// ============================================
+// 1. ORGANIZATIONAL HERO
+// ============================================
+const OrgHeroSection = () => {
   const { language } = useLanguage();
-  const { scrollY } = useScroll();
-  const y = useTransform(scrollY, [0, 600], [0, 150]);
-  const opacity = useTransform(scrollY, [0, 500], [1, 0]);
+
+
+  const getAsset = (name) => assetImages[`../assets/images/${name}.png`] || '';
 
   return (
-    <section className="relative min-h-screen flex items-center overflow-hidden">
-      {/* Parallax Background */}
-      <motion.div 
-        style={{ y }}
-        className="absolute inset-0 z-0"
-      >
-        <div className="absolute inset-0 bg-gradient-to-b from-charcoal/60 via-charcoal/40 to-warm-white" />
-        <img 
-          src={getAsset("hero1")}
-          alt="People reuniting"
-          className="w-full h-full object-cover"
-        />
-      </motion.div>
+    <section className="relative min-h-screen flex items-center bg-gradient-to-b from-charcoal to-charcoal/95 text-white overflow-hidden">
+      {/* Background Pattern */}
+      <div className="absolute inset-0 opacity-5">
+        <div className="absolute inset-0" style={{
+          backgroundImage: `radial-gradient(circle at 25% 25%, white 1px, transparent 1px)`,
+          backgroundSize: '50px 50px'
+        }} />
+      </div>
 
-      {/* Content */}
-      <div className="container relative z-10 py-20">
+      <div className="container relative py-20 text-center max-w-4xl mx-auto">
         <motion.div
-          initial={{ opacity: 0, y: 100 }}
+          initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
-          style={{ opacity }}
-          className="max-w-4xl"
         >
-          {/* Badge */}
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-md rounded-full border border-white/20 mb-8">
-            <Heart className="w-4 h-4 text-terracotta" />
-            <span className="text-white/90 text-sm font-medium">
-              {language === 'am' 
-                ? '147+ በላይ ሰዎች እንደገና ተገናኝተዋል'
-                : '147+ people already reunited'
-              }
-            </span>
-          </div>
-
-          {/* Main Headline */}
-          <h1 className="text-5xl md:text-7xl lg:text-8xl font-display font-bold text-white mb-6 leading-tight">
-            {language === 'am' ? (
-              <>ያጡትን ሰው<br />እንደገና ያግኙ</>
+          {/* Headline */}
+          <h1 className="text-5xl md:text-7xl font-display font-bold mb-6 leading-tight">
+            {language === "am" ? (
+              <>ሰዎችን ማግኘት —<br />በአስቸኳይነት እና በጊዜ ውስጥ</>
             ) : (
-              <>Find the People<br />You Thought You Lost</>
+              <>Finding People —<br />In Crisis and Across Time</>
             )}
-            <span className="text-gradient-warm block text-4xl md:text-6xl lg:text-7xl mt-4">
-              {language === 'am' 
-                ? 'ለዘላለም'
-                : 'Forever'
-              }
-            </span>
           </h1>
 
           {/* Subheadline */}
-          <p className="text-xl md:text-2xl text-white/80 max-w-2xl mb-8 leading-relaxed">
-            {language === 'am'
-              ? 'በትዝታ፣ በማህበረሰብ እና በእምነት የተደገፈ የዳግም ግንኙነት መድረክ።'
-              : 'Reconnect across time, distance, and silence — powered by memory, community, and trust.'
-            }
+          <p className="text-xl md:text-2xl text-white/80 mb-12 max-w-2xl mx-auto leading-relaxed">
+            {language === "am"
+              ? "Reunite የጠፉ ሰዎችን በፍጥነት ለማግኘት እና በጊዜ የተለዩ ግንኙነቶችን እንደገና ለማገናኘት የተገነባ መድረክ ነው።"
+              : "Reunite is a dual-impact platform helping families find missing loved ones in real time, and reconnecting people separated by years, distance, or silence."}
           </p>
 
-          {/* CTA Buttons */}
-          <div className="flex flex-wrap gap-4">
-            <Link
-              to="/wanted"
-              className="group px-8 py-4 bg-white text-charcoal rounded-full font-semibold hover:bg-warm-white transition-all shadow-lg hover:shadow-xl inline-flex items-center gap-2"
-            >
-              <Search className="w-5 h-5 group-hover:text-terracotta transition-colors" />
-              {language === 'am' ? 'መፈለግ ጀምር' : 'Start Searching'}
-              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+          {/* CTA Split */}
+          <div className="flex flex-wrap justify-center gap-4">
+            <Link to="/wanted">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="px-8 py-4 bg-red-500 hover:bg-red-600 text-white rounded-full font-semibold shadow-lg shadow-red-500/25 transition-all flex items-center gap-2"
+              >
+                <Search className="w-5 h-5" />
+                {language === "am" ? "የጠፋ ሰው ፈልግ" : "Find Missing Person"}
+              </motion.button>
             </Link>
-            <Link
-              to="/wanted/create"
-              className="px-8 py-4 bg-terracotta text-white rounded-full font-semibold hover:bg-clay transition-all shadow-lg hover:shadow-xl inline-flex items-center gap-2"
-            >
-              <PenTool className="w-5 h-5" />
-              {language === 'am' ? 'ትዝታ አካፍል' : 'Share a Memory'}
+
+            <Link to="/wanted">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="px-8 py-4 bg-amber-500 hover:bg-amber-600 text-white rounded-full font-semibold shadow-lg shadow-amber-500/25 transition-all flex items-center gap-2"
+              >
+                <Heart className="w-5 h-5" />
+                {language === "am" ? "ከድሮ ሰዎች ጋር ተገናኝ" : "Reconnect With Someone"}
+              </motion.button>
             </Link>
           </div>
+        </motion.div>
 
-          {/* Trust Indicators */}
-          <div className="flex items-center gap-8 mt-12">
-            <div className="flex -space-x-3">
-              {[1, 2, 3, 4].map(i => (
-                <div key={i} className="w-10 h-10 rounded-full border-2 border-white bg-gradient-to-br from-sahara to-terracotta" />
-              ))}
-            </div>
-            <p className="text-white/80 text-sm">
-              <span className="font-bold">200+</span> {language === 'am' ? 'በዚህ ሳምንት ተቀላቅለዋል' : 'joined this week'}
-            </p>
+        {/* Scroll Indicator */}
+        <motion.div 
+          className="absolute bottom-10 left-1/2 -translate-x-1/2"
+          animate={{ y: [0, 10, 0] }}
+          transition={{ repeat: Infinity, duration: 2 }}
+        >
+          <div className="w-6 h-10 border-2 border-white/30 rounded-full flex justify-center">
+            <div className="w-1.5 h-1.5 bg-white/50 rounded-full mt-2 animate-pulse" />
           </div>
         </motion.div>
       </div>
-
-      {/* Scroll Indicator */}
-      <motion.div 
-        animate={{ y: [0, 10, 0] }}
-        transition={{ duration: 2, repeat: Infinity }}
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 text-white/60"
-      >
-        <div className="w-6 h-10 rounded-full border-2 border-white/30 flex justify-center">
-          <div className="w-1 h-3 bg-white/60 rounded-full mt-2 animate-pulse" />
-        </div>
-      </motion.div>
     </section>
   );
 };
 
-// Problem Section
-const ProblemSection = () => {
+// ============================================
+// 2. DUAL SYSTEM SECTION
+// ============================================
+const DualSystemSection = () => {
   const { language } = useLanguage();
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, amount: 0.3 });
+  const controls = useAnimation();
+  const [ref, inView] = useInView({ threshold: 0.2 });
 
-  const problems = [
-    {
-      icon: Users,
-      title: { en: 'Migration Separates', am: 'ስደት ይለያል' },
-      description: { 
-        en: 'Friends lost after moving countries',
-        am: 'ሀገር ከቀየሩ በኋላ የጠፉ ጓደኞች'
-      }
-    },
-    {
-      icon: Globe,
-      title: { en: 'Families Scattered', am: 'ቤተሰቦች ተበታትነዋል' },
-      description: { 
-        en: 'Generations separated across continents',
-        am: 'በአህጉራት የተለያዩ ትውልዶች'
-      }
-    },
-    {
-      icon: Heart,
-      title: { en: 'Connections Fade', am: 'ግንኙነቶች ይደበዝዛሉ' },
-      description: { 
-        en: 'Classmates you never found again',
-        am: 'ዳግም ያላገኟቸው የክፍል ጓደኞች'
-      }
+  useEffect(() => {
+    if (inView) controls.start({ opacity: 1, y: 0 });
+  }, [controls, inView]);
+
+  const containerVariants = {
+    hidden: { opacity: 0, y: 50 },
+    visible: { 
+      opacity: 1, 
+      y: 0,
+      transition: { duration: 0.6, staggerChildren: 0.2 }
     }
-  ];
+  };
+
+  const cardVariants = {
+    hidden: { opacity: 0, y: 30 },
+    visible: { opacity: 1, y: 0 }
+  };
 
   return (
-    <section ref={ref} className="py-20 bg-cream">
+    <section className="py-24 bg-gradient-to-b from-warm-white to-white">
       <div className="container">
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6 }}
+          ref={ref}
+          initial=""
+          animate={controls}
+          variants={containerVariants}
           className="text-center max-w-3xl mx-auto mb-16"
         >
-          <h2 className="text-4xl md:text-5xl font-display font-bold text-charcoal mb-6">
-            {language === 'am' 
-              ? 'በየቀኑ ግንኙነቶች ይጠፋሉ'
-              : 'Every Day, Connections Disappear'
-            }
-          </h2>
-          <p className="text-xl text-stone">
-            {language === 'am'
-              ? 'ማህበራዊ ሚዲያ ለዚህ አልተሰራም። የፍለጋ ሞተሮች ትዝታዎችን አይረዱም።'
-              : 'Social media wasn\'t built for this. Search engines don\'t understand memories.'
-            }
-          </p>
+          <motion.h2 
+            variants={cardVariants}
+            className="text-4xl md:text-5xl font-display font-bold text-charcoal mb-4"
+          >
+            {language === "am"
+              ? "አንድ ተልዕኮ። ሁለት ስርዓቶች።"
+              : "One Mission. Two Systems."}
+          </motion.h2>
+          <motion.p 
+            variants={cardVariants}
+            className="text-lg text-stone/70"
+          >
+            {language === "am"
+              ? "ለተለያዩ የመጥፋት አይነቶች የተለያዩ መፍትሄዎች"
+              : "Different tools for different ways people become separated"}
+          </motion.p>
         </motion.div>
 
-        <div className="grid md:grid-cols-3 gap-8">
-          {problems.map((problem, idx) => (
+        <motion.div 
+          initial=""
+          animate={controls}
+          variants={containerVariants}
+          className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto"
+        >
+          {/* Emergency System */}
+          <motion.div 
+            variants={cardVariants}
+            whileHover={{ y: -5 }}
+            className="group bg-white rounded-3xl p-8 border-2 border-red-100 hover:border-red-200 shadow-lg hover:shadow-xl transition-all"
+          >
+            <div className="w-14 h-14 bg-red-500 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+              <Search className="w-7 h-7 text-white" />
+            </div>
+
+            <h3 className="text-2xl font-bold mb-3 text-charcoal">
+              🚨 Reunite AI
+            </h3>
+
+            <p className="text-stone/70 mb-6 leading-relaxed">
+              {language === "am"
+                ? "የጠፉ ሰዎችን በፍጥነት ለማግኘት የAI የተደገፈ ስርዓት። ማንቂያዎችን፣ የማህበረሰብ ቅንጅትን እና ፈጣን ምላሽ መሳሪያዎችን ያካትታል።"
+                : "AI-powered real-time response system for finding missing persons. Includes alerts, community coordination, and rapid response tools."}
+            </p>
+
+            <ul className="space-y-3 mb-8">
+              {[
+                { icon: Clock, text: language === "am" ? "የእውነተኛ ጊዜ ማንቂያዎች" : "Real-time alerts" },
+                { icon: Users, text: language === "am" ? "የማህበረሰብ ቅንጅት" : "Community coordination" },
+                { icon: MapPin, text: language === "am" ? "በቦታ ላይ የተመሰረተ ፍለጋ" : "Location-based search" }
+              ].map((item, i) => (
+                <li key={i} className="flex items-center gap-3 text-sm text-stone/80">
+                  <item.icon className="w-4 h-4 text-red-500 flex-shrink-0" />
+                  <span>{item.text}</span>
+                </li>
+              ))}
+            </ul>
+
+            <Link to="/wanted">
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                className="w-full px-6 py-3.5 bg-red-500 hover:bg-red-600 text-white rounded-full font-semibold transition-all flex items-center justify-center gap-2"
+              >
+                {language === "am" ? "አሁን ጀምር" : "Start Emergency Search"}
+                <ArrowRight className="w-4 h-4" />
+              </motion.button>
+            </Link>
+          </motion.div>
+
+          {/* Reconnection System */}
+          <motion.div 
+            variants={cardVariants}
+            whileHover={{ y: -5 }}
+            className="group bg-white rounded-3xl p-8 border-2 border-amber-100 hover:border-amber-200 shadow-lg hover:shadow-xl transition-all"
+          >
+            <div className="w-14 h-14 bg-amber-500 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+              <Heart className="w-7 h-7 text-white" />
+            </div>
+
+            <h3 className="text-2xl font-bold mb-3 text-charcoal">
+              💛 Reunite Memory
+            </h3>
+
+            <p className="text-stone/70 mb-6 leading-relaxed">
+              {language === "am"
+                ? "በትዝታ እና በታሪኮች ላይ ተመስርቶ የተለዩ ሰዎችን እንደገና የሚያገናኝ ስርዓት። ደህንነቱ የተጠበቀ ማረጋገጫ እና የግል ግንኙነት ያቀርባል።"
+                : "Reconnect with people from your past using shared memories and stories. Safe verification and private reconnection built in."}
+            </p>
+
+            <ul className="space-y-3 mb-8">
+              {[
+                { icon: MessageCircle, text: language === "am" ? "በትዝታ ላይ የተመሰረተ ፍለጋ" : "Memory-based search" },
+                { icon: Shield, text: language === "am" ? "ደህንነቱ የተጠበቀ ማረጋገጫ" : "Safe verification" },
+                { icon: Heart, text: language === "am" ? "የግል ዳግም ግንኙነት" : "Private reconnection" }
+              ].map((item, i) => (
+                <li key={i} className="flex items-center gap-3 text-sm text-stone/80">
+                  <item.icon className="w-4 h-4 text-amber-500 flex-shrink-0" />
+                  <span>{item.text}</span>
+                </li>
+              ))}
+            </ul>
+
+            <Link to="/reconnect">
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                className="w-full px-6 py-3.5 bg-amber-500 hover:bg-amber-600 text-white rounded-full font-semibold transition-all flex items-center justify-center gap-2"
+              >
+                {language === "am" ? "ግንኙነት ጀምር" : "Start Reconnecting"}
+                <ArrowRight className="w-4 h-4" />
+              </motion.button>
+            </Link>
+          </motion.div>
+        </motion.div>
+      </div>
+    </section>
+  );
+};
+
+// ============================================
+// 3. TWO TYPES OF LOSS SECTION
+// ============================================
+const LossUnderstandingSection = () => {
+  const { language } = useLanguage();
+  const controls = useAnimation();
+  const [ref, inView] = useInView({ threshold: 0.3 });
+
+  useEffect(() => {
+    if (inView) controls.start({ opacity: 1, y: 0 });
+  }, [controls, inView]);
+
+  return (
+    <section className="py-20 bg-gradient-to-b from-white to-cream/50">
+      <div className="container max-w-4xl">
+        <motion.div
+          ref={ref}
+          initial={{ opacity: 0, y: 30 }}
+          animate={controls}
+          transition={{ duration: 0.6 }}
+          className="text-center"
+        >
+          <h2 className="text-4xl md:text-5xl font-bold mb-6 text-charcoal">
+            {language === "am" 
+              ? "ሰዎች በተለያየ መንገድ ይጠፋሉ"
+              : "People Get Lost in Different Ways"}
+          </h2>
+          <p className="text-lg text-stone/70 mb-16 max-w-2xl mx-auto">
+            {language === "am"
+              ? "አንዳንድ ጊዜ በድንገት፣ አንዳንድ ጊዜ በጊዜ ሂደት። ለሁለቱም መፍትሄ አለን።"
+              : "Understanding the nature of separation helps us build better tools for reconnection."}
+          </p>
+
+          <div className="grid md:grid-cols-2 gap-10">
+            {/* Sudden Loss */}
             <motion.div
-              key={idx}
-              initial={{ opacity: 0, y: 30 }}
-              animate={isInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.6, delay: idx * 0.1 }}
-              className="text-center p-8 bg-white rounded-2xl shadow-sm"
+              initial={{ opacity: 0, x: -30 }}
+              animate={controls}
+              transition={{ delay: 0.2 }}
+              className="relative p-8 bg-white rounded-2xl shadow-sm border border-red-100"
             >
-              <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-terracotta/10 flex items-center justify-center">
-                <problem.icon className="w-8 h-8 text-terracotta" />
+              <div className="absolute -top-4 left-8 w-8 h-8 bg-red-500 rounded-full flex items-center justify-center">
+                <Clock className="w-4 h-4 text-white" />
               </div>
-              <h3 className="text-xl font-display font-semibold text-charcoal mb-3">
-                {language === 'am' ? problem.title.am : problem.title.en}
+              <h3 className="text-xl font-semibold text-red-600 mb-3">
+                🚨 {language === "am" ? "ድንገተኛ መጥፋት" : "Sudden Loss"}
               </h3>
-              <p className="text-stone">
-                {language === 'am' ? problem.description.am : problem.description.en}
+              <p className="text-stone/70">
+                {language === "am"
+                  ? "የጠፉ ሰዎች፣ ድንገተኛ አደጋዎች፣ እያንዳንዱ ደቂቃ አስፈላጊ በሆነባቸው ሁኔታዎች። ፈጣን እርምጃ ያስፈልጋል።"
+                  : "Missing persons, emergencies, urgent situations where every minute matters. Fast action required."}
               </p>
             </motion.div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-};
 
-// Solution Section with Horizontal Scroll
-const SolutionSection = () => {
-  const { language } = useLanguage();
-  const scrollRef = useRef(null);
-  const [canScrollLeft, setCanScrollLeft] = useState(false);
-  const [canScrollRight, setCanScrollRight] = useState(true);
-
-  const checkScroll = () => {
-    if (scrollRef.current) {
-      const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
-      setCanScrollLeft(scrollLeft > 0);
-      setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 10);
-    }
-  };
-
-  const scroll = (direction) => {
-    if (scrollRef.current) {
-      const scrollAmount = scrollRef.current.clientWidth * 0.8;
-      scrollRef.current.scrollBy({
-        left: direction === 'left' ? -scrollAmount : scrollAmount,
-        behavior: 'smooth'
-      });
-    }
-  };
-
-  const images = [
-    { src: getAsset('sol 2'), title: 'Share Memories', desc: 'Post what you remember' },
-    { src: getAsset('hero 2'), title: 'Discover Matches', desc: 'Find similar stories' },
-    { src: getAsset('hero 3'), title: 'Verify Identity', desc: 'Secret questions only they know' },
-    { src: getAsset('hero 4'), title: 'Reconnect Safely', desc: 'Chat after approval' },
-    { src: getAsset('hero 5'), title: 'Community Support', desc: 'Others help find them' },
-  ];
-
-  return (
-    <section className="py-20 bg-warm-white overflow-hidden">
-      <div className="container mb-12">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="text-center max-w-3xl mx-auto"
-        >
-          <h2 className="text-4xl md:text-5xl font-display font-bold text-charcoal mb-6">
-            {language === 'am' 
-              ? 'አንድ መድረክ። ሁለት ኃይለኛ ስርዓቶች።'
-              : 'One Platform. Two Powerful Systems.'
-            }
-          </h2>
+            {/* Silent Loss */}
+            <motion.div
+              initial={{ opacity: 0, x: 30 }}
+              animate={controls}
+              transition={{ delay: 0.4 }}
+              className="relative p-8 bg-white rounded-2xl shadow-sm border border-amber-100"
+            >
+              <div className="absolute -top-4 left-8 w-8 h-8 bg-amber-500 rounded-full flex items-center justify-center">
+                <Heart className="w-4 h-4 text-white" />
+              </div>
+              <h3 className="text-xl font-semibold text-amber-600 mb-3">
+                💛 {language === "am" ? "ዝምተኛ መለያየት" : "Silent Loss"}
+              </h3>
+              <p className="text-stone/70">
+                {language === "am"
+                  ? "የጠፉ ጓደኞች፣ የተለዩ ቤተሰቦች፣ በጊዜ ሂደት የደበዘዙ ግንኙነቶች። ስሜታዊ መፍትሄ ያስፈልጋል።"
+                  : "Lost friends, separated families, connections faded over time. Emotional resolution needed."}
+              </p>
+            </motion.div>
+          </div>
         </motion.div>
       </div>
-
-      {/* Horizontal Scroll Container */}
-      <div className="relative">
-        {/* Left Scroll Button */}
-        {canScrollLeft && (
-          <button
-            onClick={() => scroll('left')}
-            className="absolute left-4 top-1/2 -translate-y-1/2 z-10 w-12 h-12 bg-white rounded-full shadow-lg flex items-center justify-center hover:bg-warm-white transition-colors"
-          >
-            <ChevronLeft className="w-6 h-6 text-charcoal" />
-          </button>
-        )}
-
-        {/* Right Scroll Button */}
-        {canScrollRight && (
-          <button
-            onClick={() => scroll('right')}
-            className="absolute right-4 top-1/2 -translate-y-1/2 z-10 w-12 h-12 bg-white rounded-full shadow-lg flex items-center justify-center hover:bg-warm-white transition-colors"
-          >
-            <ChevronRight className="w-6 h-6 text-charcoal" />
-          </button>
-        )}
-
-        {/* Scrollable Content */}
-        <div
-          ref={scrollRef}
-          onScroll={checkScroll}
-          className="flex gap-6 px-4 md:px-8 overflow-x-auto scrollbar-hide snap-x snap-mandatory"
-          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-        >
-          {images.map((item, idx) => (
-            <motion.div
-              key={idx}
-              initial={{ opacity: 0, x: 50 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: idx * 0.1 }}
-              className="flex-shrink-0 w-[300px] md:w-[400px] snap-start"
-            >
-              <div className="relative rounded-2xl overflow-hidden group cursor-pointer">
-                <div className="aspect-[4/5] bg-gradient-to-br from-terracotta/20 to-sahara/20">
-                  <img 
-                    src={item.src} 
-                    alt={item.title}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                  />
-                </div>
-                <div className="absolute inset-0 bg-gradient-to-t from-charcoal/80 via-transparent to-transparent" />
-                <div className="absolute bottom-0 left-0 right-0 p-6">
-                  <h3 className="text-xl font-display font-semibold text-white mb-1">
-                    {item.title}
-                  </h3>
-                  <p className="text-white/80 text-sm">{item.desc}</p>
-                </div>
-              </div>
-            </motion.div>
-          ))}
-        </div>
-      </div>
-
-      {/* System Cards */}
-      <div className="container mt-20">
-        <div className="grid md:grid-cols-2 gap-8">
-          <motion.div
-            initial={{ opacity: 0, x: -30 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            className="bg-gradient-to-br from-terracotta to-clay text-white rounded-3xl p-8 md:p-12"
-          >
-            <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center mb-6">
-              <Search className="w-6 h-6" />
-            </div>
-            <h3 className="text-2xl font-display font-bold mb-4">Reunite</h3>
-            <p className="text-white/80 mb-6">Discovery Engine</p>
-            <ul className="space-y-3">
-              <li className="flex items-center gap-2">
-                <CheckCircle className="w-5 h-5 text-white/60" />
-                Post memories, not just names
-              </li>
-              <li className="flex items-center gap-2">
-                <CheckCircle className="w-5 h-5 text-white/60" />
-                Smart matching based on story & place
-              </li>
-              <li className="flex items-center gap-2">
-                <CheckCircle className="w-5 h-5 text-white/60" />
-                Community-powered discovery
-              </li>
-            </ul>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, x: 30 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            className="bg-gradient-to-br from-sahara to-sahara-dark text-white rounded-3xl p-8 md:p-12"
-          >
-            <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center mb-6">
-              <Shield className="w-6 h-6" />
-            </div>
-            <h3 className="text-2xl font-display font-bold mb-4">Falagiye</h3>
-            <p className="text-white/80 mb-6">Verification Engine</p>
-            <ul className="space-y-3">
-              <li className="flex items-center gap-2">
-                <CheckCircle className="w-5 h-5 text-white/60" />
-                Secret questions only they can answer
-              </li>
-              <li className="flex items-center gap-2">
-                <CheckCircle className="w-5 h-5 text-white/60" />
-                Trust scoring system
-              </li>
-              <li className="flex items-center gap-2">
-                <CheckCircle className="w-5 h-5 text-white/60" />
-                Safe, controlled reconnection
-              </li>
-            </ul>
-          </motion.div>
-        </div>
-      </div>
     </section>
   );
 };
 
-// Impact Section with Stats
+// ============================================
+// 4. IMPACT STATS
+// ============================================
 const ImpactSection = () => {
   const { language } = useLanguage();
-  const { data: stats } = useImpactStats();
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true });
 
-  const impactStories = [
-    {
-      quote: { 
-        en: "After 20 years, I found my mother's long-lost sister through a single memory.",
-        am: "ከ20 ዓመታት በኋላ የእናቴን የጠፋች እህት በአንድ ትዝታ አገኘኋት።"
-      },
-      author: { en: "Selam T.", am: "ሰላም ተ." },
-      image: "/images/stories/story-1.jpg"
-    },
-    {
-      quote: { 
-        en: "My childhood best friend and I reunited. We hadn't spoken in 15 years.",
-        am: "የልጅነት ጓደኛዬን አገኘሁት። ለ15 ዓመታት አልተነጋገርንም ነበር።"
-      },
-      author: { en: "Henok D.", am: "ሄኖክ ደ." },
-      image: "/images/stories/story-2.jpg"
-    }
-  ];
-
-  return (
-    <section ref={ref} className="py-20 bg-gradient-to-b from-warm-white to-cream">
-      <div className="container">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          className="text-center max-w-3xl mx-auto mb-16"
-        >
-          <h2 className="text-4xl md:text-5xl font-display font-bold text-charcoal mb-6">
-            {language === 'am' 
-              ? 'ይህ ምርት ብቻ አይደለም።'
-              : 'This Isn\'t Just a Product.'
-            }
-          </h2>
-          <p className="text-2xl text-terracotta font-display">
-            {language === 'am' 
-              ? 'ዲጂታል ማህበራዊ ፈውስ ነው።'
-              : 'It\'s Digital Social Healing.'
-            }
-          </p>
-        </motion.div>
-
-        {/* Stats Grid */}
-        <section className="py-8 border-y border-warm-gray/30 bg-cream/30">
-        <div className="container">
-          <ImpactStats compact />
-        </div>
-      </section>
-        
-
-        {/* Impact Stories */}
-        <div className="grid md:grid-cols-2 gap-8">
-          {impactStories.map((story, idx) => (
-            <motion.div
-              key={idx}
-              initial={{ opacity: 0, y: 30 }}
-              animate={isInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ delay: 0.5 + idx * 0.1 }}
-              className="bg-white rounded-2xl overflow-hidden shadow-lg"
-            >
-              <div className="aspect-[3/2] bg-gradient-to-br from-terracotta/20 to-sahara/20">
-                <img src={getAsset("hero 3")} alt="Story" className="w-full h-full object-cover" />
-              </div>
-              <div className="p-6">
-                <Quote className="w-8 h-8 text-terracotta/30 mb-4" />
-                <p className="text-lg text-charcoal mb-4 italic">
-                  "{language === 'am' ? story.quote.am : story.quote.en}"
-                </p>
-                <p className="text-sm font-medium text-terracotta">
-                  — {story.author[language] || story.author.en}
-                </p>
-              </div>
-            </motion.div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-};
-
-// Trust Section
-const TrustSection = () => {
-  const { language } = useLanguage();
-  const features = [
-    { icon: Lock, title: { en: 'Identity Verification', am: 'ማንነት ማረጋገጫ' } },
-    { icon: Award, title: { en: 'Trust Score System', am: 'የእምነት ነጥብ ስርዓት' } },
-    { icon: Shield, title: { en: 'Abuse Prevention', am: 'አላግባብ መከላከል' } },
-    { icon: Lock, title: { en: 'Private Chat After Approval', am: 'ከፈቃድ በኋላ የግል ቻት' } },
+  const stats = [
+    { number: "1,200+", label: language === "am" ? "የተመለሱ ሰዎች" : "People Reunited", color: "text-red-500" },
+    { number: "15min", label: language === "am" ? "አማካይ ምላሽ ጊዜ" : "Avg Response Time", color: "text-amber-500" },
+    { number: "45+", label: language === "am" ? "ንቁ ማህበረሰቦች" : "Active Communities", color: "text-green-500" },
+    { number: "98%", label: language === "am" ? "የስኬት መጠን" : "Success Rate", color: "text-blue-500" }
   ];
 
   return (
     <section className="py-20 bg-charcoal text-white">
       <div className="container">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="text-center max-w-3xl mx-auto mb-12"
-        >
-          <Shield className="w-12 h-12 text-terracotta mx-auto mb-6" />
-          <h2 className="text-3xl md:text-4xl font-display font-bold mb-4">
-            {language === 'am' 
-              ? 'የተገነባው በእምነት እና ደህንነት ላይ ነው'
-              : 'Built on Trust & Safety'
-            }
+        <div className="text-center mb-16">
+          <h2 className="text-4xl font-bold mb-4">
+            {language === "am" ? "የእኛ ተጽዕኖ" : "Our Impact"}
           </h2>
-        </motion.div>
+          <p className="text-white/60">
+            {language === "am" 
+              ? "በመላው ኢትዮጵያ ህይወቶችን እንደገና ማገናኘት"
+              : "Reconnecting lives across Ethiopia and beyond"}
+          </p>
+        </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-          {features.map((feature, idx) => (
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto">
+          {stats.map((stat, idx) => (
             <motion.div
               key={idx}
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
               transition={{ delay: idx * 0.1 }}
-              className="text-center p-6 bg-white/5 rounded-2xl border border-white/10"
+              className="text-center"
             >
-              <feature.icon className="w-8 h-8 text-terracotta mx-auto mb-4" />
-              <p className="text-sm font-medium">
-                {language === 'am' ? feature.title.am : feature.title.en}
-              </p>
+              <div className={`text-3xl md:text-4xl font-bold mb-2 ${stat.color}`}>
+                {stat.number}
+              </div>
+              <div className="text-white/60 text-sm">{stat.label}</div>
             </motion.div>
           ))}
         </div>
@@ -531,46 +389,110 @@ const TrustSection = () => {
   );
 };
 
-// Final CTA Section
+// ============================================
+// 5. TRUST SECTION
+// ============================================
+const TrustSection = () => {
+  const { language } = useLanguage();
+
+  const features = [
+    {
+      icon: Shield,
+      title: language === "am" ? "የተረጋገጠ ደህንነት" : "Verified Safety",
+      description: language === "am" 
+        ? "ሁሉም ግንኙነቶች ከመፈጸማቸው በፊት ይረጋገጣሉ"
+        : "All connections verified before proceeding"
+    },
+    {
+      icon: Users,
+      title: language === "am" ? "በማህበረሰብ የተደገፈ" : "Community Powered",
+      description: language === "am"
+        ? "በሺዎች የሚቆጠሩ በጎ ፈቃደኞች ይረዳሉ"
+        : "Thousands of volunteers helping reunite"
+    },
+    {
+      icon: Share2,
+      title: language === "am" ? "ግላዊነት የተጠበቀ" : "Privacy First",
+      description: language === "am"
+        ? "የእርስዎ መረጃ ደህንነቱ የተጠበቀ ነው"
+        : "Your information stays protected"
+    }
+  ];
+
+  return (
+    <section className="py-20 bg-white">
+      <div className="container max-w-4xl">
+        <div className="text-center mb-16">
+          <h2 className="text-4xl font-bold text-charcoal mb-4">
+            {language === "am" ? "ለምን Reunite?" : "Why Reunite?"}
+          </h2>
+        </div>
+
+        <div className="grid md:grid-cols-3 gap-8">
+          {features.map((feature, idx) => (
+            <motion.div
+              key={idx}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ delay: idx * 0.2 }}
+              className="text-center p-6"
+            >
+              <div className="w-12 h-12 bg-charcoal rounded-full flex items-center justify-center mx-auto mb-4">
+                <feature.icon className="w-5 h-5 text-white" />
+              </div>
+              <h3 className="font-semibold text-charcoal mb-2">{feature.title}</h3>
+              <p className="text-sm text-stone/70">{feature.description}</p>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+};
+
+// ============================================
+// 6. FINAL CTA
+// ============================================
 const FinalCTASection = () => {
   const { language } = useLanguage();
 
   return (
-    <section className="py-24 bg-gradient-to-br from-terracotta to-clay text-white">
-      <div className="container text-center">
+    <section className="py-20 bg-gradient-to-br from-charcoal to-stone-900 text-white">
+      <div className="container text-center max-w-3xl">
         <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          whileInView={{ opacity: 1, scale: 1 }}
-          viewport={{ once: true }}
-          className="max-w-3xl mx-auto"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
         >
-          <Heart className="w-16 h-16 mx-auto mb-6 text-white/80" />
-          <h2 className="text-4xl md:text-6xl font-display font-bold mb-6">
-            {language === 'am' 
-              ? 'ምናልባት አንድ ሰው እርስዎን እየፈለገ ሊሆን ይችላል'
-              : 'Someone might already be looking for you'
-            }
+          <h2 className="text-3xl md:text-5xl font-bold mb-6">
+            {language === "am" 
+              ? "አንድ ሰው ለማግኘት ዝግጁ ነዎት?"
+              : "Ready to Find Someone?"}
           </h2>
-          <p className="text-xl text-white/80 mb-10">
-            {language === 'am'
-              ? 'ዛሬ የመጀመሪያ እርምጃዎን ይውሰዱ።'
-              : 'Take the first step today.'
-            }
+          <p className="text-white/70 mb-10 text-lg">
+            {language === "am"
+              ? "የትኛውንም መንገድ ይምረጡ — እኛ ለመርዳት እዚህ ነን።"
+              : "Choose your path — we're here to help you reconnect."}
           </p>
+
           <div className="flex flex-wrap justify-center gap-4">
-            <Link
-              to="/wanted"
-              className="px-8 py-4 bg-white text-terracotta rounded-full font-semibold hover:bg-warm-white transition-all shadow-lg inline-flex items-center gap-2"
-            >
-              <Search className="w-5 h-5" />
-              {language === 'am' ? 'መፈለግ ጀምር' : 'Start Searching'}
+            <Link to="/wanted">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="px-8 py-4 bg-red-500 hover:bg-red-600 rounded-full font-semibold shadow-lg"
+              >
+                🚨 {language === "am" ? "የጠፋ ሰው ፈልግ" : "Find Missing Person"}
+              </motion.button>
             </Link>
-            <Link
-              to="/wanted/create"
-              className="px-8 py-4 bg-transparent border-2 border-white text-white rounded-full font-semibold hover:bg-white/10 transition-all inline-flex items-center gap-2"
-            >
-              <PenTool className="w-5 h-5" />
-              {language === 'am' ? 'ትዝታ አካፍል' : 'Post a Memory'}
+
+            <Link to="/reconnect">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="px-8 py-4 bg-amber-500 hover:bg-amber-600 rounded-full font-semibold shadow-lg"
+              >
+                💛 {language === "am" ? "ከድሮ ሰዎች ጋር ተገናኝ" : "Reconnect"}
+              </motion.button>
             </Link>
           </div>
         </motion.div>
@@ -579,17 +501,25 @@ const FinalCTASection = () => {
   );
 };
 
-// Main Landing Page Component
+// ============================================
+// MAIN LANDING PAGE COMPONENT
+// ============================================
 export const LandingPage = () => {
+  // Scroll to top on mount
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   return (
     <div className="bg-warm-white">
-      <HeroSection />
-      <ProblemSection />
-      <SolutionSection />
+      <OrgHeroSection />
+      <DualSystemSection />
+      <LossUnderstandingSection />
       <ImpactSection />
       <TrustSection />
       <FinalCTASection />
     </div>
   );
 };
+
 export default LandingPage;

@@ -140,21 +140,6 @@ export const ChatSidebar = ({ rooms = [], currentRoomId, isOpen, onClose }) => {
 
         {/* Room List with custom scrollbar */}
         <div className="flex-1 overflow-y-auto custom-scrollbar px-3">
-          <style jsx>{`
-            .custom-scrollbar::-webkit-scrollbar {
-              width: 6px;
-            }
-            .custom-scrollbar::-webkit-scrollbar-track {
-              background: transparent;
-            }
-            .custom-scrollbar::-webkit-scrollbar-thumb {
-              background: rgba(168, 124, 109, 0.2);
-              border-radius: 10px;
-            }
-            .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-              background: rgba(168, 124, 109, 0.4);
-            }
-          `}</style>
           
           {filteredRooms.length === 0 ? (
             <motion.div 

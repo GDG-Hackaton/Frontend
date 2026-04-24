@@ -79,7 +79,6 @@ const VerificationCard = ({
 export const VerificationStatus = ({ profile }) => {
   const { language } = useLanguage();
   const { sendCode, verifyCode, isSending, isVerifying, countdown } = usePhoneVerification();
-  const { generateCode, isGenerating, code, botUsername } = useTelegramVerification();
   
   const [phoneNumber, setPhoneNumber] = useState(profile?.phoneNumber || '');
   const [verificationCode, setVerificationCode] = useState('');
@@ -95,10 +94,6 @@ export const VerificationStatus = ({ profile }) => {
   const handleVerifyCode = () => {
     if (!verificationCode) return;
     verifyCode({ phoneNumber, code: verificationCode });
-  };
-
-  const handleGenerateTelegramCode = () => {
-    generateCode();
   };
 
   const copyToClipboard = (text) => {
@@ -192,73 +187,6 @@ export const VerificationStatus = ({ profile }) => {
         )}
       </VerificationCard>
 
-      {/* Telegram Verification */}
-      <VerificationCard
-        icon={MessageCircle}
-        title="Telegram"
-        description={language === 'am'
-          ? 'ለተጨማሪ ደህንነት የቴሌግራም መለያዎን ያገናኙ'
-          : 'Connect your Telegram account for additional security'
-        }
-        isVerified={profile?.telegramVerified}
-        color="text-sahara"
-      >
-        {!code ? (
-          <button
-            onClick={handleGenerateTelegramCode}
-            disabled={isGenerating}
-            className="w-full py-2.5 bg-sahara text-white rounded-full font-medium hover:bg-sahara-dark transition-colors disabled:opacity-50"
-          >
-            {isGenerating ? (
-              <span className="flex items-center justify-center gap-2">
-                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                {language === 'am' ? 'በመፍጠር ላይ...' : 'Generating...'}
-              </span>
-            ) : (
-              language === 'am' ? 'ኮድ ፍጠር' : 'Generate Code'
-            )}
-          </button>
-        ) : (
-          <div className="space-y-3">
-            <div className="bg-warm-white rounded-xl p-4 border border-warm-gray">
-              <p className="text-sm text-stone mb-2">
-                {language === 'am'
-                  ? 'ይህን ኮድ ለቴሌግራም ቦት ይላኩት፡'
-                  : 'Send this code to the Telegram bot:'
-                }
-              </p>
-              <div className="flex items-center gap-2">
-                <code className="flex-1 px-4 py-2 bg-charcoal/5 rounded-lg text-lg font-mono text-center">
-                  {code}
-                </code>
-                <button
-                  onClick={() => copyToClipboard(code)}
-                  className="p-2 text-olive hover:text-terracotta transition-colors"
-                >
-                  <Copy className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
-            
-            <a
-              href={`https://t.me/${botUsername}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="w-full py-2.5 bg-sahara text-white rounded-full font-medium hover:bg-sahara-dark transition-colors flex items-center justify-center gap-2"
-            >
-              <ExternalLink className="w-4 h-4" />
-              {language === 'am' ? 'ቴሌግራም ክፈት' : 'Open Telegram'}
-            </a>
-            
-            <button
-              onClick={() => generateCode()}
-              className="w-full text-sm text-stone hover:text-charcoal"
-            >
-              {language === 'am' ? 'አዲስ ኮድ ፍጠር' : 'Generate New Code'}
-            </button>
-          </div>
-        )}
-      </VerificationCard>
 
       {/* Trust Score Info */}
       <div className="p-4 bg-warmth/5 rounded-xl border border-warmth/20">

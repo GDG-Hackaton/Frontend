@@ -302,7 +302,7 @@ export const MainHeader = () => {
                     to="/auth/register"
                     className="px-5 py-2.5 bg-terracotta text-white rounded-full font-medium hover:bg-clay transition-all shadow-sm hover:shadow-md"
                   >
-                    {language === 'am' ? 'ተመዝገብ' : 'Join Free'}
+                    {language === 'am' ? 'ተመዝገብ' : 'Join Orginization'}
                   </Link>
                 </div>
               )}

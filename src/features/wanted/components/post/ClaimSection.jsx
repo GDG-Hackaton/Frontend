@@ -8,6 +8,7 @@ import {
   Clock,
   X,
   Send,
+  User,
   Users,
   ArrowRight
 } from 'lucide-react';
