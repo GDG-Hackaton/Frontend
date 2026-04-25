@@ -1,6 +1,7 @@
 ﻿import { useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+
 import { 
   Search, 
   MessageCircle, 
@@ -16,20 +17,26 @@ import {
 import { useLanguage } from '../../../../lib/i18n';
 import { formatRelativeTime } from '../../utils/formatters';
 import { TrustBadge } from '../profile/TrustBadge';
+import { useAuth } from '../../../../hooks/useAuth';
 
 export const ChatSidebar = ({ rooms = [], currentRoomId, isOpen, onClose }) => {
   const { language } = useLanguage();
   const [searchTerm, setSearchTerm] = useState('');
+   const { user: currentUser } = useAuth();
+  const getOtherParticipant = (room) => {
+    if (!currentUser?.id) return room.participants?.[0];
+    
+    return room.participants?.find(
+      p => p.user?._id?.toString() !== currentUser.id.toString() && 
+           p.user?.toString() !== currentUser.id.toString()
+    );
+  };
 
   const filteredRooms = rooms.filter(room => {
-    const otherParticipant = room.participants?.find(p => p.role !== 'poster' || p.role === 'claimant');
+    const otherParticipant = getOtherParticipant(room);
     const name = otherParticipant?.profile?.realName || '';
     return name.toLowerCase().includes(searchTerm.toLowerCase());
   });
-
-  const getOtherParticipant = (room) => {
-    return room.participants?.find(p => p.role === 'claimant' || p.role === 'poster');
-  };
 
   const getLastMessagePreview = (room) => {
     if (!room.lastMessage) return null;
@@ -231,7 +238,7 @@ export const ChatSidebar = ({ rooms = [], currentRoomId, isOpen, onClose }) => {
                                 className="w-14 h-14 rounded-2xl bg-gradient-to-br from-terracotta via-sahara to-hope-green p-[2px] shadow-xl shadow-terracotta/20 group-hover:shadow-terracotta/30 transition-shadow"
                               >
                                 <div className="w-full h-full rounded-2xl bg-gradient-to-br from-terracotta to-sahara flex items-center justify-center text-white font-bold text-xl">
-                                  {other?.profile?.realName?.[0]?.toUpperCase() || '?'}
+                                  {other?.profile?.realName?.[0]?.toUpperCase() || 'User'}
                                 </div>
                               </motion.div>
                               

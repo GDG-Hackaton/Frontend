@@ -69,37 +69,6 @@ export const wantedApi = {
       .then((res) => res.data),
 
   // Chat
-  generateVideoToken: async (roomId) => {
-    try {
-      const response = await axios.post(`/api/wanted/chat/${roomId}/video`);
-      return response.data.data;
-    } catch (error) {
-      throw new Error(
-        error.response?.data?.message || 'Failed to generate video token'
-      );
-    }
-  },
-
-  // End video call
-  endVideoCall: async (roomId, data) => {
-    try {
-      const response = await axios.post(`/api/wanted/chat/${roomId}/video/end`, data);
-      return response.data;
-    } catch {
-      // Don't throw error for call ending - it should be fire-and-forget
-      return null;
-    }
-  },
-
-  // Get call history
-  getCallHistory: async (roomId) => {
-    try {
-      const response = await axios.get(`/api/wanted/chat/${roomId}/calls`);
-      return response.data.data;
-    } catch {
-      return [];
-    }
-  },
   getChatRooms: () =>
     axios.get("/api/wanted/chat/rooms").then((res) => res.data.data),
   getChatMessages: (roomId, page = 1) =>
@@ -112,18 +81,28 @@ export const wantedApi = {
       .then((res) => res.data.data),
   uploadChatPhoto: (formData) =>
     axios
-      .post("/api/wanted/chat/upload", formData)
+      .post("/api/wanted/chat/upload", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      })
       .then((res) => res.data.data),
   leaveChat: (roomId) =>
     axios.post(`/api/wanted/chat/${roomId}/leave`).then((res) => res.data),
-//   generateVideoToken: (roomId) =>
-//     axios.post(`/api/wanted/chat/${roomId}/video`).then((res) => res.data.data),
-//   endVideoCall: (roomId, data) =>
-//     axios
-//       .post(`/api/wanted/chat/${roomId}/video/end`, data)
-//       .then((res) => res.data),
-//   getCallHistory: (roomId) =>
-//     axios.get(`/api/wanted/chat/${roomId}/calls`).then((res) => res.data.data),
+
+  // Video Calls
+  generateVideoToken: (roomId) =>
+    axios
+      .post(`/api/wanted/chat/${roomId}/video`)
+      .then((res) => res.data.data),
+  endVideoCall: (roomId, data) =>
+    axios
+      .post(`/api/wanted/chat/${roomId}/video/end`, data)
+      .then((res) => res.data)
+      .catch(() => null),
+  getCallHistory: (roomId) =>
+    axios
+      .get(`/api/wanted/chat/${roomId}/calls`)
+      .then((res) => res.data.data)
+      .catch(() => []),
 
   // Verification
   sendPhoneVerification: (phoneNumber) =>

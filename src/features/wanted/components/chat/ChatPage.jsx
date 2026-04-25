@@ -9,25 +9,20 @@ import {
   Video, 
   MoreVertical,
   ChevronLeft,
-  Check,
-  CheckCheck,
-  Smile,
-  Paperclip,
-  MessageCircle,
   Shield,
-  User,
-  ArrowLeft
+  ArrowLeft,
+  MessageCircle
 } from 'lucide-react';
 import { useChat } from '../../hooks/useChat';
 import { useSocket } from '../../hooks/useSocket';
 import { useLanguage } from '../../../../lib/i18n';
-import{ChatSidebar} from './ChatSidebar';
+import { ChatSidebar } from './ChatSidebar';
 import { MessageBubble } from './MessageBubble';
 import { VideoCallModal } from './VideoCallModal';
 import { TrustBadge } from '../profile/TrustBadge';
 import { ChatSkeleton } from './ChatSkeleton';
-import { formatMessageTime } from '../../utils/formatters';
 import { toast } from 'sonner';
+import { wantedApi } from '../../services/wantedApi';
 
 export const ChatPage = () => {
   const { roomId } = useParams();
@@ -39,19 +34,44 @@ export const ChatPage = () => {
     messages, 
     sendMessage, 
     sendTyping,
-    markAsRead,
     isLoading 
   } = useChat(roomId);
   
-  const { isConnected } = useSocket();
+  const { isConnected, socket } = useSocket();
   const [messageInput, setMessageInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [showSidebar, setShowSidebar] = useState(false);
   const [showVideoCall, setShowVideoCall] = useState(false);
+  const [incomingCall, setIncomingCall] = useState(null);
+  const [isUploading, setIsUploading] = useState(false);
   const messagesEndRef = useRef(null);
   const typingTimeoutRef = useRef(null);
   const inputRef = useRef(null);
+  const fileInputRef = useRef(null);
   const { user: currentUser } = useAuth();
+
+  // Listen for incoming calls
+  useEffect(() => {
+    if (!socket) return;
+
+    const handleIncomingCall = (data) => {
+      setIncomingCall(data);
+      setShowVideoCall(true);
+    };
+
+    const handleCallEnded = () => {
+      setIncomingCall(null);
+      setShowVideoCall(false);
+    };
+
+    socket.on('incoming-call', handleIncomingCall);
+    socket.on('call-ended', handleCallEnded);
+
+    return () => {
+      socket.off('incoming-call', handleIncomingCall);
+      socket.off('call-ended', handleCallEnded);
+    };
+  }, [socket]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -95,8 +115,51 @@ export const ChatPage = () => {
     }
   };
 
+  const handleImageSelect = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      toast.error(language === 'am' ? 'እባክዎ ፎቶ ብቻ ይላኩ' : 'Please upload only images');
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error(language === 'am' ? 'ፋይሉ ከ5MB መብለጥ የለበትም' : 'File size must be less than 5MB');
+      return;
+    }
+
+    try {
+      setIsUploading(true);
+      const formData = new FormData();
+      formData.append('photo', file);
+      
+      const response = await wantedApi.uploadChatPhoto(formData);
+      
+      sendMessage({
+        roomId: currentRoom?._id,
+        content: response.data.url,
+        type: 'photo',
+        metadata: {
+          photoUrl: response.data.url,
+          photoWidth: response.data.width,
+          photoHeight: response.data.height,
+        }
+      });
+      
+      toast.success(language === 'am' ? 'ፎቶ ተልኳል' : 'Photo sent');
+    } catch (error) {
+      toast.error(language === 'am' ? 'ፎቶ መላክ አልተሳካም' : 'Failed to upload photo');
+    } finally {
+      setIsUploading(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
+  };
+
   const otherParticipant = currentRoom?.participants?.find(
-    p => p.user !== currentUser?.id
+    p => p.user !== currentUser?.id && p.user?._id !== currentUser?.id
   );
 
   if (isLoading) {
@@ -130,7 +193,6 @@ export const ChatPage = () => {
 
   return (
     <div className="h-screen flex bg-gray-50 font-sans">
-      {/* Sidebar */}
       <ChatSidebar 
         rooms={rooms}
         currentRoomId={roomId}
@@ -138,21 +200,17 @@ export const ChatPage = () => {
         onClose={() => setShowSidebar(false)}
       />
 
-      {/* Main Chat Container */}
       <div className="flex-1 flex flex-col bg-white shadow-lg rounded-l-2xl overflow-hidden">
         {/* Chat Header */}
         <header className="flex-shrink-0 bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between shadow-sm">
-          {/* Left Buttons */}
           <div className="flex items-center space-x-2">
-            {/* Back Button */}
             <button
               onClick={() => navigate('/wanted')}
               className="p-2 rounded-full hover:bg-gray-100 transition"
-              title={language === 'am' ? 'የድምጽ ጥሪ' : 'Back'}
+              title={language === 'am' ? 'ተመለስ' : 'Back'}
             >
               <ArrowLeft className="w-5 h-5 text-gray-600" />
             </button>
-            {/* Sidebar Toggle */}
             <button
               onClick={() => setShowSidebar(true)}
               className="p-2 rounded-full hover:bg-gray-100 transition"
@@ -162,21 +220,20 @@ export const ChatPage = () => {
             </button>
           </div>
 
-          {/* Participant Info */}
           {otherParticipant && (
             <div className="flex items-center space-x-4">
-              {/* Avatar */}
               <div className="relative">
-                <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center font-semibold text-gray-700 text-lg shadow-md transition-transform hover:scale-105">
+                <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center font-semibold text-gray-700 text-lg shadow-md">
                   {otherParticipant.profile?.realName?.[0]?.toUpperCase() || '?'}
                 </div>
                 {isConnected && (
                   <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full" />
                 )}
               </div>
-              {/* Name & Status */}
               <div className="flex flex-col">
-                <h2 className="text-lg font-semibold text-gray-800">{otherParticipant.profile?.realName || (language === 'am' ? 'ተጠቃሚ' : 'User')}</h2>
+                <h2 className="text-lg font-semibold text-gray-800">
+                  {otherParticipant.profile?.realName || (language === 'am' ? 'ተጠቃሚ' : 'User')}
+                </h2>
                 <div className="flex items-center space-x-2 mt-1 text-sm text-gray-500">
                   <TrustBadge score={otherParticipant.profile?.trustScore} size="sm" />
                 </div>
@@ -193,7 +250,6 @@ export const ChatPage = () => {
             </div>
           )}
 
-          {/* Action Buttons */}
           <div className="flex items-center space-x-2">
             <button
               className="p-2 rounded-full hover:bg-gray-100 transition"
@@ -217,7 +273,6 @@ export const ChatPage = () => {
           </div>
         </header>
 
-        {/* Trust Badge Banner */}
         <div className="bg-gray-100 border-b border-gray-200 px-4 py-2 flex items-center justify-center space-x-2 text-sm text-gray-600">
           <Shield className="w-4 h-4" />
           <span>
@@ -228,20 +283,19 @@ export const ChatPage = () => {
           </span>
         </div>
 
-        {/* Messages Section */}
+        {/* Messages */}
         <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-white">
           <AnimatePresence initial={false}>
             {messages.map((msg, index) => (
               <MessageBubble
-                key={msg._id || index}
+                key={msg._id || msg.clientId || index}
                 message={msg}
-                isOwn={msg.sender === currentUser?.id}
+                isOwn={msg.sender === currentUser?.id || msg.sender?._id === currentUser?.id}
                 showAvatar={index === 0 || messages[index - 1]?.sender !== msg.sender}
               />
             ))}
           </AnimatePresence>
 
-          {/* Typing Indicator */}
           <AnimatePresence>
             {isTyping && (
               <motion.div
@@ -264,17 +318,62 @@ export const ChatPage = () => {
           <div ref={messagesEndRef} />
         </div>
 
+        {/* Incoming Call Notification */}
+        <AnimatePresence>
+          {incomingCall && !showVideoCall && (
+            <motion.div
+              initial={{ y: -100, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: -100, opacity: 0 }}
+              className="absolute top-4 left-1/2 -translate-x-1/2 z-50 bg-white rounded-2xl shadow-2xl p-4 flex items-center gap-4 border border-gray-200"
+            >
+              <div className="w-12 h-12 rounded-full bg-terracotta flex items-center justify-center">
+                <Video className="w-6 h-6 text-white animate-pulse" />
+              </div>
+              <div>
+                <p className="font-semibold">
+                  {language === 'am' ? 'የቪድዮ ጥሪ...' : 'Incoming video call...'}
+                </p>
+                <p className="text-sm text-stone">{incomingCall.callerName || 'User'}</p>
+              </div>
+              <button
+                onClick={() => setShowVideoCall(true)}
+                className="px-4 py-2 bg-green-500 text-white rounded-full hover:bg-green-600"
+              >
+                {language === 'am' ? 'መቀበል' : 'Accept'}
+              </button>
+              <button
+                onClick={() => setIncomingCall(null)}
+                className="px-4 py-2 bg-red-500 text-white rounded-full hover:bg-red-600"
+              >
+                {language === 'am' ? 'አለመቀበል' : 'Decline'}
+              </button>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         {/* Message Input */}
         <div className="border-t border-gray-200 bg-white p-4 shadow-inner">
           <div className="flex items-center space-x-3">
-            {/* Attach Button */}
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              onChange={handleImageSelect}
+              className="hidden"
+            />
             <button
-              className="p-2 rounded-full hover:bg-gray-100 transition"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={isUploading}
+              className="p-2 rounded-full hover:bg-gray-100 transition disabled:opacity-50"
               title={language === 'am' ? 'ፎቶ አያይዝ' : 'Attach photo'}
             >
-              <ImageIcon className="w-5 h-5 text-gray-600" />
+              {isUploading ? (
+                <div className="w-5 h-5 border-2 border-gray-400 border-t-transparent rounded-full animate-spin" />
+              ) : (
+                <ImageIcon className="w-5 h-5 text-gray-600" />
+              )}
             </button>
-            {/* Textarea */}
             <div className="flex-1 relative">
               <textarea
                 ref={inputRef}
@@ -293,21 +392,11 @@ export const ChatPage = () => {
                   e.target.style.height = Math.min(e.target.scrollHeight, 120) + 'px';
                 }}
               />
-              {/* Emoji Button */}
-              <div className="absolute right-2 bottom-2 flex items-center space-x-2">
-                <button
-                  className="p-1 rounded-full hover:bg-gray-200 transition"
-                  title={language === 'am' ? 'ኢሞጂ' : 'Emoji'}
-                >
-                  <Smile className="w-4 h-4 text-gray-600" />
-                </button>
-              </div>
             </div>
-            {/* Send Button */}
             <button
               onClick={handleSend}
               disabled={!messageInput.trim()}
-              className="p-3 bg-gray-700 text-white rounded-full hover:bg-gray-800 transition shadow-lg"
+              className="p-3 bg-gray-700 text-white rounded-full hover:bg-gray-800 transition shadow-lg disabled:opacity-50"
             >
               <Send className="w-5 h-5" />
             </button>
@@ -315,12 +404,14 @@ export const ChatPage = () => {
         </div>
       </div>
 
-      {/* Video Call Modal */}
       <VideoCallModal
         isOpen={showVideoCall}
-        onClose={() => setShowVideoCall(false)}
+        onClose={() => {
+          setShowVideoCall(false);
+          setIncomingCall(null);
+        }}
         roomId={currentRoom?._id}
-        otherParticipant={otherParticipant}
+        incomingCall={incomingCall}
       />
     </div>
   );
