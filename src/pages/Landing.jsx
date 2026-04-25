@@ -19,7 +19,8 @@ import {
   Search,
   MessageCircle,
   Share2,
-  Sparkles
+  Sparkles,
+  ContactRound
 } from "lucide-react";
 
 
@@ -52,55 +53,34 @@ const OrgHeroSection = () => {
           {/* Headline */}
           <h1 className="text-5xl md:text-7xl font-display font-bold mb-6 leading-tight">
             {language === "am" ? (
-              <>ሰዎችን ማግኘት —<br />በአስቸኳይነት እና በጊዜ ውስጥ</>
+              <>የጠፉቦትን ወይም ሲፈልጓቸው<br /> የቆዩትን ሰዎችን ያግኙ</>
             ) : (
-              <>Finding People —<br />In Crisis and Across Time</>
+              <>Find the People <br/>You’ve Lost or <br />Been Searching For</>
             )}
           </h1>
 
           {/* Subheadline */}
           <p className="text-xl md:text-2xl text-white/80 mb-12 max-w-2xl mx-auto leading-relaxed">
             {language === "am"
-              ? "Reunite የጠፉ ሰዎችን በፍጥነት ለማግኘት እና በጊዜ የተለዩ ግንኙነቶችን እንደገና ለማገናኘት የተገነባ መድረክ ነው።"
-              : "Reunite is a dual-impact platform helping families find missing loved ones in real time, and reconnecting people separated by years, distance, or silence."}
+              ? "ምንም እንኳ ረጅም ጊዜ ቢቆጠር፣ የቱንም ያህል ርቀት ቢኖር፣ ወይም የአድራሻቸው መረጃ ቢጎድልዎ፤ ድረ ገጻችን ይህንን ክፍተት እንድታገናኙ ታሳቢ ተደርጎ የተዘጋጀ ነው። የግል ምስጢሮችን መጠበቅ፣ ሁሉን አቃፊነት እና ታአማኒነት የድረ ገጻችን መገለጫ ነው።"
+              : "No matter how long it has been, how far away they are, or how little information you have, our platform is designed to help you bridge that gap. Privacy, inclusivity, and trust are the hallmarks of our platform."}
           </p>
+          <h1 className="text-5xl md:text-7xl font-display font-bold mb-6 leading-tight">
+            {language === "am" ? (
+              <>በሕይወት ያለ ሰው ይገናኛል</>
+            ) : (
+              <>Find the People <br/>You’ve Lost or <br />Been Searching For</>
+            )}
+          </h1>
 
           {/* CTA Split */}
           <div className="flex flex-wrap justify-center gap-4">
-            <Link to="/wanted">
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="px-8 py-4 bg-red-500 hover:bg-red-600 text-white rounded-full font-semibold shadow-lg shadow-red-500/25 transition-all flex items-center gap-2"
-              >
-                <Search className="w-5 h-5" />
-                {language === "am" ? "የጠፋ ሰው ፈልግ" : "Find Missing Person"}
-              </motion.button>
-            </Link>
-
-            <Link to="/wanted">
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="px-8 py-4 bg-amber-500 hover:bg-amber-600 text-white rounded-full font-semibold shadow-lg shadow-amber-500/25 transition-all flex items-center gap-2"
-              >
-                <Heart className="w-5 h-5" />
-                {language === "am" ? "ከድሮ ሰዎች ጋር ተገናኝ" : "Reconnect With Someone"}
-              </motion.button>
-            </Link>
+           
+            
           </div>
         </motion.div>
 
         {/* Scroll Indicator */}
-        <motion.div 
-          className="absolute bottom-10 left-1/2 -translate-x-1/2"
-          animate={{ y: [0, 10, 0] }}
-          transition={{ repeat: Infinity, duration: 2 }}
-        >
-          <div className="w-6 h-10 border-2 border-white/30 rounded-full flex justify-center">
-            <div className="w-1.5 h-1.5 bg-white/50 rounded-full mt-2 animate-pulse" />
-          </div>
-        </motion.div>
       </div>
     </section>
   );
@@ -147,8 +127,8 @@ const DualSystemSection = () => {
             className="text-4xl md:text-5xl font-display font-bold text-charcoal mb-4"
           >
             {language === "am"
-              ? "አንድ ተልዕኮ። ሁለት ስርዓቶች።"
-              : "One Mission. Two Systems."}
+              ? "በሕይወት ያለ ሰው ይገናኛል።"
+              : "How to Use the Reunite Platform"}
           </motion.h2>
           <motion.p 
             variants={cardVariants}
@@ -156,7 +136,7 @@ const DualSystemSection = () => {
           >
             {language === "am"
               ? "ለተለያዩ የመጥፋት አይነቶች የተለያዩ መፍትሄዎች"
-              : "Different tools for different ways people become separated"}
+              : "How to Use the Reunite Platform Finding a loved one is a sensitive process. To get started, please choose the system that best matches your current needs:" }
           </motion.p>
         </motion.div>
 
@@ -172,43 +152,45 @@ const DualSystemSection = () => {
             whileHover={{ y: -5 }}
             className="group bg-white rounded-3xl p-8 border-2 border-red-100 hover:border-red-200 shadow-lg hover:shadow-xl transition-all"
           >
-            <div className="w-14 h-14 bg-red-500 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-              <Search className="w-7 h-7 text-white" />
-            </div>
+            {/* <div className="w-14 h-14 bg-red-500 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+              <i class="fas fa-divide    ">Reunite AI" (Emergency)</i>
+            </div> */}
 
             <h3 className="text-2xl font-bold mb-3 text-charcoal">
-              🚨 Reunite AI
+              Missing Person Search
             </h3>
 
             <p className="text-stone/70 mb-6 leading-relaxed">
               {language === "am"
                 ? "የጠፉ ሰዎችን በፍጥነት ለማግኘት የAI የተደገፈ ስርዓት። ማንቂያዎችን፣ የማህበረሰብ ቅንጅትን እና ፈጣን ምላሽ መሳሪያዎችን ያካትታል።"
-                : "AI-powered real-time response system for finding missing persons. Includes alerts, community coordination, and rapid response tools."}
+                : "Use this system if you are dealing with a sudden loss or an urgent situation where time is of the essence."}
             </p>
 
             <ul className="space-y-3 mb-8">
               {[
-                { icon: Clock, text: language === "am" ? "የእውነተኛ ጊዜ ማንቂያዎች" : "Real-time alerts" },
-                { icon: Users, text: language === "am" ? "የማህበረሰብ ቅንጅት" : "Community coordination" },
-                { icon: MapPin, text: language === "am" ? "በቦታ ላይ የተመሰረተ ፍለጋ" : "Location-based search" }
+                { icon: Clock, text: language === "am" ? "የእውነተኛ ጊዜ ማንቂያዎች" : "When to use:" , "description": "Use this for missing persons or emergency scenarios where every minute matters." },
+                { icon: Users, text: language === "am" ? "የማህበረሰብ ቅንጅት" : "How to use it" , "description": "Click the Find Missing Person (🚨) button on the landing page" },
+                { icon: MapPin, text: language === "am" ? "በቦታ ላይ የተመሰረተ ፍለጋ" : "What to expect:", "description": "Location-based search with AI assistance to find matches in our database." }
               ].map((item, i) => (
                 <li key={i} className="flex items-center gap-3 text-sm text-stone/80">
                   <item.icon className="w-4 h-4 text-red-500 flex-shrink-0" />
-                  <span>{item.text}</span>
+                  <span className="font-bold p-1 text-blue-800 text-md">{item.text}</span>
+                  <p> {item.description}</p>
                 </li>
               ))}
             </ul>
 
-            <Link to="/wanted">
+             <Link to="/wanted">
               <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                className="w-full px-6 py-3.5 bg-red-500 hover:bg-red-600 text-white rounded-full font-semibold transition-all flex items-center justify-center gap-2"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="px-8 py-4 bg-red-700 hover:bg-red-8500 text-white rounded-full font-semibold shadow-lg shadow-red-500/25 transition-all flex items-center gap-2"
               >
-                {language === "am" ? "አሁን ጀምር" : "Start Emergency Search"}
-                <ArrowRight className="w-4 h-4" />
+                <Search className="w-5 h-5" />
+                {language === "am" ? "የጠፉቦትን ሰው ይፈልጉ " : "Find Missing Person"}
               </motion.button>
             </Link>
+
           </motion.div>
 
           {/* Reconnection System */}
@@ -217,12 +199,8 @@ const DualSystemSection = () => {
             whileHover={{ y: -5 }}
             className="group bg-white rounded-3xl p-8 border-2 border-amber-100 hover:border-amber-200 shadow-lg hover:shadow-xl transition-all"
           >
-            <div className="w-14 h-14 bg-amber-500 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-              <Heart className="w-7 h-7 text-white" />
-            </div>
-
             <h3 className="text-2xl font-bold mb-3 text-charcoal">
-              💛 Reunite Memory
+            Reunite Memory
             </h3>
 
             <p className="text-stone/70 mb-6 leading-relaxed">
@@ -244,14 +222,13 @@ const DualSystemSection = () => {
               ))}
             </ul>
 
-            <Link to="/reconnect">
+            <Link to="/wanted">
               <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                className="w-full px-6 py-3.5 bg-amber-500 hover:bg-amber-600 text-white rounded-full font-semibold transition-all flex items-center justify-center gap-2"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="px-8 py-4 bg-amber-800 hover:bg-amber-900 text-white rounded-full font-semibold shadow-lg shadow-amber-500/25 transition-all flex items-center gap-2"
               >
-                {language === "am" ? "ግንኙነት ጀምር" : "Start Reconnecting"}
-                <ArrowRight className="w-4 h-4" />
+                {language === "am" ? "ከተራራቁት ሰዎች ጋር ይገናኙ" : "Reconnect With Someone"}
               </motion.button>
             </Link>
           </motion.div>
@@ -346,13 +323,7 @@ const LossUnderstandingSection = () => {
 // ============================================
 const ImpactSection = () => {
   const { language } = useLanguage();
-
-  const stats = [
-    { number: "1,200+", label: language === "am" ? "የተመለሱ ሰዎች" : "People Reunited", color: "text-red-500" },
-    { number: "15min", label: language === "am" ? "አማካይ ምላሽ ጊዜ" : "Avg Response Time", color: "text-amber-500" },
-    { number: "45+", label: language === "am" ? "ንቁ ማህበረሰቦች" : "Active Communities", color: "text-green-500" },
-    { number: "98%", label: language === "am" ? "የስኬት መጠን" : "Success Rate", color: "text-blue-500" }
-  ];
+  const { data: stats } = useImpactStats();
 
   return (
     <section className="py-20 bg-charcoal text-white">
@@ -367,23 +338,7 @@ const ImpactSection = () => {
               : "Reconnecting lives across Ethiopia and beyond"}
           </p>
         </div>
-
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto">
-          {stats.map((stat, idx) => (
-            <motion.div
-              key={idx}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ delay: idx * 0.1 }}
-              className="text-center"
-            >
-              <div className={`text-3xl md:text-4xl font-bold mb-2 ${stat.color}`}>
-                {stat.number}
-              </div>
-              <div className="text-white/60 text-sm">{stat.label}</div>
-            </motion.div>
-          ))}
-        </div>
+         <ImpactStats />
       </div>
     </section>
   );
@@ -515,8 +470,8 @@ export const LandingPage = () => {
       <OrgHeroSection />
       <DualSystemSection />
       <LossUnderstandingSection />
-      <ImpactSection />
       <TrustSection />
+      <ImpactSection />
       <FinalCTASection />
     </div>
   );
