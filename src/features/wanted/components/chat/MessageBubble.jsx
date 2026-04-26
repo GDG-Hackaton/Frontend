@@ -22,22 +22,62 @@ const MessageStatus = ({ message, isOwn }) => {
 
 const MessageContent = ({ message }) => {
   switch (message.type) {
-    case 'photo':
-      return (
-        <div className="relative group -mx-2 -my-1.5">
-          <img
-            src={message.metadata?.photoUrl || message.content}
-            alt="Shared photo"
-            className="max-w-[220px] max-h-[220px] rounded-lg object-cover cursor-pointer shadow-sm"
-            loading="lazy"
-            onClick={() => window.open(message.metadata?.photoUrl || message.content, '_blank')}
-          />
-          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 rounded-lg transition-all flex items-center justify-center opacity-0 group-hover:opacity-100">
-            <Image className="w-5 h-5 text-white drop-shadow-lg" />
-          </div>
+  
+case 'photo': {
+  const rawUrl = message.metadata?.photoUrl || message.content;
+  
+  const apiBaseUrl = import.meta.env.VITE_API_URL || 
+                     import.meta.env.VITE_BACKEND_URL || 
+                     'http://localhost:5500';
+  
+  let photoUrl = rawUrl;
+  
+  if (photoUrl && photoUrl.startsWith('/')) {
+    photoUrl = `${apiBaseUrl}${photoUrl}`;
+  }
+  
+  if (photoUrl?.includes('localhost:5173')) {
+    photoUrl = photoUrl.replace(/http:\/\/localhost:5173/, apiBaseUrl);
+  }
+  
+  console.log('🖼️ Photo URL:', {
+    raw: rawUrl,
+    display: photoUrl,
+  });
+  
+  return (
+    <div className="relative group -mx-2 -my-1.5">
+      <img
+        src={photoUrl}
+        alt="Shared photo"
+        className="max-w-[220px] max-h-[220px] rounded-lg object-cover cursor-pointer shadow-sm"
+        loading="lazy"
+        onClick={() => window.open(photoUrl, '_blank')}
+        onLoad={() => console.log('✅ Photo loaded:', photoUrl)}
+        onError={(e) => {
+          console.error('❌ Failed to load photo:', photoUrl);
+          // Show fallback
+          e.target.style.display = 'none';
+          const fallback = e.target.parentElement?.querySelector('.photo-fallback');
+          if (fallback) fallback.classList.remove('hidden');
+        }}
+      />
+      {/* Fallback */}
+      <div className="photo-fallback hidden w-[220px] h-[220px] bg-gray-100 rounded-lg flex items-center justify-center">
+        <div className="text-center p-4">
+          <Image className="w-10 h-10 text-gray-400 mx-auto mb-2" />
+          <p className="text-xs text-gray-500 mb-1">Image unavailable</p>
+          <button
+            onClick={() => window.open(photoUrl, '_blank')}
+            className="text-xs text-blue-500 underline"
+          >
+            Open image
+          </button>
         </div>
-      );
-
+      </div>
+    </div>
+  );
+}
     case 'voice':
       return (
         <div className="flex items-center gap-2.5">

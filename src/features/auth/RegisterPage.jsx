@@ -108,22 +108,15 @@ export const RegisterPage = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-cream to-warm-white">
+    <div className="min-h-screen flex items-center justify-center py-6 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-cream to-warm-white">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
         className="max-w-md w-full"
       >
-        {/* Logo */}
-        <div className="text-center mb-8">
-          <Link to="/" className="inline-flex items-center gap-2 mb-6">
-            <Heart className="w-8 h-8 text-terracotta" />
-            <span className="font-display text-2xl font-bold text-charcoal">
-              Reunite
-            </span>
-          </Link>
-          <h2 className="font-display text-3xl font-bold text-charcoal mb-2">
+        <div className="text-center mb-2">
+          <h2 className="font-display text-3xl font-bold text-charcoal mb-1">
             {language === 'am' ? 'መለያ ይፍጠሩ' : 'Create Account'}
           </h2>
           <p className="text-stone">

@@ -112,8 +112,12 @@ export const PostDetailPage = () => {
               <div className="flex items-start justify-between mb-8 pb-6 border-b border-warm-gray/30">
                 <div className="flex items-center gap-4">
                   <div className="relative">
-                    <div className="w-16 h-16 rounded-full bg-gradient-to-br from-terracotta to-sahara flex items-center justify-center text-white text-2xl font-medium">
-                      {post.posterProfile?.realName?.[0]?.toUpperCase() || "?"}
+                    <div className="w-16 h-16 rounded-full bg-gradient-to-br from-terracotta to-sahara flex items-center justify-center text-white text-2xl font-medium overflow-hidden">
+                      {post.posterProfile?.avatarUrl ? (
+                        <img src={post.posterProfile.avatarUrl} alt={post.posterProfile.realName} className="w-full h-full object-cover" />
+                      ) : (
+                        post.posterProfile?.realName?.[0]?.toUpperCase() || "?"
+                      )}
                     </div>
                     {post.posterProfile?.verifiedReconnector && (
                       <Shield className="absolute -bottom-1 -right-1 w-6 h-6 text-hope-green bg-warm-white rounded-full p-1" />

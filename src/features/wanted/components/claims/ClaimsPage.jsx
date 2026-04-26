@@ -38,9 +38,17 @@ const ClaimCard = ({ claim, onReview }) => {
         {/* Header */}
         <div className="flex items-start justify-between mb-4">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-terracotta to-sahara flex items-center justify-center text-white font-medium text-lg">
-              {claim.claimantProfile?.realName?.[0]?.toUpperCase() || '?'}
-            </div>
+            {claim.claimantProfile?.avatarUrl ? (
+              <img 
+                src={claim.claimantProfile.avatarUrl} 
+                alt={claim.claimantProfile.realName} 
+                className="w-12 h-12 rounded-full object-cover border border-warm-gray/20 shadow-sm" 
+              />
+            ) : (
+              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-terracotta to-sahara flex items-center justify-center text-white font-medium text-lg shadow-sm">
+                {claim.claimantProfile?.realName?.[0]?.toUpperCase() || '?'}
+              </div>
+            )}
             <div>
               <div className="flex items-center gap-2">
                 <h3 className="font-display text-lg font-semibold text-charcoal">

@@ -19,6 +19,12 @@ export const wantedApi = {
     axios.post("/api/wanted/profile", data).then((res) => res.data.data),
   updateProfile: (data) =>
     axios.put("/api/wanted/profile", data).then((res) => res.data.data),
+  uploadAvatar: (formData) =>
+    axios
+      .post("/api/wanted/profile/avatar", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      })
+      .then((res) => res.data.data),
   getPublicProfile: (userId) =>
     axios.get(`/api/wanted/profile/${userId}`).then((res) => res.data.data),
 
@@ -87,22 +93,14 @@ export const wantedApi = {
       .then((res) => res.data.data),
   leaveChat: (roomId) =>
     axios.post(`/api/wanted/chat/${roomId}/leave`).then((res) => res.data),
-
-  // Video Calls
-  generateVideoToken: (roomId) =>
+  
+  uploadVoiceMessage: (formData) =>
     axios
-      .post(`/api/wanted/chat/${roomId}/video`)
+      .post("/api/wanted/chat/upload/voice", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+        timeout: 30000,
+      })
       .then((res) => res.data.data),
-  endVideoCall: (roomId, data) =>
-    axios
-      .post(`/api/wanted/chat/${roomId}/video/end`, data)
-      .then((res) => res.data)
-      .catch(() => null),
-  getCallHistory: (roomId) =>
-    axios
-      .get(`/api/wanted/chat/${roomId}/calls`)
-      .then((res) => res.data.data)
-      .catch(() => []),
 
   // Verification
   sendPhoneVerification: (phoneNumber) =>

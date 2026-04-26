@@ -190,6 +190,40 @@ export const useSuccessStories = (page = 1, limit = 10) => {
   });
 };
 
+
+// Add this new hook to usePosts.js
+export const useStoryActions = () => {
+  const queryClient = useQueryClient();
+  const { language } = useLanguage();
+  
+  const shareStory = useMutation({
+    mutationFn: (data) => wantedApi.shareStory(data),
+    onSuccess: () => {
+      toast.success(
+        language === 'am'
+          ? 'ታሪክዎ ተጋርቷል! ስላካፈሉ እናመሰግናለን!'
+          : 'Your story has been shared! Thank you for inspiring others!'
+      );
+      queryClient.invalidateQueries({ queryKey: ['wanted', 'stories'] });
+      queryClient.invalidateQueries({ queryKey: ['wanted', 'my-posts'] });
+    },
+    onError: (error) => {
+      toast.error(
+        language === 'am'
+          ? 'ታሪክ ማካፈል አልተሳካም'
+          : error.message || 'Failed to share story'
+      );
+      throw error; 
+    },
+  });
+  
+  return {
+    shareStory: shareStory.mutateAsync, 
+    isSharing: shareStory.isPending,
+    shareError: shareStory.error,
+  };
+};
+
 // Get featured success stories
 export const useFeaturedStories = () => {
   return useQuery({
@@ -246,14 +280,3 @@ export const useShareStory = () => {
   });
 };
 
-
-
-// Get impact statistics
-export const useImpactStats = () => {
-  return useQuery({
-    queryKey: ['wanted', 'impact-stats'],
-    queryFn: () => wantedApi.getImpactStats(),
-    staleTime: 30 * 60 * 1000, // 30 minutes
-    refetchOnWindowFocus: false,
-  });
-};

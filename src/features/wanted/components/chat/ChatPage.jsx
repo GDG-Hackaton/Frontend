@@ -1,80 +1,45 @@
-﻿import { useState, useEffect, useRef } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
-import { useAuth } from '../../../../hooks/useAuth';
-import { 
-  Send, 
-  Image as ImageIcon, 
-  Phone, 
-  Video, 
+﻿import { useState, useEffect, useRef } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
+import { useAuth } from "../../../../hooks/useAuth";
+import {
+  Send,
+  Image as ImageIcon,
   MoreVertical,
   ChevronLeft,
   Shield,
   ArrowLeft,
-  MessageCircle
-} from 'lucide-react';
-import { useChat } from '../../hooks/useChat';
-import { useSocket } from '../../hooks/useSocket';
-import { useLanguage } from '../../../../lib/i18n';
-import { ChatSidebar } from './ChatSidebar';
-import { MessageBubble } from './MessageBubble';
-import { VideoCallModal } from './VideoCallModal';
-import { TrustBadge } from '../profile/TrustBadge';
-import { ChatSkeleton } from './ChatSkeleton';
-import { toast } from 'sonner';
-import { wantedApi } from '../../services/wantedApi';
+  MessageCircle,
+} from "lucide-react";
+import { useChat } from "../../hooks/useChat";
+import { useSocket } from "../../hooks/useSocket";
+import { useLanguage } from "../../../../lib/i18n";
+import { ChatSidebar } from "./ChatSidebar";
+import { MessageBubble } from "./MessageBubble";
+import { TrustBadge } from "../profile/TrustBadge";
+import { ChatSkeleton } from "./ChatSkeleton";
+import { toast } from "sonner";
+import { wantedApi } from "../../services/wantedApi";
 
 export const ChatPage = () => {
   const { roomId } = useParams();
   const navigate = useNavigate();
   const { language } = useLanguage();
-  const { 
-    rooms, 
-    currentRoom, 
-    messages, 
-    sendMessage, 
-    sendTyping,
-    isLoading 
-  } = useChat(roomId);
-  
+  const { rooms, currentRoom, messages, sendMessage, sendTyping, isLoading } =
+    useChat(roomId);
+
   const { isConnected, socket } = useSocket();
-  const [messageInput, setMessageInput] = useState('');
+  const [messageInput, setMessageInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const [showSidebar, setShowSidebar] = useState(false);
-  const [showVideoCall, setShowVideoCall] = useState(false);
-  const [incomingCall, setIncomingCall] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
+  const { currentUser } = useAuth();
   const messagesEndRef = useRef(null);
-  const typingTimeoutRef = useRef(null);
   const inputRef = useRef(null);
   const fileInputRef = useRef(null);
-  const { user: currentUser } = useAuth();
-
-  // Listen for incoming calls
-  useEffect(() => {
-    if (!socket) return;
-
-    const handleIncomingCall = (data) => {
-      setIncomingCall(data);
-      setShowVideoCall(true);
-    };
-
-    const handleCallEnded = () => {
-      setIncomingCall(null);
-      setShowVideoCall(false);
-    };
-
-    socket.on('incoming-call', handleIncomingCall);
-    socket.on('call-ended', handleCallEnded);
-
-    return () => {
-      socket.off('incoming-call', handleIncomingCall);
-      socket.off('call-ended', handleCallEnded);
-    };
-  }, [socket]);
-
+  const typingTimeoutRef = useRef(null);
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
   useEffect(() => {
@@ -86,7 +51,7 @@ export const ChatPage = () => {
       setIsTyping(true);
       sendTyping(true);
     }
-    
+
     clearTimeout(typingTimeoutRef.current);
     typingTimeoutRef.current = setTimeout(() => {
       setIsTyping(false);
@@ -96,20 +61,20 @@ export const ChatPage = () => {
 
   const handleSend = () => {
     if (!messageInput.trim()) return;
-    
+
     sendMessage({
       roomId: currentRoom?._id,
       content: messageInput.trim(),
-      type: 'text',
+      type: "text",
     });
-    
-    setMessageInput('');
+
+    setMessageInput("");
     setIsTyping(false);
     inputRef.current?.focus();
   };
 
   const handleKeyDown = (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
+    if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       handleSend();
     }
@@ -119,48 +84,84 @@ export const ChatPage = () => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (!file.type.startsWith('image/')) {
-      toast.error(language === 'am' ? 'እባክዎ ፎቶ ብቻ ይላኩ' : 'Please upload only images');
+    // Validate file type
+    const allowedTypes = ["image/jpeg", "image/png", "image/webp", "image/gif"];
+    if (!allowedTypes.includes(file.type)) {
+      toast.error(
+        language === "am"
+          ? "እባክዎ JPEG፣ PNG፣ WEBP ወይም GIF ብቻ"
+          : "Please upload JPEG, PNG, WEBP, or GIF only",
+      );
       return;
     }
 
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error(language === 'am' ? 'ፋይሉ ከ5MB መብለጥ የለበትም' : 'File size must be less than 5MB');
+    // Validate file size (10MB)
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error(
+        language === "am"
+          ? "ፋይሉ ከ10MB መብለጥ የለበትም"
+          : "File size must be less than 10MB",
+      );
       return;
     }
+
+    setIsUploading(true);
 
     try {
-      setIsUploading(true);
       const formData = new FormData();
-      formData.append('photo', file);
-      
+      formData.append("photo", file);
+
       const response = await wantedApi.uploadChatPhoto(formData);
-      
+
+      console.log("📤 Upload response:", response);
+
+      // ✅ Get the RELATIVE URL from response
+      let photoUrl = response?.url || response?.data?.url || response?.photoUrl;
+
+      if (!photoUrl) {
+        throw new Error("No URL returned from server");
+      }
+
+      try {
+        const urlObj = new URL(photoUrl);
+        photoUrl = urlObj.pathname;
+      } catch {}
+
+      console.log("📸 Sending photo message with URL:", photoUrl);
+
       sendMessage({
         roomId: currentRoom?._id,
-        content: response.data.url,
-        type: 'photo',
+        content: photoUrl,
+        type: "photo",
         metadata: {
-          photoUrl: response.data.url,
-          photoWidth: response.data.width,
-          photoHeight: response.data.height,
-        }
+          photoUrl: photoUrl,
+          photoWidth: response?.width || response?.data?.width || 0,
+          photoHeight: response?.height || response?.data?.height || 0,
+        },
       });
-      
-      toast.success(language === 'am' ? 'ፎቶ ተልኳል' : 'Photo sent');
+
+      toast.success(language === "am" ? "ፎቶ ተልኳል" : "Photo sent");
     } catch (error) {
-      toast.error(language === 'am' ? 'ፎቶ መላክ አልተሳካም' : 'Failed to upload photo');
+      console.error("❌ Photo upload failed:", error);
+      toast.error(
+        error.response?.data?.message ||
+          (language === "am" ? "ፎቶ መላክ አልተሳካም" : "Failed to upload photo"),
+      );
     } finally {
       setIsUploading(false);
       if (fileInputRef.current) {
-        fileInputRef.current.value = '';
+        fileInputRef.current.value = "";
       }
     }
   };
 
-  const otherParticipant = currentRoom?.participants?.find(
-    p => p.user !== currentUser?.id && p.user?._id !== currentUser?.id
-  );
+  const otherParticipant = currentRoom?.otherUser
+    ? {
+        profile: currentRoom.otherUser,
+      }
+    : currentRoom?.participants?.find(
+        (p) => (p.user?._id || p.user) !== currentUser?.id,
+      );
 
   if (isLoading) {
     return <ChatSkeleton />;
@@ -169,7 +170,7 @@ export const ChatPage = () => {
   if (!roomId) {
     return (
       <div className="h-screen flex bg-gray-50 font-sans">
-        <ChatSidebar 
+        <ChatSidebar
           rooms={rooms}
           currentRoomId={roomId}
           isOpen={showSidebar}
@@ -178,12 +179,13 @@ export const ChatPage = () => {
         <div className="hidden lg:flex flex-1 items-center justify-center px-8">
           <div className="text-center max-w-md mx-auto text-gray-400 space-y-4">
             <MessageCircle className="w-20 h-20 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold">{language === 'am' ? 'ውይይት ይምረጡ' : 'Select a conversation'}</h3>
+            <h3 className="text-xl font-semibold">
+              {language === "am" ? "ውይይት ይምረጡ" : "Select a conversation"}
+            </h3>
             <p className="text-sm">
-              {language === 'am'
-                ? 'ለመጀመር ከግራ በኩል ውይይት ይምረጡ'
-                : 'Choose a conversation from the sidebar to start chatting'
-              }
+              {language === "am"
+                ? "ለመጀመር ከግራ በኩል ውይይት ይምረጡ"
+                : "Choose a conversation from the sidebar to start chatting"}
             </p>
           </div>
         </div>
@@ -193,7 +195,7 @@ export const ChatPage = () => {
 
   return (
     <div className="h-screen flex bg-gray-50 font-sans">
-      <ChatSidebar 
+      <ChatSidebar
         rooms={rooms}
         currentRoomId={roomId}
         isOpen={showSidebar}
@@ -205,16 +207,16 @@ export const ChatPage = () => {
         <header className="flex-shrink-0 bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between shadow-sm">
           <div className="flex items-center space-x-2">
             <button
-              onClick={() => navigate('/wanted')}
+              onClick={() => navigate("/wanted")}
               className="p-2 rounded-full hover:bg-gray-100 transition"
-              title={language === 'am' ? 'ተመለስ' : 'Back'}
+              title={language === "am" ? "ተመለስ" : "Back"}
             >
               <ArrowLeft className="w-5 h-5 text-gray-600" />
             </button>
             <button
               onClick={() => setShowSidebar(true)}
               className="p-2 rounded-full hover:bg-gray-100 transition"
-              title={language === 'am' ? 'ማውጫ' : 'Menu'}
+              title={language === "am" ? "ማውጫ" : "Menu"}
             >
               <ChevronLeft className="w-5 h-5 text-gray-600" />
             </button>
@@ -223,8 +225,17 @@ export const ChatPage = () => {
           {otherParticipant && (
             <div className="flex items-center space-x-4">
               <div className="relative">
-                <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center font-semibold text-gray-700 text-lg shadow-md">
-                  {otherParticipant.profile?.realName?.[0]?.toUpperCase() || '?'}
+                <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center font-semibold text-gray-700 text-lg shadow-md overflow-hidden">
+                  {otherParticipant.profile?.avatarUrl ? (
+                    <img
+                      src={otherParticipant.profile.avatarUrl}
+                      alt={otherParticipant.profile.realName}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    otherParticipant.profile?.realName?.[0]?.toUpperCase() ||
+                    "?"
+                  )}
                 </div>
                 {isConnected && (
                   <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full" />
@@ -232,18 +243,30 @@ export const ChatPage = () => {
               </div>
               <div className="flex flex-col">
                 <h2 className="text-lg font-semibold text-gray-800">
-                  {otherParticipant.profile?.realName || (language === 'am' ? 'ተጠቃሚ' : 'User')}
+                  {otherParticipant.profile?.realName ||
+                    (language === "am" ? "ተጠቃሚ" : "User")}
                 </h2>
                 <div className="flex items-center space-x-2 mt-1 text-sm text-gray-500">
-                  <TrustBadge score={otherParticipant.profile?.trustScore} size="sm" />
+                  <TrustBadge
+                    score={otherParticipant.profile?.trustScore}
+                    size="sm"
+                  />
                 </div>
                 <p className="text-sm text-gray-400 mt-1">
                   {isTyping ? (
-                    <span className="text-green-500">{language === 'am' ? 'እየጻፈ ነው...' : 'Typing...'}</span>
+                    <span className="text-green-500">
+                      {language === "am" ? "እየጻፈ ነው..." : "Typing..."}
+                    </span>
                   ) : isConnected ? (
-                    language === 'am' ? 'በመስመር ላይ' : 'Online'
+                    language === "am" ? (
+                      "በመስመር ላይ"
+                    ) : (
+                      "Online"
+                    )
+                  ) : language === "am" ? (
+                    "ከመስመር ውጭ"
                   ) : (
-                    language === 'am' ? 'ከመስመር ውጭ' : 'Offline'
+                    "Offline"
                   )}
                 </p>
               </div>
@@ -253,20 +276,7 @@ export const ChatPage = () => {
           <div className="flex items-center space-x-2">
             <button
               className="p-2 rounded-full hover:bg-gray-100 transition"
-              title={language === 'am' ? 'የድምጽ ጥሪ' : 'Voice Call'}
-            >
-              <Phone className="w-5 h-5 text-gray-600" />
-            </button>
-            <button
-              onClick={() => setShowVideoCall(true)}
-              className="p-2 rounded-full hover:bg-gray-100 transition"
-              title={language === 'am' ? 'የቪድዮ ጥሪ' : 'Video Call'}
-            >
-              <Video className="w-5 h-5 text-gray-600" />
-            </button>
-            <button
-              className="p-2 rounded-full hover:bg-gray-100 transition"
-              title={language === 'am' ? 'ተጨማሪ' : 'More'}
+              title={language === "am" ? "ተጨማሪ" : "More"}
             >
               <MoreVertical className="w-5 h-5 text-gray-600" />
             </button>
@@ -276,10 +286,9 @@ export const ChatPage = () => {
         <div className="bg-gray-100 border-b border-gray-200 px-4 py-2 flex items-center justify-center space-x-2 text-sm text-gray-600">
           <Shield className="w-4 h-4" />
           <span>
-            {language === 'am'
-              ? 'አሁን በአስተማማኝ ሁኔታ ተገናኝተዋል! በነፃነት ይነጋገሩ።'
-              : 'You are now safely connected! Feel free to chat.'
-            }
+            {language === "am"
+              ? "አሁን በአስተማማኝ ሁኔታ ተገናኝተዋል! በነፃነት ይነጋገሩ።"
+              : "You are now safely connected! Feel free to chat."}
           </span>
         </div>
 
@@ -290,8 +299,13 @@ export const ChatPage = () => {
               <MessageBubble
                 key={msg._id || msg.clientId || index}
                 message={msg}
-                isOwn={msg.sender === currentUser?.id || msg.sender?._id === currentUser?.id}
-                showAvatar={index === 0 || messages[index - 1]?.sender !== msg.sender}
+                isOwn={
+                  msg.sender === currentUser?.id ||
+                  msg.sender?._id === currentUser?.id
+                }
+                showAvatar={
+                  index === 0 || messages[index - 1]?.sender !== msg.sender
+                }
               />
             ))}
           </AnimatePresence>
@@ -307,9 +321,18 @@ export const ChatPage = () => {
                 <div className="w-10 h-10 rounded-full bg-gray-200 shadow-md" />
                 <div className="bg-gray-50 border border-gray-300 rounded-xl px-4 py-2 shadow-sm">
                   <div className="flex space-x-2">
-                    <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                    <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                    <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                    <span
+                      className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+                      style={{ animationDelay: "0ms" }}
+                    />
+                    <span
+                      className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+                      style={{ animationDelay: "150ms" }}
+                    />
+                    <span
+                      className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+                      style={{ animationDelay: "300ms" }}
+                    />
                   </div>
                 </div>
               </motion.div>
@@ -317,40 +340,6 @@ export const ChatPage = () => {
           </AnimatePresence>
           <div ref={messagesEndRef} />
         </div>
-
-        {/* Incoming Call Notification */}
-        <AnimatePresence>
-          {incomingCall && !showVideoCall && (
-            <motion.div
-              initial={{ y: -100, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              exit={{ y: -100, opacity: 0 }}
-              className="absolute top-4 left-1/2 -translate-x-1/2 z-50 bg-white rounded-2xl shadow-2xl p-4 flex items-center gap-4 border border-gray-200"
-            >
-              <div className="w-12 h-12 rounded-full bg-terracotta flex items-center justify-center">
-                <Video className="w-6 h-6 text-white animate-pulse" />
-              </div>
-              <div>
-                <p className="font-semibold">
-                  {language === 'am' ? 'የቪድዮ ጥሪ...' : 'Incoming video call...'}
-                </p>
-                <p className="text-sm text-stone">{incomingCall.callerName || 'User'}</p>
-              </div>
-              <button
-                onClick={() => setShowVideoCall(true)}
-                className="px-4 py-2 bg-green-500 text-white rounded-full hover:bg-green-600"
-              >
-                {language === 'am' ? 'መቀበል' : 'Accept'}
-              </button>
-              <button
-                onClick={() => setIncomingCall(null)}
-                className="px-4 py-2 bg-red-500 text-white rounded-full hover:bg-red-600"
-              >
-                {language === 'am' ? 'አለመቀበል' : 'Decline'}
-              </button>
-            </motion.div>
-          )}
-        </AnimatePresence>
 
         {/* Message Input */}
         <div className="border-t border-gray-200 bg-white p-4 shadow-inner">
@@ -366,7 +355,7 @@ export const ChatPage = () => {
               onClick={() => fileInputRef.current?.click()}
               disabled={isUploading}
               className="p-2 rounded-full hover:bg-gray-100 transition disabled:opacity-50"
-              title={language === 'am' ? 'ፎቶ አያይዝ' : 'Attach photo'}
+              title={language === "am" ? "ፎቶ አያይዝ" : "Attach photo"}
             >
               {isUploading ? (
                 <div className="w-5 h-5 border-2 border-gray-400 border-t-transparent rounded-full animate-spin" />
@@ -383,13 +372,16 @@ export const ChatPage = () => {
                   handleTyping();
                 }}
                 onKeyDown={handleKeyDown}
-                placeholder={language === 'am' ? 'መልእክት ይጻፉ...' : 'Type a message...'}
+                placeholder={
+                  language === "am" ? "መልእክት ይጻፉ..." : "Type a message..."
+                }
                 rows={1}
                 className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-full resize-none focus:outline-none focus:ring-2 focus:ring-gray-400 transition"
-                style={{ maxHeight: '120px' }}
+                style={{ maxHeight: "120px" }}
                 onInput={(e) => {
-                  e.target.style.height = 'auto';
-                  e.target.style.height = Math.min(e.target.scrollHeight, 120) + 'px';
+                  e.target.style.height = "auto";
+                  e.target.style.height =
+                    Math.min(e.target.scrollHeight, 120) + "px";
                 }}
               />
             </div>
@@ -403,16 +395,6 @@ export const ChatPage = () => {
           </div>
         </div>
       </div>
-
-      <VideoCallModal
-        isOpen={showVideoCall}
-        onClose={() => {
-          setShowVideoCall(false);
-          setIncomingCall(null);
-        }}
-        roomId={currentRoom?._id}
-        incomingCall={incomingCall}
-      />
     </div>
   );
 };

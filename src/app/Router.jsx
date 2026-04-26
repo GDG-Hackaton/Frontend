@@ -7,12 +7,14 @@ import { ProfilePage } from "../features/wanted/components/profile/ProfilePage";
 import { ClaimsPage } from "../features/wanted/components/claims/ClaimsPage";
 import { ChatPage } from "../features/wanted/components/chat/ChatPage";
 import { SuccessStories } from "../features/wanted/components/shared/SuccessStories";
+import { StoriesPage } from "../features/wanted/stories/StoriesPage";
 import { LoginPage } from "../features/auth/LoginPage";
 import { RegisterPage } from "../features/auth/RegisterPage";
 import { ForgotPasswordPage } from "../features/auth/ForgotPasswordPage";
 import { ResetPasswordPage } from "../features/auth/ResetPasswordPage";
 import { CreateProfilePage } from "../features/wanted/components/profile/CreateProfilePage";
 import { ProtectedRoute } from "./ProtectedRoute";
+import { CreateStory } from "../features/wanted/stories/CreateStory";
 
 export const Router = () => {
   return (
@@ -26,16 +28,18 @@ export const Router = () => {
       <Route path="/auth/reset-password" element={<ResetPasswordPage />} />
 
       <Route path="/wanted" element={<BrowsePage />} />
-      <Route path="/wanted/stories" element={<SuccessStories />} />
+      <Route path="/wanted/stories" element={<StoriesPage />} />
+      <Route path="/stories/success" element={<Navigate to="/wanted/stories" replace />} />
 
       {/* Private Routes */}
       <Route element={<ProtectedRoute />}>
         <Route path="/wanted/post/:id" element={<PostDetailPage />} />
         <Route path="/wanted/create" element={<CreatePostPage />} />
+        <Route path="/wanted/stories/share" element={<CreateStory />} />
+
         <Route path="/wanted/profile" element={<ProfilePage />} />
         <Route path="/wanted/claims" element={<ClaimsPage />} />
         <Route path="/wanted/chat/:roomId?" element={<ChatPage />} />
-
         <Route path="/wanted/profile/create" element={<CreateProfilePage />} />
       </Route>
 

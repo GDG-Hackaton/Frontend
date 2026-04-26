@@ -175,9 +175,9 @@ class OfflineStorage {
     const db = await this.init();
     const tx = db.transaction('messages', 'readwrite');
     
-    await tx.store.add({
+    await tx.store.put({
       ...message,
-      synced: false,
+      synced: message.synced ?? false,
       cachedAt: Date.now(),
     });
     
@@ -189,7 +189,7 @@ class OfflineStorage {
     const tx = db.transaction('messages', 'readwrite');
     
     for (const message of messages) {
-      await tx.store.add({
+      await tx.store.put({
         ...message,
         chatRoom: roomId,
         synced: true,

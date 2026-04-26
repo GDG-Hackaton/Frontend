@@ -5,7 +5,7 @@ export const useImpactStats = () => {
   return useQuery({
     queryKey: ['wanted', 'impact-stats'],
     queryFn: () => wantedApi.getImpactStats(),
-    staleTime: 30 * 60 * 1000, // 30 minutes
+    staleTime: 30 * 60 * 1000, 
     refetchOnWindowFocus: false,
   });
 };

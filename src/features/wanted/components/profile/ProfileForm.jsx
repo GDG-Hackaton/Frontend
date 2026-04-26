@@ -1,11 +1,15 @@
-﻿import { useState } from 'react';
+﻿import { useState, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { X, User, MapPin, Globe, Phone, MessageCircle, Shield } from 'lucide-react';
+import { X, User, MapPin, Globe, Phone, MessageCircle, Shield, Camera } from 'lucide-react';
 import { useLanguage } from '../../../../lib/i18n';
+import { wantedApi } from '../../services/wantedApi';
+import { toast } from 'sonner';
 
-export const ProfileForm = ({ profile, onClose, onSubmit, isSubmitting }) => {
+export const ProfileForm = ({ profile, onClose, onSubmit, isSubmitting: isFormSubmitting }) => {
   const { language } = useLanguage();
   const isCreating = !profile;
+  const fileInputRef = useRef(null);
+  
   const [formData, setFormData] = useState({
     realName: profile?.realName || '',
     displayName: profile?.displayName || '',
@@ -17,8 +21,30 @@ export const ProfileForm = ({ profile, onClose, onSubmit, isSubmitting }) => {
       showInSearch: true,
       allowNotifications: true,
     },
+    avatarUrl: profile?.avatarUrl || '',
   });
+
+  const [avatarPreview, setAvatarPreview] = useState(profile?.avatarUrl || null);
+  const [avatarFile, setAvatarFile] = useState(null);
+  const [isUploading, setIsUploading] = useState(false);
   const [errors, setErrors] = useState({});
+
+  const handleImageChange = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 2 * 1024 * 1024) {
+      toast.error(language === 'am' ? 'ፋይሉ ከ2MB መብለጥ የለበትም' : 'Image size must be less than 2MB');
+      return;
+    }
+
+    setAvatarFile(file);
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setAvatarPreview(reader.result);
+    };
+    reader.readAsDataURL(file);
+  };
 
   const validate = () => {
     const newErrors = {};
@@ -34,12 +60,32 @@ export const ProfileForm = ({ profile, onClose, onSubmit, isSubmitting }) => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (validate()) {
-      onSubmit(formData);
+    if (!validate()) return;
+
+    let finalAvatarUrl = formData.avatarUrl;
+
+    if (avatarFile) {
+      setIsUploading(true);
+      try {
+        const uploadData = new FormData();
+        uploadData.append('avatar', avatarFile);
+        const result = await wantedApi.uploadAvatar(uploadData);
+        finalAvatarUrl = result.avatarUrl;
+      } catch (err) {
+        console.error('Avatar upload failed:', err);
+        toast.error(language === 'am' ? 'ፎቶ መጫን አልተሳካም' : 'Failed to upload profile photo');
+        setIsUploading(false);
+        return;
+      }
+      setIsUploading(false);
     }
+    
+    onSubmit({ ...formData, avatarUrl: finalAvatarUrl });
   };
+
+  const isSubmitting = isFormSubmitting || isUploading;
 
   return (
     <motion.div
@@ -56,7 +102,7 @@ export const ProfileForm = ({ profile, onClose, onSubmit, isSubmitting }) => {
         className="bg-white dark:bg-charcoal rounded-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="sticky top-0 bg-white dark:bg-charcoal border-b border-warm-gray/30 px-6 py-4 flex items-center justify-between">
+        <div className="sticky top-0 bg-white dark:bg-charcoal border-b border-warm-gray/30 px-6 py-4 flex items-center justify-between z-10">
           <h2 className="font-display text-xl font-semibold text-charcoal">
             {language === 'am'
               ? isCreating ? 'መገለጫ ፍጠር' : 'መገለጫ አርትዕ'
@@ -71,6 +117,37 @@ export const ProfileForm = ({ profile, onClose, onSubmit, isSubmitting }) => {
         </div>
 
         <form onSubmit={handleSubmit} className="p-6 space-y-5">
+          {/* Avatar Upload */}
+          <div className="flex flex-col items-center mb-6">
+            <div className="relative group">
+              <div className="w-24 h-24 rounded-full bg-cream border-2 border-warm-gray/30 flex items-center justify-center overflow-hidden shadow-inner">
+                {avatarPreview ? (
+                  <img 
+                    src={avatarPreview.startsWith('data:') ? avatarPreview : avatarPreview} 
+                    alt="Avatar" 
+                    className="w-full h-full object-cover" 
+                  />
+                ) : (
+                  <User className="w-10 h-10 text-stone/40" />
+                )}
+              </div>
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className="absolute bottom-0 right-0 p-2 bg-terracotta text-white rounded-full shadow-lg hover:bg-clay transition-colors"
+              >
+                <Camera className="w-4 h-4" />
+              </button>
+            </div>
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleImageChange}
+              accept="image/*"
+              className="hidden"
+            />
+          </div>
+
           {/* Real Name */}
           <div>
             <label className="block text-sm font-medium text-charcoal mb-1.5">

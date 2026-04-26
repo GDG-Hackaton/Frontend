@@ -582,7 +582,6 @@ export const BrowsePage = () => {
           </div>
         </div>
       </section>
-
       {/* CTA */}
       <section className="py-20">
         <div className="container">

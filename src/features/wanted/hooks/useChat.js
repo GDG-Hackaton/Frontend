@@ -10,13 +10,18 @@ export const useChat = (roomId) => {
   const queryClient = useQueryClient();
   const [isConnected, setIsConnected] = useState(false);
   const [typingUsers, setTypingUsers] = useState(new Set());
-  const processedMessageIds = useRef(new Set());
+  
+  // Store roomId in a ref to avoid stale closures
+  const roomIdRef = useRef(roomId);
+  useEffect(() => {
+    roomIdRef.current = roomId;
+  }, [roomId]);
 
   // Get chat rooms
   const { data: rooms, isLoading: roomsLoading } = useQuery({
     queryKey: ["wanted", "chat", "rooms"],
     queryFn: () => wantedApi.getChatRooms(),
-    staleTime: 60 * 1000,
+    staleTime: 30 * 1000,
   });
 
   // Get current room
@@ -34,14 +39,18 @@ export const useChat = (roomId) => {
       // Fetch from server
       try {
         const serverMessages = await wantedApi.getChatMessages(roomId);
+        // Sync with offline storage
+        if (serverMessages.length > 0) {
+          await Promise.all(serverMessages.map(m => offlineStorage.cacheMessage({ ...m, synced: true })));
+        }
         return serverMessages;
       } catch {
         // Return cached if offline
-        return cached;
+        return cached || [];
       }
     },
     enabled: !!roomId,
-    staleTime: 10 * 1000,
+    staleTime: 5 * 1000,
   });
 
   // Socket connection
@@ -49,7 +58,6 @@ export const useChat = (roomId) => {
     if (!user) return;
 
     const token = getAccessToken();
-
     if (!token) {
       setIsConnected(false);
       return;
@@ -58,45 +66,72 @@ export const useChat = (roomId) => {
     socketClient.connect(token);
     setIsConnected(socketClient.isConnected());
 
-    const handleConnect = () => setIsConnected(true);
-    const handleDisconnect = () => setIsConnected(false);
-    const handleNewMessage = (message) => {
-      if (message.chatRoom === roomId) {
-        queryClient.setQueryData(
-          ["wanted", "chat", "messages", roomId],
-          (old = []) => {
-            const existingIndex = old.findIndex(
-              (entry) => entry._id === message._id,
-            );
-            const requestId = message.metadata?.clientRequestId;
-            const pendingIndex = requestId
-              ? old.findIndex(
-                  (entry) =>
-                    entry.pending &&
-                    entry.metadata?.clientRequestId === requestId,
-                )
-              : -1;
-
-            if (existingIndex >= 0) {
-              return old.map((entry, index) =>
-                index === existingIndex ? message : entry,
-              );
-            }
-            if (processedMessageIds.current.has(message._id)) {
-              return old;
-            }
-            processedMessageIds.current.add(message._id);
-
-            if (pendingIndex >= 0) {
-              return old.map((entry, index) =>
-                index === pendingIndex ? message : entry,
-              );
-            }
-
-            return [...old, message];
-          },
-        );
+    const handleConnect = () => {
+      setIsConnected(true);
+      // Re-join room on reconnect
+      if (roomIdRef.current) {
+        socketClient.emit("join-room", roomIdRef.current);
       }
+    };
+    const handleDisconnect = () => setIsConnected(false);
+
+    socketClient.on("connect", handleConnect);
+    socketClient.on("disconnect", handleDisconnect);
+
+    // Join room if roomId exists
+    if (roomId) {
+      socketClient.emit("join-room", roomId);
+    }
+
+    return () => {
+      socketClient.off("connect", handleConnect);
+      socketClient.off("disconnect", handleDisconnect);
+      
+      if (roomId) {
+        socketClient.emit("leave-room", roomId);
+      }
+    };
+  }, [user, getAccessToken, roomId]); 
+
+  useEffect(() => {
+    if (!socketClient) return;
+
+    const handleNewMessage = (message) => {
+      const currentRoomId = roomIdRef.current;
+      
+      if (!message?.chatRoom || !currentRoomId) return;
+      
+      const messageRoomId = typeof message.chatRoom === 'object' 
+        ? message.chatRoom._id || message.chatRoom 
+        : message.chatRoom;
+      
+      if (messageRoomId !== currentRoomId) return;
+
+      queryClient.setQueryData(
+        ["wanted", "chat", "messages", currentRoomId],
+        (old = []) => {
+          // Check for existing message by ID or tempId
+          const exists = old.find(m => 
+            m._id === message._id || 
+            (m.pending && message.metadata?.clientRequestId && m.metadata?.clientRequestId === message.metadata?.clientRequestId)
+          );
+          
+          if (exists) {
+            return old.map(m => {
+              if (m._id === message._id) return { ...message, pending: false };
+              if (m.pending && message.metadata?.clientRequestId && m.metadata?.clientRequestId === message.metadata?.clientRequestId) {
+                return { ...message, pending: false };
+              }
+              return m;
+            });
+          }
+          
+          // Add new message
+          return [...old, { ...message, pending: false }];
+        }
+      );
+      
+      // Invalidate rooms query to update last message
       queryClient.invalidateQueries({ queryKey: ["wanted", "chat", "rooms"] });
     };
 
@@ -113,8 +148,11 @@ export const useChat = (roomId) => {
     };
 
     const handleMessagesRead = ({ userId, messageIds }) => {
+      const currentRoomId = roomIdRef.current;
+      if (!currentRoomId) return;
+      
       queryClient.setQueryData(
-        ["wanted", "chat", "messages", roomId],
+        ["wanted", "chat", "messages", currentRoomId],
         (old = []) =>
           old.map((msg) =>
             messageIds.includes(msg._id)
@@ -122,49 +160,38 @@ export const useChat = (roomId) => {
                   ...msg,
                   readBy: [
                     ...(msg.readBy || []),
-                    { user: userId, readAt: new Date() },
+                    { user: userId, readAt: new Date().toISOString() },
                   ],
                 }
-              : msg,
-          ),
+              : msg
+          )
       );
     };
 
-    socketClient.on("connect", handleConnect);
-    socketClient.on("disconnect", handleDisconnect);
     socketClient.on("new-message", handleNewMessage);
     socketClient.on("user-typing", handleUserTyping);
     socketClient.on("messages-read", handleMessagesRead);
 
-    // Join room
-    if (roomId) {
-      socketClient.emit("join-room", roomId);
-    }
-
     return () => {
-      socketClient.off("connect", handleConnect);
-      socketClient.off("disconnect", handleDisconnect);
       socketClient.off("new-message", handleNewMessage);
       socketClient.off("user-typing", handleUserTyping);
       socketClient.off("messages-read", handleMessagesRead);
-
-      if (roomId) {
-        socketClient.emit("leave-room", roomId);
-      }
-      processedMessageIds.current.clear();
     };
-  }, [getAccessToken, user, roomId, queryClient]);
+  }, [queryClient]); 
 
-  // Send message
+  // Send message mutation
   const sendMessageMutation = useMutation({
     mutationFn: async ({ content, type = "text", metadata = {} }) => {
+      const currentRoomId = roomIdRef.current;
+      if (!currentRoomId) throw new Error("No room selected");
+
       const tempId = `temp-${Date.now()}`;
       const clientRequestId = tempId;
-      metadata.clientRequestId = clientRequestId;
       const requestMetadata = { ...metadata, clientRequestId };
+      
       const tempMessage = {
         _id: tempId,
-        chatRoom: roomId,
+        chatRoom: currentRoomId,
         sender: user.id,
         content,
         type,
@@ -175,21 +202,25 @@ export const useChat = (roomId) => {
 
       // Optimistic update
       queryClient.setQueryData(
-        ["wanted", "chat", "messages", roomId],
-        (old = []) => [...old, tempMessage],
+        ["wanted", "chat", "messages", currentRoomId],
+        (old = []) => [...old, tempMessage]
       );
 
       try {
-        const message = await wantedApi.sendMessage(roomId, {
+        const message = await wantedApi.sendMessage(currentRoomId, {
           content,
           type,
           metadata: requestMetadata,
         });
+        
+        // Cache message for offline
         await offlineStorage.cacheMessage({ ...message, synced: true });
+        
         return message;
       } catch (error) {
+        // Queue for offline sync
         await offlineStorage.addToQueue("sendMessage", {
-          roomId,
+          roomId: currentRoomId,
           content,
           type,
           metadata: requestMetadata,
@@ -198,56 +229,64 @@ export const useChat = (roomId) => {
       }
     },
     onSuccess: (message) => {
+      const currentRoomId = roomIdRef.current;
+      if (!currentRoomId) return;
+      
       queryClient.setQueryData(
-        ["wanted", "chat", "messages", roomId],
+        ["wanted", "chat", "messages", currentRoomId],
         (old = []) =>
           old.map((entry) => {
             const sameRequest =
               entry.pending &&
               entry.metadata?.clientRequestId &&
-              entry.metadata.clientRequestId ===
-                message.metadata?.clientRequestId;
+              message.metadata?.clientRequestId &&
+              entry.metadata.clientRequestId === message.metadata.clientRequestId;
 
-            return sameRequest ? message : entry;
-          }),
+            return sameRequest ? { ...message, pending: false } : entry;
+          })
       );
       queryClient.invalidateQueries({ queryKey: ["wanted", "chat", "rooms"] });
     },
     onError: (_error, variables) => {
+      const currentRoomId = roomIdRef.current;
+      if (!currentRoomId) return;
+      
       const requestId = variables.metadata?.clientRequestId;
-      queryClient.setQueryData(
-        ["wanted", "chat", "messages", roomId],
-        (old = []) =>
-          old.filter(
-            (entry) =>
-              !(
-                entry.pending &&
-                requestId &&
-                entry.metadata?.clientRequestId === requestId
-              ),
-          ),
-      );
+      if (requestId) {
+        queryClient.setQueryData(
+          ["wanted", "chat", "messages", currentRoomId],
+          (old = []) =>
+            old.map((entry) =>
+              entry.pending && entry.metadata?.clientRequestId === requestId
+                ? { ...entry, pending: false, failed: true }
+                : entry
+            )
+        );
+      }
     },
   });
 
-  // Send typing indicator
   const sendTyping = useCallback(
     (isTyping) => {
-      socketClient.emit("typing", { roomId, isTyping });
+      const currentRoomId = roomIdRef.current;
+      if (!currentRoomId) return;
+      socketClient.emit("typing", { roomId: currentRoomId, isTyping });
     },
-    [roomId],
+    [] 
   );
 
-  // Mark as read
+  // Mark messages as read
   const markAsRead = useCallback(
     (messageIds) => {
-      socketClient.emit("mark-read", { roomId, messageIds });
+      const currentRoomId = roomIdRef.current;
+      if (!currentRoomId) return;
+      socketClient.emit("mark-read", { roomId: currentRoomId, messageIds });
     },
-    [roomId],
+    [] 
   );
 
-  // Upload photo
-  const uploadPhoto = useMutation({
+  // Upload photo mutation
+  const uploadPhotoMutation = useMutation({
     mutationFn: async (file) => {
       const formData = new FormData();
       formData.append("photo", file);
@@ -265,7 +304,7 @@ export const useChat = (roomId) => {
     sendMessage: sendMessageMutation.mutate,
     sendTyping,
     markAsRead,
-    uploadPhoto: uploadPhoto.mutate,
-    isUploading: uploadPhoto.isPending,
+    uploadPhoto: uploadPhotoMutation.mutate,
+    isUploading: uploadPhotoMutation.isPending,
   };
 };

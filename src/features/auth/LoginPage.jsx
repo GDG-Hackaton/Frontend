@@ -83,13 +83,7 @@ export const LoginPage = () => {
         className="max-w-md w-full"
       >
         {/* Logo */}
-        <div className="text-center mb-8">
-          <Link to="/" className="inline-flex items-center gap-2 mb-6">
-            <Heart className="w-8 h-8 text-terracotta" />
-            <span className="font-display text-2xl font-bold text-charcoal">
-              Reunite
-            </span>
-          </Link>
+        <div className="text-center mb-5">
           <h2 className="font-display text-3xl font-bold text-charcoal mb-2">
             {language === 'am' ? 'እንኳን ደህና መጡ' : 'Welcome Back'}
           </h2>

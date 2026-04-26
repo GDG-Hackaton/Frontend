@@ -1,12 +1,12 @@
-import { useState, useEffect } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  Heart, 
-  Search, 
-  PenTool, 
-  User, 
-  MessageCircle, 
+import { useState, useEffect } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  Heart,
+  Search,
+  PenTool,
+  User,
+  MessageCircle,
   Globe,
   Menu,
   X,
@@ -17,31 +17,31 @@ import {
   Shield,
   Users,
   Sparkles,
-  Inbox
-} from 'lucide-react';
-import { useLanguage } from '../../lib/i18n';
-import { useAuth } from '../../hooks/useAuth';
-import { TrustBadge } from '../../features/wanted/components/profile/TrustBadge';
-import { wantedApi } from '../../features/wanted/services/wantedApi';
+  Inbox,
+} from "lucide-react";
+import { useLanguage } from "../../lib/i18n";
+import { useAuth } from "../../hooks/useAuth";
+import { TrustBadge } from "../../features/wanted/components/profile/TrustBadge";
+import { wantedApi } from "../../features/wanted/services/wantedApi";
 
 export const MainHeader = () => {
   const { language, setLanguage } = useLanguage();
   const { user, profile, isAuthenticated, logout } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
-  
+  const isAdmin = localStorage.getItem("isAdmin") === "true";
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const [isLangMenuOpen, setIsLangMenuOpen] = useState(false);
-  
+
   // ✅ Add pending claims count
   const [pendingClaimsCount, setPendingClaimsCount] = useState(0);
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 20);
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   // ✅ Fetch pending claims count
@@ -52,12 +52,12 @@ export const MainHeader = () => {
           const response = await wantedApi.getPendingClaims();
           setPendingClaimsCount(response?.length || 0);
         } catch (error) {
-          console.error('Failed to fetch pending claims:', error);
+          console.error("Failed to fetch pending claims:", error);
         }
       };
-      
+
       fetchPendingCount();
-      
+
       // Refresh every 30 seconds
       const interval = setInterval(fetchPendingCount, 30000);
       return () => clearInterval(interval);
@@ -65,44 +65,48 @@ export const MainHeader = () => {
   }, [isAuthenticated, profile]);
 
   const navLinks = [
-    { 
-      path: '/wanted', 
-      label: { en: 'Browse', am: 'አስስ' },
+    {
+      path: "/wanted",
+      label: { en: "Browse", am: "አስስ" },
       icon: Search,
-      description: { en: 'Find people', am: 'ሰዎችን ያግኙ' }
+      description: { en: "Find people", am: "ሰዎችን ያግኙ" },
     },
-    { 
-      path: '/wanted/create', 
-      label: { en: 'Post', am: 'ልጥፍ' },
+    {
+      path: "/wanted/create",
+      label: { en: "Post", am: "ልጥፍ" },
       icon: PenTool,
-      description: { en: 'Start a search', am: 'ፍለጋ ጀምር' }
+      description: { en: "Start a search", am: "ፍለጋ ጀምር" },
+    },
+    {
+      path: "/wanted/stories",
+      label: { en: "Success Stories", am: "የተጋናኙት ሰዎች" },
+      icon: PenTool,
+      description: { en: "Success Stories", am: "የተገናኙት ሰዎች" },
     },
   ];
 
-  const isActive = (path) => location.pathname === path || location.pathname.startsWith(path + '/');
+  const isActive = (path) =>
+    location.pathname === path || location.pathname.startsWith(path + "/");
 
   const handleLogout = async () => {
     await logout();
     setIsProfileMenuOpen(false);
-    navigate('/');
+    navigate("/");
   };
 
   return (
     <>
       <header
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-          isScrolled 
-            ? 'bg-warm-white/95 backdrop-blur-xl shadow-sm border-b border-warm-gray/20' 
-            : 'bg-transparent'
+          isScrolled
+            ? "bg-warm-white/95 backdrop-blur-xl shadow-sm border-b border-warm-gray/20"
+            : "bg-transparent"
         }`}
       >
         <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16 md:h-20">
             {/* Logo */}
-            <Link 
-              to="/" 
-              className="flex items-center gap-2 group"
-            >
+            <Link to="/" className="flex items-center gap-2 group">
               <div className="relative">
                 <Heart className="w-8 h-8 text-terracotta group-hover:scale-110 transition-transform" />
                 <motion.div
@@ -115,33 +119,33 @@ export const MainHeader = () => {
                 <span className="font-display text-xl md:text-2xl font-bold text-charcoal leading-tight">
                   Reunite
                 </span>
-
               </div>
             </Link>
-
             {/* Desktop Navigation */}
             <div className="hidden md:flex items-center gap-1">
               {navLinks.map((link) => {
                 const Icon = link.icon;
                 const active = isActive(link.path);
-                
+
                 return (
                   <Link
                     key={link.path}
                     to={link.path}
                     className={`relative px-4 py-2 rounded-full transition-all group ${
-                      active 
-                        ? 'text-terracotta bg-terracotta/5' 
-                        : 'text-charcoal hover:text-terracotta hover:bg-cream'
+                      active
+                        ? "text-terracotta bg-terracotta/5"
+                        : "text-charcoal hover:text-terracotta hover:bg-cream"
                     }`}
                   >
                     <div className="flex items-center gap-2">
-                      <Icon className={`w-4 h-4 ${active ? 'text-terracotta' : 'text-stone group-hover:text-terracotta'}`} />
+                      <Icon
+                        className={`w-4 h-4 ${active ? "text-terracotta" : "text-stone group-hover:text-terracotta"}`}
+                      />
                       <span className="font-medium">
-                        {language === 'am' ? link.label.am : link.label.en}
+                        {language === "am" ? link.label.am : link.label.en}
                       </span>
                     </div>
-                    
+
                     {active && (
                       <motion.div
                         layoutId="activeNav"
@@ -153,6 +157,17 @@ export const MainHeader = () => {
               })}
             </div>
 
+            {/* admin section */}
+
+            {isAdmin && (
+              <Link
+                to="/admin"
+                className="flex items-center gap-2 px-3 py-2 bg-indigo-600 text-white rounded-lg text-sm hover:bg-indigo-700"
+              >
+                <Shield className="w-4 h-4" />
+                <span>Admin</span>
+              </Link>
+            )}
             {/* Right Actions */}
             <div className="flex items-center gap-2">
               {/* Language Switcher */}
@@ -163,7 +178,7 @@ export const MainHeader = () => {
                 >
                   <Globe className="w-5 h-5" />
                   <span className="text-sm font-medium hidden sm:block">
-                    {language === 'en' ? 'EN' : 'አማ'}
+                    {language === "en" ? "EN" : "አማ"}
                   </span>
                 </button>
 
@@ -176,8 +191,8 @@ export const MainHeader = () => {
                       className="absolute right-0 mt-2 w-40 bg-white rounded-xl shadow-lg border border-warm-gray overflow-hidden"
                     >
                       {[
-                        { code: 'en', label: 'English', flag: '🇺🇸' },
-                        { code: 'am', label: 'አማርኛ', flag: '🇪🇹' },
+                        { code: "en", label: "English", flag: "🇺🇸" },
+                        { code: "am", label: "አማርኛ", flag: "🇪🇹" },
                       ].map((lang) => (
                         <button
                           key={lang.code}
@@ -186,12 +201,16 @@ export const MainHeader = () => {
                             setIsLangMenuOpen(false);
                           }}
                           className={`w-full px-4 py-3 text-left hover:bg-cream transition-colors flex items-center gap-3 ${
-                            language === lang.code ? 'text-terracotta font-medium bg-terracotta/5' : 'text-charcoal'
+                            language === lang.code
+                              ? "text-terracotta font-medium bg-terracotta/5"
+                              : "text-charcoal"
                           }`}
                         >
                           <span className="text-lg">{lang.flag}</span>
                           <span>{lang.label}</span>
-                          {language === lang.code && <span className="ml-auto">✓</span>}
+                          {language === lang.code && (
+                            <span className="ml-auto">✓</span>
+                          )}
                         </button>
                       ))}
                     </motion.div>
@@ -210,7 +229,7 @@ export const MainHeader = () => {
                     <Inbox className="w-5 h-5" />
                     {pendingClaimsCount > 0 && (
                       <span className="absolute -top-1 -right-1 w-5 h-5 bg-terracotta text-white text-xs font-medium rounded-full flex items-center justify-center">
-                        {pendingClaimsCount > 9 ? '9+' : pendingClaimsCount}
+                        {pendingClaimsCount > 9 ? "9+" : pendingClaimsCount}
                       </span>
                     )}
                   </Link>
@@ -229,10 +248,18 @@ export const MainHeader = () => {
                       onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
                       className="flex items-center gap-2 p-1.5 rounded-full hover:bg-cream transition-colors"
                     >
-                      <div className="w-9 h-9 rounded-full bg-gradient-to-br from-terracotta to-sahara flex items-center justify-center text-white font-medium shadow-sm">
-                        {profile.realName?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || '?'}
+                      <div className="w-9 h-9 rounded-full bg-gradient-to-br from-terracotta to-sahara flex items-center justify-center text-white font-medium shadow-sm overflow-hidden">
+                        {profile.avatarUrl ? (
+                          <img src={profile.avatarUrl} alt={profile.realName} className="w-full h-full object-cover" />
+                        ) : (
+                          profile.realName?.[0]?.toUpperCase() ||
+                          user?.email?.[0]?.toUpperCase() ||
+                          "?"
+                        )}
                       </div>
-                      <ChevronDown className={`w-4 h-4 text-stone transition-transform ${isProfileMenuOpen ? 'rotate-180' : ''}`} />
+                      <ChevronDown
+                        className={`w-4 h-4 text-stone transition-transform ${isProfileMenuOpen ? "rotate-180" : ""}`}
+                      />
                     </button>
 
                     <AnimatePresence>
@@ -244,10 +271,15 @@ export const MainHeader = () => {
                           className="absolute right-0 mt-2 w-64 bg-white rounded-xl shadow-lg border border-warm-gray overflow-hidden"
                         >
                           <div className="p-4 border-b border-warm-gray/30">
-                            <p className="font-medium text-charcoal">{profile.realName}</p>
+                            <p className="font-medium text-charcoal">
+                              {profile.realName}
+                            </p>
                             <p className="text-sm text-stone">{user?.email}</p>
                             <div className="mt-2">
-                              <TrustBadge score={profile.trustScore} size="sm" />
+                              <TrustBadge
+                                score={profile.trustScore}
+                                size="sm"
+                              />
                             </div>
                           </div>
 
@@ -258,16 +290,20 @@ export const MainHeader = () => {
                               className="w-full px-4 py-2.5 text-left hover:bg-cream transition-colors flex items-center gap-3 text-sm"
                             >
                               <User className="w-4 h-4 text-stone" />
-                              <span>{language === 'am' ? 'መገለጫ' : 'Profile'}</span>
+                              <span>
+                                {language === "am" ? "መገለጫ" : "Profile"}
+                              </span>
                             </Link>
-                            
+
                             <Link
                               to="/wanted/claims"
                               onClick={() => setIsProfileMenuOpen(false)}
                               className="w-full px-4 py-2.5 text-left hover:bg-cream transition-colors flex items-center gap-3 text-sm"
                             >
                               <Inbox className="w-4 h-4 text-stone" />
-                              <span>{language === 'am' ? 'ጥያቄዎች' : 'Claims'}</span>
+                              <span>
+                                {language === "am" ? "ጥያቄዎች" : "Claims"}
+                              </span>
                               {pendingClaimsCount > 0 && (
                                 <span className="ml-auto bg-terracotta text-white text-xs px-2 py-0.5 rounded-full">
                                   {pendingClaimsCount}
@@ -282,7 +318,9 @@ export const MainHeader = () => {
                               className="w-full px-4 py-2.5 text-left hover:bg-error/10 transition-colors flex items-center gap-3 text-sm text-error"
                             >
                               <LogOut className="w-4 h-4" />
-                              <span>{language === 'am' ? 'ውጣ' : 'Sign Out'}</span>
+                              <span>
+                                {language === "am" ? "ውጣ" : "Sign Out"}
+                              </span>
                             </button>
                           </div>
                         </motion.div>
@@ -296,13 +334,13 @@ export const MainHeader = () => {
                     to="/auth/login"
                     className="hidden sm:block px-4 py-2 text-olive hover:text-terracotta font-medium transition-colors"
                   >
-                    {language === 'am' ? 'ግባ' : 'Sign In'}
+                    {language === "am" ? "ግባ" : "Sign In"}
                   </Link>
                   <Link
                     to="/auth/register"
                     className="px-5 py-2.5 bg-terracotta text-white rounded-full font-medium hover:bg-clay transition-all shadow-sm hover:shadow-md"
                   >
-                    {language === 'am' ? 'ተመዝገብ' : 'Join Orginization'}
+                    {language === "am" ? "ተመዝገብ" : "Join Orginization"}
                   </Link>
                 </div>
               )}
@@ -312,7 +350,11 @@ export const MainHeader = () => {
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                 className="md:hidden p-2 text-charcoal rounded-full hover:bg-cream transition-colors"
               >
-                {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+                {isMobileMenuOpen ? (
+                  <X className="w-6 h-6" />
+                ) : (
+                  <Menu className="w-6 h-6" />
+                )}
               </button>
             </div>
           </div>
@@ -323,18 +365,21 @@ export const MainHeader = () => {
       <AnimatePresence>
         {isMobileMenuOpen && (
           <motion.div
-            initial={{ opacity: 0, x: '100%' }}
+            initial={{ opacity: 0, x: "100%" }}
             animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: '100%' }}
-            transition={{ type: 'spring', damping: 30 }}
+            exit={{ opacity: 0, x: "100%" }}
+            transition={{ type: "spring", damping: 30 }}
             className="fixed inset-0 z-40 md:hidden"
           >
-            <div className="absolute inset-0 bg-black/50" onClick={() => setIsMobileMenuOpen(false)} />
-            
+            <div
+              className="absolute inset-0 bg-black/50"
+              onClick={() => setIsMobileMenuOpen(false)}
+            />
+
             <motion.div
-              initial={{ x: '100%' }}
+              initial={{ x: "100%" }}
               animate={{ x: 0 }}
-              exit={{ x: '100%' }}
+              exit={{ x: "100%" }}
               className="absolute right-0 top-0 bottom-0 w-80 bg-warm-white shadow-xl"
             >
               <div className="p-6">
@@ -342,35 +387,40 @@ export const MainHeader = () => {
                   <button
                     onClick={() => setIsMobileMenuOpen(false)}
                     className="p-2 text-stone hover:text-charcoal"
-                  >
-                  </button>
+                  ></button>
                 </div>
 
                 <nav className="space-y-2">
                   {navLinks.map((link) => {
                     const Icon = link.icon;
                     const active = isActive(link.path);
-                    
+
                     return (
                       <Link
                         key={link.path}
                         to={link.path}
                         onClick={() => setIsMobileMenuOpen(false)}
                         className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-colors ${
-                          active 
-                            ? 'bg-terracotta/10 text-terracotta' 
-                            : 'hover:bg-cream text-charcoal'
+                          active
+                            ? "bg-terracotta/10 text-terracotta"
+                            : "hover:bg-cream text-charcoal"
                         }`}
                       >
                         <Icon className="w-5 h-5" />
                         <div>
-                          <p className="font-medium">{language === 'am' ? link.label.am : link.label.en}</p>
-                          <p className="text-xs text-stone">{language === 'am' ? link.description.am : link.description.en}</p>
+                          <p className="font-medium">
+                            {language === "am" ? link.label.am : link.label.en}
+                          </p>
+                          <p className="text-xs text-stone">
+                            {language === "am"
+                              ? link.description.am
+                              : link.description.en}
+                          </p>
                         </div>
                       </Link>
                     );
                   })}
-                  
+
                   {isAuthenticated && (
                     <Link
                       to="/wanted/claims"
@@ -379,7 +429,9 @@ export const MainHeader = () => {
                     >
                       <Inbox className="w-5 h-5" />
                       <div className="flex-1">
-                        <p className="font-medium">{language === 'am' ? 'ጥያቄዎች' : 'Claims'}</p>
+                        <p className="font-medium">
+                          {language === "am" ? "ጥያቄዎች" : "Claims"}
+                        </p>
                       </div>
                       {pendingClaimsCount > 0 && (
                         <span className="bg-terracotta text-white text-xs px-2 py-0.5 rounded-full">
@@ -393,24 +445,23 @@ export const MainHeader = () => {
                 {!isAuthenticated && (
                   <div className="mt-8 p-4 bg-cream rounded-xl">
                     <p className="text-sm text-charcoal mb-3">
-                      {language === 'am' 
-                        ? 'ለመጀመር ይቀላቀሉ'
-                        : 'Join to start reconnecting'
-                      }
+                      {language === "am"
+                        ? "ለመጀመር ይቀላቀሉ"
+                        : "Join to start reconnecting"}
                     </p>
                     <Link
                       to="/auth/register"
                       onClick={() => setIsMobileMenuOpen(false)}
                       className="block w-full py-3 bg-terracotta text-white rounded-full font-medium text-center"
                     >
-                      {language === 'am' ? 'ተመዝገብ' : 'Sign Up Free'}
+                      {language === "am" ? "ተመዝገብ" : "Sign Up Free"}
                     </Link>
                     <Link
                       to="/auth/login"
                       onClick={() => setIsMobileMenuOpen(false)}
                       className="block w-full py-3 text-olive font-medium text-center mt-2"
                     >
-                      {language === 'am' ? 'ግባ' : 'Sign In'}
+                      {language === "am" ? "ግባ" : "Sign In"}
                     </Link>
                   </div>
                 )}

@@ -76,8 +76,12 @@ export const PostCard = ({ post, index }) => {
         {/* Footer - Poster & Stats */}
         <div className="flex items-center justify-between pt-2 border-t border-warm-gray/50">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-sahara to-terracotta flex items-center justify-center text-white text-xs font-medium">
-              {post.posterProfile?.realName?.[0]?.toUpperCase() || '?'}
+            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-sahara to-terracotta flex items-center justify-center text-white text-xs font-medium overflow-hidden">
+              {post.posterProfile?.avatarUrl ? (
+                <img src={post.posterProfile.avatarUrl} alt={post.posterProfile.realName} className="w-full h-full object-cover" />
+              ) : (
+                post.posterProfile?.realName?.[0]?.toUpperCase() || '?'
+              )}
             </div>
             <div className="text-sm">
               <p className="font-medium text-charcoal">
