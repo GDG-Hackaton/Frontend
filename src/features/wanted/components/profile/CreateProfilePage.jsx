@@ -281,7 +281,7 @@ export const CreateProfilePage = () => {
               {language === 'am' ? 'የግላዊነት ቅንብሮች' : 'Privacy Settings'}
             </label>
             
-            <label className="flex items-center justify-between p-3 bg-cream rounded-xl border border-warm-gray/30 cursor-pointer">
+            <label className="flex items-center justify-between p-1 bg-cream rounded-xl border border-warm-gray/30 cursor-pointer">
               <span className="text-sm text-charcoal">
                 {language === 'am' ? 'በፍለጋ ውጤቶች ውስጥ አሳይ' : 'Show in search results'}
               </span>
@@ -294,7 +294,7 @@ export const CreateProfilePage = () => {
                     showInSearch: !formData.privacySettings.showInSearch,
                   },
                 })}
-                className={`relative w-11 h-6 rounded-full transition-colors ${
+                className={`relative w-11 h-6 rounded- transition-colors ${
                   formData.privacySettings.showInSearch ? 'bg-terracotta' : 'bg-warm-gray'
                 }`}
               >

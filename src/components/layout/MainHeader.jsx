@@ -35,7 +35,6 @@ export const MainHeader = () => {
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const [isLangMenuOpen, setIsLangMenuOpen] = useState(false);
 
-  // ✅ Add pending claims count
   const [pendingClaimsCount, setPendingClaimsCount] = useState(0);
 
   useEffect(() => {
@@ -44,7 +43,6 @@ export const MainHeader = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // ✅ Fetch pending claims count
   useEffect(() => {
     if (isAuthenticated && profile) {
       const fetchPendingCount = async () => {
@@ -67,21 +65,21 @@ export const MainHeader = () => {
   const navLinks = [
     {
       path: "/wanted",
-      label: { en: "Browse", am: "አስስ" },
+      label: { en: "Reconnect", am: "" },
       icon: Search,
-      description: { en: "Find people", am: "ሰዎችን ያግኙ" },
+      description: { en: "", am: "" },
     },
     {
-      path: "/wanted/create",
-      label: { en: "Post", am: "ልጥፍ" },
+      path: "/",
+      label: { en: "Post", am: "ሰዉን ፋሊግ" },
       icon: PenTool,
       description: { en: "Start a search", am: "ፍለጋ ጀምር" },
     },
     {
-      path: "/wanted/stories",
-      label: { en: "Success Stories", am: "የተጋናኙት ሰዎች" },
+      path: "/wanted",
+      label: { en: "Reconnect", am: "እንደገና መገናኘት" },
       icon: PenTool,
-      description: { en: "Success Stories", am: "የተገናኙት ሰዎች" },
+      description: { en: "Reconnecting people through memory", am: "ከሰዎች ጋራ መገናኛት" },
     },
   ];
 
