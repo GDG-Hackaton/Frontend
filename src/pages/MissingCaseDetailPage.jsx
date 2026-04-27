@@ -395,7 +395,7 @@ export const MissingCaseDetailPage = () => {
                   Search strategy
                 </h2>
                 <p className="mt-1 text-sm text-stone-500">
-                  Generate and review the backend search plan for this case.
+                  Generate and review the  search plan for this case.
                 </p>
               </div>
               <button

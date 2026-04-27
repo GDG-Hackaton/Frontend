@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
+import reuniteImg from '../../assets/reunite.png';
 import {
   Bot,
   ChevronDown,
@@ -129,11 +130,11 @@ export const MainHeader = () => {
             : "bg-transparent"
         }`}
       >
-        <nav className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <nav className="mx-auto max-w-9xl px-4 sm:px-6 lg:px-8">
           <div className="flex h-16 items-center justify-between md:h-20">
             <Link to="/" className="flex items-center gap-3">
               <div className="relative">
-                <span className="absolute -right-1 -top-1 h-3 w-3 rounded-full bg-hope-green ring-2 ring-white" />
+              <img src={reuniteImg} alt="Reunite" width={50}/>
               </div>
               <div>
                 <div className="font-display text-xl font-bold text-charcoal md:text-2xl">
@@ -150,7 +151,7 @@ export const MainHeader = () => {
                 <Link
                   key={link.path}
                   to={link.path}
-                  className={`rounded-full px-4 py-2 text-sm font-medium transition ${
+                  className={`rounded-full px-4 py-2 text-md font-medium transition ${
                     isActive(link.path)
                       ? "bg-terracotta/10 text-terracotta"
                       : "text-stone-700 hover:bg-stone-100 hover:text-charcoal"
@@ -197,11 +198,11 @@ export const MainHeader = () => {
                           <div className="font-medium text-charcoal">
                             {language === "am" ? link.label.am : link.label.en}
                           </div>
-                          <div className="mt-1 text-xs leading-5 text-stone-500">
+                          {/* <div className="mt-1 text-xs leading-5 text-stone-500">
                             {language === "am"
                               ? link.description.am
                               : link.description.en}
-                          </div>
+                          </div> */}
                         </Link>
                       ))}
                     </motion.div>

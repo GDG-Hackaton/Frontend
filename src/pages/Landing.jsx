@@ -93,7 +93,7 @@ const OrgHeroSection = () => {
           {/* CTA BUTTONS */}
           <div className="flex flex-wrap justify-center gap-4">
 
-            <Link to="/wanted">
+            <Link to="/read-more">
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.97 }}
@@ -240,7 +240,7 @@ const DualSystemSection = () => {
             </ul>
 
             <div className="mt-8">
-              <Link to="/wanted">
+              <Link to="/cases">
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.97 }}
@@ -284,7 +284,7 @@ const DualSystemSection = () => {
             </ul>
 
             <div className="mt-8">
-              <Link to="/reconnect">
+              <Link to="/wanted">
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.97 }}
@@ -520,25 +520,36 @@ const FinalCTASection = () => {
           </p>
 
           <div className="flex flex-wrap justify-center gap-4">
-            <Link to="/wanted">
+            <Link to="/cases">
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 className="px-8 py-4 bg-red-500 hover:bg-red-600 rounded-full font-semibold shadow-lg"
               >
-                🚨 {language === "am" ? "የጠፉቦትን ሰው ይፈልጉ " : "Find Missing Person"}
+                 {language === "am" ? "የጠፉቦትን ሰው ይፈልጉ " : "Find Missing Person"}
               </motion.button>
             </Link>
 
-            <Link to="/reconnect">
+            <Link to="/wanted">
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 className="px-8 py-4 bg-amber-500 hover:bg-amber-600 rounded-full font-semibold shadow-lg"
               >
-                💛 {language === "am" ? "ከተራራቁት ሰዎች ጋር ይገናኙ" : "Reconnect With Someone"}
+                 {language === "am" ? "ከተራራቁት ሰዎች ጋር ይገናኙ" : "Reconnect With Someone"}
               </motion.button>
             </Link>
+            <div className=""
+            ><Link to="/auth/register">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="px-8 py-4 border border-white/30 bg-white/10 rounded-full font-semibold shadow-lg backdrop-blur"
+              >
+                {language === "am" ? "ይመዝገቡ" : "Create Account"}
+              </motion.button>
+            </Link></div>
+            
           </div>
         </motion.div>
       </div>

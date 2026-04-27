@@ -98,7 +98,9 @@ export const MainFooter = () => {
                   to="/volunteers"
                   className="text-white/60 transition-colors hover:text-white"
                 >
-                  {language === "am" ? "Volunteer Response" : "Volunteer Response"}
+                  {language === "am"
+                    ? "Volunteer Response"
+                    : "Volunteer Response"}
                 </Link>
               </li>
               {canAccessAdmin ? (
@@ -119,12 +121,19 @@ export const MainFooter = () => {
                   {language === "am" ? "AI Desk" : "AI Desk"}
                 </Link>
               </li>
-              <li>
+                <li><Link
+                  to="/read-more"
+                  className="text-white/60 hover:text-white transition-colors"
+                >
+                  Read More
+                </Link></li>
+                <li>
+                
                 <Link
-                  to="/how-it-works"
+                  to="/faq"
                   className="text-white/60 transition-colors hover:text-white"
                 >
-                  {language === "am" ? "How It Works" : "How It Works"}
+                  {language !== "am" ? "FAQs" : "ተደጋጋሚ ጥያቄዎች"}
                 </Link>
               </li>
             </ul>

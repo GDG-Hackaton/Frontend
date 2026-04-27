@@ -77,7 +77,7 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     checkAuth();
-  }, [checkAuth]);
+  }, []);
 
   const login = useCallback(async (email, password) => {
     try {
@@ -133,7 +133,7 @@ export const AuthProvider = ({ children }) => {
 
         setUser(user);
         setProfile(null);
-        setNeedsProfile(true); // New users need profile
+        setNeedsProfile(true); 
         setIsAuthenticated(true);
 
         toast.success(response.data.message || 'Account created! Please complete your profile.');

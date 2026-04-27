@@ -14,7 +14,7 @@ export const WantedFooter = () => {
     ],
     about: [
       { to: '/about', label: { en: 'Our Mission', am: 'ተልዕኳችን' } },
-      { to: '/how-it-works', label: { en: 'How It Works', am: 'እንዴት እንደሚሰራ' } },
+      { to: '/faq', label: { en: 'FAQS', am: 'ተደጋጋሚ ጥያቄዎች' } },
       { to: '/trust-safety', label: { en: 'Trust & Safety', am: 'እምነት እና ደህንነት' } },
     ],
     support: [

@@ -17,8 +17,14 @@ const shouldIgnoreError = (msg) => {
 };
 
 export default defineConfig(({ mode }) => {
-  const env = loadEnv(mode, process.cwd(), '');
-  const BACKEND_URL = env.VITE_API_URL || 'http://localhost:5500';
+  const env = loadEnv(mode, path.resolve(__dirname), '');
+  
+  // Ensure we don't proxy to the same port
+  let BACKEND_URL = env.VITE_API_URL || 'http://localhost:5500';
+  if (BACKEND_URL.includes(':5173')) {
+    console.warn('⚠️ VITE_API_URL is pointing to the same port as Vite (5173). Defaulting to http://localhost:5500 for proxy target.');
+    BACKEND_URL = 'http://localhost:5500';
+  }
 
   return {
     plugins: [

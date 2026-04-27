@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { Mic, ImagePlus, Send, Wand2, Loader2 } from "lucide-react";
-import api, { aiService } from "@/services/api";
+import api, { normalizeAssistantResponse } from "@/services/api";
 import { useI18n } from "@/contexts/I18nContext";
 import { toast } from "sonner";
 
@@ -28,7 +28,7 @@ const AIAssistant = () => {
         context: { mode: "frontend-assistant" },
         imageData: imageBase64,
       });
-      setAssistantReply(response.data.data);
+      setAssistantReply(normalizeAssistantResponse(response.data));
       toast.success("AI assistant returned guidance.");
     } catch (error) {
       console.error("Assistant error:", error);
@@ -174,7 +174,7 @@ const AIAssistant = () => {
               Assistant Response
             </div>
             <div className="mt-4 text-sm leading-7 text-slate-700">
-              {assistantReply}
+              {assistantReply.text}
             </div>
           </div>
         )}

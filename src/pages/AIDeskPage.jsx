@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Bot, Loader2, Search, ShieldCheck, Sparkles } from "lucide-react";
 import { toast } from "sonner";
-import { aiService } from "../services/api";
+import { aiService, normalizeAssistantResponse } from "../services/api";
 import { useLanguage } from "../lib/i18n";
 import { useAuth } from "../hooks/useAuth";
 import { isAdminRole } from "../lib/authRoles";
@@ -56,19 +56,27 @@ export const AIDeskPage = () => {
         language,
         context: { page: "ai-desk" },
       });
-      const payload = response.data || response;
+      const payload = normalizeAssistantResponse(response);
       setAssistantMessages((current) => [
         ...current,
         {
           role: "assistant",
-          text:
-            payload?.text ||
-            payload?.message ||
-            "The assistant did not return structured guidance.",
+          text: payload.text,
         },
       ]);
-    } catch {
-      toast.error("AI assistant request failed.");
+    } catch (error) {
+      const fallback =
+        error?.response?.data?.error ||
+        error?.message ||
+        "AI assistant request failed.";
+      toast.error(fallback);
+      setAssistantMessages((current) => [
+        ...current,
+        {
+          role: "assistant",
+          text: fallback,
+        },
+      ]);
     } finally {
       setAssistantLoading(false);
     }

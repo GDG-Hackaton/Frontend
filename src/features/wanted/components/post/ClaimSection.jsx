@@ -211,6 +211,39 @@ export const ClaimSection = ({ post, onClaimSubmitted }) => {
     );
   }
 
+  if (!user) {
+    return (
+      <div className="rounded-2xl border border-warm-gray/30 bg-cream p-8 text-center">
+        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-terracotta/10">
+          <User className="h-8 w-8 text-terracotta" />
+        </div>
+        <h3 className="mb-2 font-display text-xl font-semibold text-charcoal">
+          {language === 'am' ? 'ለመገናኘት መግባት ያስፈልጋል' : 'Sign in to connect'}
+        </h3>
+        <p className="mb-6 text-stone">
+          {language === 'am'
+            ? 'ይህ እርስዎ ከሆኑ ወይም እውነተኛ መረጃ ካለዎት በደህና ለመላክ መጀመሪያ ይግቡ ወይም ይመዝገቡ።'
+            : 'If this is you or you have a real lead, sign in first so we can open a safe verified connection.'}
+        </p>
+        <div className="flex flex-wrap items-center justify-center gap-3">
+          <Link
+            to="/auth/login"
+            className="rounded-full border border-warm-gray px-6 py-2.5 text-stone transition-colors hover:bg-warm-gray/20"
+          >
+            {language === 'am' ? 'ግባ' : 'Sign in'}
+          </Link>
+          <Link
+            to="/auth/register"
+            className="btn-primary inline-flex items-center gap-2"
+          >
+            <ArrowRight className="h-4 w-4" />
+            {language === 'am' ? 'መለያ ፍጠር' : 'Create account'}
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-4">
       {!showClaimForm ? (

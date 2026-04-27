@@ -21,6 +21,8 @@ import { CreateProfilePage } from "../features/wanted/components/profile/CreateP
 import { ProtectedRoute } from "./ProtectedRoute";
 import { AdminRoute } from "./RoleRoute";
 import { CreateStory } from "../features/wanted/stories/CreateStory";
+import ReadMorePage from "../components/ReadMorePage";
+import FAQPage from "../components/FAQPage";
 
 const LegacyCaseRedirect = () => {
   const { id } = useParams();
@@ -31,33 +33,33 @@ export const Router = () => {
   return (
     <Routes>
       <Route path="/" element={<LandingPage />} />
-
       <Route path="/cases" element={<MissingCasesPage />} />
       <Route path="/cases/:id" element={<MissingCaseDetailPage />} />
       <Route path="/case/:id" element={<LegacyCaseRedirect />} />
       <Route path="/report" element={<ReportCasePage />} />
       <Route path="/volunteers" element={<VolunteerOperationsPage />} />
-      <Route path="/volunteer" element={<Navigate to="/volunteers" replace />} />
+      <Route
+        path="/volunteer"
+        element={<Navigate to="/volunteers" replace />}
+      />
       <Route element={<AdminRoute />}>
         <Route path="/admin" element={<AdminControlPage />} />
       </Route>
       <Route path="/dashboard" element={<Navigate to="/admin" replace />} />
       <Route path="/ai" element={<AIDeskPage />} />
-
       <Route path="/auth/login" element={<LoginPage />} />
       <Route path="/auth/register" element={<RegisterPage />} />
       <Route path="/auth/forgot-password" element={<ForgotPasswordPage />} />
       <Route path="/auth/reset-password" element={<ResetPasswordPage />} />
-
+      <Route path="/reconnect" element={<Navigate to="/wanted" replace />} />
       <Route path="/wanted" element={<BrowsePage />} />
+      <Route path="/wanted/post/:id" element={<PostDetailPage />} />
       <Route path="/wanted/stories" element={<StoriesPage />} />
       <Route
         path="/stories/success"
         element={<Navigate to="/wanted/stories" replace />}
       />
-
       <Route element={<ProtectedRoute />}>
-        <Route path="/wanted/post/:id" element={<PostDetailPage />} />
         <Route path="/wanted/create" element={<CreatePostPage />} />
         <Route path="/wanted/stories/share" element={<CreateStory />} />
         <Route path="/wanted/profile" element={<ProfilePage />} />
@@ -66,13 +68,14 @@ export const Router = () => {
         <Route path="/wanted/profile/create" element={<CreateProfilePage />} />
       </Route>
 
+      <Route path="/read-more" element={<ReadMorePage />} />
+      <Route path="/faq" element={<FAQPage />} />{" "}
       <Route path="/how-it-works" element={<div>How It Works</div>} />
       <Route path="/about" element={<div>About</div>} />
       <Route path="/mission" element={<div>Mission</div>} />
       <Route path="/contact" element={<div>Contact</div>} />
       <Route path="/privacy-policy" element={<div>Privacy Policy</div>} />
       <Route path="/terms-of-service" element={<div>Terms of Service</div>} />
-
       <Route path="/login" element={<Navigate to="/auth/login" replace />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

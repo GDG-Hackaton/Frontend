@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Bot, X, Mic, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useI18n } from "@/contexts/I18nContext";
-import { aiService } from "@/services/api";
+import { aiService, normalizeAssistantResponse } from "@/services/api";
 import speechService from "@/services/speechService";
 
 const VoiceIndicator = () => (
@@ -65,22 +65,14 @@ const AIAssistantGlobal = () => {
         context: {},
       });
 
-      const reply = response?.data?.data ||
-        response?.data ||
-        response || {
-          text: "I couldn't process that. Try again.",
-        };
+      const reply = normalizeAssistantResponse(response);
 
       setMessages((prev) => [
         ...prev,
         {
           id: prev.length + 2,
           role: "assistant",
-          text:
-            reply.text ||
-            reply.message ||
-            String(reply) ||
-            "I couldn't process that.",
+          text: reply.text || "I couldn't process that.",
         },
       ]);
     } catch (error) {

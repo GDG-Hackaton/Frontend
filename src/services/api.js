@@ -60,6 +60,26 @@ export const aiService = {
   },
 };
 
+export const normalizeAssistantResponse = (payload) => {
+  const result = payload?.data || payload;
+  const text =
+    result?.text ||
+    result?.message ||
+    result?.reply ||
+    result?.content ||
+    "";
+
+  return {
+    ...result,
+    text:
+      typeof text === "string" && text.trim()
+        ? text
+        : "The assistant did not return structured guidance.",
+    actions: Array.isArray(result?.actions) ? result.actions : [],
+    language: result?.language || "en",
+  };
+};
+
 export const checkBackendHealth = async () => {
   try {
     const response = await axios.get(

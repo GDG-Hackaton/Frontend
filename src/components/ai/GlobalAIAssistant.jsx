@@ -3,7 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { Bot, Send, X, Sparkles } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
-import { aiService } from "../../services/api";
+import { aiService, normalizeAssistantResponse } from "../../services/api";
 import { useLanguage } from "../../lib/i18n";
 
 const starterPrompts = [
@@ -62,11 +62,8 @@ export const GlobalAIAssistant = () => {
         },
       });
 
-      const payload = result?.data || result;
-      const reply =
-        payload?.text ||
-        payload?.message ||
-        "I could not produce a useful answer for that yet.";
+      const payload = normalizeAssistantResponse(result);
+      const reply = payload.text;
 
       setMessages((current) => [
         ...current,
