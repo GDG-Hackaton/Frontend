@@ -47,14 +47,11 @@ export default function ReportForm() {
   const [smsPhone, setSmsPhone] = useState("");
   const [enableSMS, setEnableSMS] = useState(false);
 
-  //   const [whatsappPhone, setWhatsappPhone] = useState('');
-  //   const [enableWhatsApp, setEnableWhatsApp] = useState(false);
-
   const [formData, setFormData] = useState({
     description: "",
     name: "",
     age: "",
-    lastSeenLocation: "",
+    lastSeenLocation: "",  
     image: null,
   });
 

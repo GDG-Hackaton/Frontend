@@ -19,8 +19,7 @@ export default function VoiceInput({ onTranscript, language = 'am-ET' }) {
   
   const languages = [
     { code: 'am-ET', name: 'አማርኛ (Amharic)' },
-    { code: 'en-US', name: 'English (US)' },
-    { code: 'en-GB', name: 'English (UK)' }
+    { code: 'en-GB', name: 'English' }
   ];
   
   useEffect(() => {

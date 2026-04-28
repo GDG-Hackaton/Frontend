@@ -129,7 +129,7 @@ export const AIDeskPage = () => {
       <section className="border-b border-stone-200 bg-white">
         <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:px-8">
           <p className="text-sm font-semibold uppercase tracking-[0.24em] text-terracotta">
-            AI Desk
+            Help Desk
           </p>
           <h1 className="mt-3 text-4xl font-semibold text-charcoal">
             Global AI support for reporting, extraction, and verification

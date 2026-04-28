@@ -33,7 +33,7 @@ export const GlobalAIAssistant = () => {
     () => [
       { label: "Report Case", path: "/report" },
       { label: "Active Cases", path: "/cases" },
-      { label: "AI Desk", path: "/ai" },
+      { label: "Help Desk", path: "/ai" },
     ],
     [],
   );

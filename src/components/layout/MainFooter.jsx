@@ -118,7 +118,7 @@ export const MainFooter = () => {
                   to="/ai"
                   className="text-white/60 transition-colors hover:text-white"
                 >
-                  {language === "am" ? "AI Desk" : "AI Desk"}
+                  {language === "am" ? "Help Desk" : "Help Desk"}
                 </Link>
               </li>
                 <li><Link
