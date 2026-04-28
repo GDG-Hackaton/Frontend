@@ -25,15 +25,16 @@ export const ChatPage = () => {
   const { roomId } = useParams();
   const navigate = useNavigate();
   const { language } = useLanguage();
-  const { rooms, currentRoom, messages, sendMessage, sendTyping, isLoading } =
+  const { rooms, currentRoom, messages, sendMessage, sendTyping, typingUsers, isLoading } =
     useChat(roomId);
 
-  const { isConnected, socket } = useSocket();
+  const { socket } = useSocket();
   const [messageInput, setMessageInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const [showSidebar, setShowSidebar] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
-  const { currentUser } = useAuth();
+  const { user } = useAuth();
+  const [otherParticipantOnline, setOtherParticipantOnline] = useState(false);
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
   const fileInputRef = useRef(null);
@@ -172,10 +173,36 @@ export const ChatPage = () => {
   const otherParticipant = currentRoom?.otherUser
     ? {
         profile: currentRoom.otherUser,
+        user: currentRoom.otherUser.user || currentRoom.otherUser._id,
       }
     : currentRoom?.participants?.find(
-        (p) => (p.user?._id || p.user) !== currentUser?.id,
+        (p) => (p.user?._id || p.user) !== user?.id,
       );
+
+  useEffect(() => {
+    const otherUserId =
+      otherParticipant?.user?._id ||
+      otherParticipant?.user ||
+      currentRoom?.otherUser?.user?._id ||
+      currentRoom?.otherUser?.user;
+
+    if (!socket || !otherUserId) {
+      setOtherParticipantOnline(false);
+      return;
+    }
+
+    const normalizedOtherUserId = String(otherUserId);
+    const handleUserStatus = ({ userId, isOnline }) => {
+      if (String(userId) === normalizedOtherUserId) {
+        setOtherParticipantOnline(Boolean(isOnline));
+      }
+    };
+
+    socket.on("user-status", handleUserStatus);
+    return () => {
+      socket.off("user-status", handleUserStatus);
+    };
+  }, [currentRoom?.otherUser, otherParticipant, socket]);
 
   if (isLoading) {
     return <ChatSkeleton />;
@@ -251,7 +278,7 @@ export const ChatPage = () => {
                     "?"
                   )}
                 </div>
-                {isConnected && (
+                {otherParticipantOnline && (
                   <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full" />
                 )}
               </div>
@@ -267,11 +294,11 @@ export const ChatPage = () => {
                   />
                 </div>
                 <p className="text-sm text-gray-400 mt-1">
-                  {isTyping ? (
+                  {typingUsers.length > 0 ? (
                     <span className="text-green-500">
                       {language === "am" ? "እየጻፈ ነው..." : "Typing..."}
                     </span>
-                  ) : isConnected ? (
+                  ) : otherParticipantOnline ? (
                     language === "am" ? (
                       "በመስመር ላይ"
                     ) : (
@@ -314,8 +341,8 @@ export const ChatPage = () => {
                 key={msg._id || msg.clientId || index}
                 message={msg}
                 isOwn={
-                  msg.sender === currentUser?.id ||
-                  msg.sender?._id === currentUser?.id
+                  msg.sender === user?.id ||
+                  msg.sender?._id === user?.id
                 }
                 showAvatar={
                   index === 0 || messages[index - 1]?.sender !== msg.sender
@@ -326,7 +353,7 @@ export const ChatPage = () => {
           </AnimatePresence>
 
           <AnimatePresence>
-            {isTyping && (
+            {typingUsers.length > 0 && (
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}

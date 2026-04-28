@@ -16,5 +16,13 @@ export const ProtectedRoute = () => {
 
   return isAuthenticated 
     ? <Outlet /> 
-    : <Navigate to="/auth/login" state={{ from: location }} replace />;
+    : (
+      <Navigate
+        to={`/auth/login?redirect=${encodeURIComponent(
+          `${location.pathname}${location.search}${location.hash}`,
+        )}`}
+        state={{ from: location }}
+        replace
+      />
+    );
 };

@@ -222,7 +222,7 @@ export const MessageBubble = ({ message, isOwn, showAvatar, previousMessage, onD
           <div className="flex-shrink-0 mb-0.5">
             {showAvatar ? (
               <div className="w-7 h-7 rounded-xl bg-gradient-to-br from-sahara to-terracotta flex items-center justify-center text-white text-[11px] font-semibold shadow-sm">
-                {user?.realName?.[0]?.toUpperCase() || 'U'}
+                {user?.realName?.[0]?.toUpperCase() || user?.name?.[0]?.toUpperCase() || 'U'}
               </div>
             ) : (
               <div className="w-7 flex-shrink-0" />

@@ -13,6 +13,7 @@ export const CreateProfilePage = () => {
   const location = useLocation();
   const { mutate: createProfile, isPending: isCreating } = useCreateProfile();
   const fileInputRef = useRef(null);
+  const identityFileInputRef = useRef(null);
   
   const from = location.state?.from || '/wanted';
   
@@ -28,11 +29,14 @@ export const CreateProfilePage = () => {
       allowNotifications: true,
     },
     avatarUrl: '',
+    identityPhotoUrl: '',
   });
 
   const [avatarPreview, setAvatarPreview] = useState(null);
+  const [identityPreview, setIdentityPreview] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
   const [avatarFile, setAvatarFile] = useState(null);
+  const [identityFile, setIdentityFile] = useState(null);
   
   const [errors, setErrors] = useState({});
 
@@ -49,6 +53,23 @@ export const CreateProfilePage = () => {
     const reader = new FileReader();
     reader.onloadend = () => {
       setAvatarPreview(reader.result);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleIdentityChange = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 4 * 1024 * 1024) {
+      toast.error(language === 'am' ? 'ፋይሉ ከ4MB መብለጥ የለበትም' : 'Image size must be less than 4MB');
+      return;
+    }
+
+    setIdentityFile(file);
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setIdentityPreview(reader.result);
     };
     reader.readAsDataURL(file);
   };
@@ -89,7 +110,25 @@ export const CreateProfilePage = () => {
       setIsUploading(false);
     }
     
-    createProfile({ ...formData, avatarUrl: finalAvatarUrl }, {
+    let finalIdentityPhotoUrl = formData.identityPhotoUrl;
+
+    if (identityFile) {
+      setIsUploading(true);
+      try {
+        const uploadData = new FormData();
+        uploadData.append('identityPhoto', identityFile);
+        const result = await wantedApi.uploadIdentityPhoto(uploadData);
+        finalIdentityPhotoUrl = result.identityPhotoUrl;
+      } catch (err) {
+        console.error('Identity photo upload failed:', err);
+        toast.error(language === 'am' ? 'የማረጋገጫ ፎቶ መጫን አልተሳካም' : 'Failed to upload verification photo');
+        setIsUploading(false);
+        return;
+      }
+      setIsUploading(false);
+    }
+
+    createProfile({ ...formData, avatarUrl: finalAvatarUrl, identityPhotoUrl: finalIdentityPhotoUrl }, {
       onSuccess: () => {
         navigate(from, { replace: true });
       },
@@ -163,6 +202,42 @@ export const CreateProfilePage = () => {
               accept="image/*"
               className="hidden"
             />
+          </div>
+
+          <div className="rounded-2xl border border-warm-gray/30 bg-cream/50 p-4">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <p className="text-sm font-medium text-charcoal">
+                  {language === 'am' ? 'የፊት ማረጋገጫ ፎቶ (አማራጭ)' : 'Face verification photo (Optional)'}
+                </p>
+                <p className="mt-1 text-xs text-stone">
+                  {language === 'am'
+                    ? 'እገዛ ሲያደርጉ ተጨማሪ እምነት እንዲኖር ግልጽ ፎቶ ያክሉ።'
+                    : 'Add a clear photo if you want extra identity confidence when supporting others.'}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => identityFileInputRef.current?.click()}
+                className="rounded-full border border-warm-gray px-3 py-1.5 text-xs font-medium text-stone hover:border-terracotta/40 hover:text-terracotta"
+              >
+                {identityPreview ? (language === 'am' ? 'ቀይር' : 'Change') : (language === 'am' ? 'ጫን' : 'Upload')}
+              </button>
+            </div>
+            <input
+              type="file"
+              ref={identityFileInputRef}
+              onChange={handleIdentityChange}
+              accept="image/*"
+              className="hidden"
+            />
+            {identityPreview ? (
+              <img
+                src={identityPreview}
+                alt="Verification Preview"
+                className="mt-4 h-40 w-full rounded-2xl object-cover"
+              />
+            ) : null}
           </div>
 
           {/* Real Name */}

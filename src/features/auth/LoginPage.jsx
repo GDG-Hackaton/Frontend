@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { useLanguage } from '../../lib/i18n';
 import { useAuth } from '../../hooks/useAuth';
+import { GoogleSignInButton } from './GoogleSignInButton';
 
 export const LoginPage = () => {
   const { language } = useLanguage();
@@ -217,6 +218,12 @@ export const LoginPage = () => {
               </span>
             </div>
           </div>
+
+          <GoogleSignInButton
+            onSuccess={() => {
+              navigate(from, { replace: true });
+            }}
+          />
 
           {/* Register Link */}
           <p className="text-center text-sm text-stone">

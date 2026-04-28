@@ -11,8 +11,10 @@ import {
   LogOut,
   Menu,
   MessageCircle,
+  Moon,
   Shield,
   Settings,
+  Sun,
   User,
   Users,
   X,
@@ -22,6 +24,7 @@ import { useAuth } from "../../hooks/useAuth";
 import { wantedApi } from "../../features/wanted/services/wantedApi";
 import { TrustBadge } from "../../features/wanted/components/profile/TrustBadge";
 import { isAdminRole } from "../../lib/authRoles";
+import { useTheme } from "../../app/providers/ThemeProvider";
 
 const primaryLinks = [
   { path: "/cases", label: { en: "Cases", am: "ኬሶች" } },
@@ -69,6 +72,7 @@ const reconnectLinks = [
 export const MainHeader = () => {
   const { language, setLanguage } = useLanguage();
   const { user, profile, isAuthenticated, logout } = useAuth();
+  const { theme, toggleTheme } = useTheme();
   const location = useLocation();
   const navigate = useNavigate();
   const [isScrolled, setIsScrolled] = useState(false);
@@ -238,6 +242,19 @@ export const MainHeader = () => {
             </div>
 
             <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={toggleTheme}
+                className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-stone-200 bg-white/80 text-stone-700 transition hover:border-terracotta/30 hover:text-terracotta"
+                title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+                aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+              >
+                {theme === "dark" ? (
+                  <Sun className="h-4 w-4" />
+                ) : (
+                  <Moon className="h-4 w-4" />
+                )}
+              </button>
               <div className="relative hidden sm:block" ref={langMenuRef}>
                 <button
                   type="button"

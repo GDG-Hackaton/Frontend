@@ -22,7 +22,7 @@ const defaultStats = {
 };
 
 export const MissingCasesPage = () => {
-  const { user } = useAuth();
+  const { user, isAuthenticated } = useAuth();
   const [cases, setCases] = useState([]);
   const [stats, setStats] = useState(defaultStats);
   const [loading, setLoading] = useState(true);
@@ -102,6 +102,12 @@ export const MissingCasesPage = () => {
                     Open Command Center
                   </Link>
                 ) : null}
+                <Link
+                  to="/volunteers"
+                  className="rounded-full border border-stone-200 px-5 py-3 text-sm font-semibold text-stone-700 transition hover:border-terracotta/30 hover:text-terracotta"
+                >
+                  {isAuthenticated ? "Register as volunteer" : "Sign in to volunteer"}
+                </Link>
               </div>
             </div>
 

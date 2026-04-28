@@ -120,6 +120,52 @@ export const AuthProvider = ({ children }) => {
     }
   }, []);
 
+  const loginWithGoogle = useCallback(async (credential) => {
+    try {
+      const response = await axios.post('/api/auth/google', { credential });
+
+      if (response.data.success) {
+        const { token, refreshToken, user, isNewUser } = response.data.data;
+
+        localStorage.setItem('auth-token', token);
+        localStorage.setItem('refresh-token', refreshToken);
+        localStorage.setItem('user-data', JSON.stringify(user));
+
+        setUser(user);
+        setIsAuthenticated(true);
+
+        let hasWantedProfile = false;
+
+        try {
+          const profileResponse = await axios.get('/api/wanted/profile');
+          if (profileResponse.data.success && profileResponse.data.data) {
+            setProfile(profileResponse.data.data);
+            setNeedsProfile(false);
+            hasWantedProfile = true;
+          } else {
+            setProfile(null);
+            setNeedsProfile(true);
+          }
+        } catch (profileError) {
+          setProfile(null);
+          setNeedsProfile(true);
+        }
+
+        toast.success(
+          isNewUser ? 'Google account connected. Complete your profile.' : 'Signed in with Google.',
+        );
+
+        return { success: true, needsProfile: !hasWantedProfile };
+      }
+
+      return { success: false, error: response.data.message };
+    } catch (error) {
+      const message = error.response?.data?.message || 'Google sign-in failed';
+      toast.error(message);
+      return { success: false, error: message };
+    }
+  }, []);
+
   const register = useCallback(async (userData) => {
     try {
       const response = await axios.post('/api/auth/register', userData);
@@ -190,6 +236,7 @@ export const AuthProvider = ({ children }) => {
     isAuthenticated,
     needsProfile,
     login,
+    loginWithGoogle,
     register,
     logout,
     refreshProfile,

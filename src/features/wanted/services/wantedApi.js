@@ -25,6 +25,12 @@ export const wantedApi = {
         headers: { "Content-Type": "multipart/form-data" },
       })
       .then((res) => res.data.data),
+  uploadIdentityPhoto: (formData) =>
+    axios
+      .post("/api/wanted/profile/identity-photo", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      })
+      .then((res) => res.data.data),
   getPublicProfile: (userId) =>
     axios.get(`/api/wanted/profile/${userId}`).then((res) => res.data.data),
 

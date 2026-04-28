@@ -1,8 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import { MapPin, Navigation, Radio, Send } from "lucide-react";
 import { toast } from "sonner";
 import api from "../services/api";
 import { caseService } from "../services/caseService";
+import { useAuth } from "../hooks/useAuth";
 import {
   buildGoogleMapsUrl,
   formatRelativeTime,
@@ -26,9 +28,10 @@ const getStoredVolunteerId = () => {
 };
 
 export const VolunteerOperationsPage = () => {
+  const { user } = useAuth();
   const [volunteer, setVolunteer] = useState({
-    name: "",
-    phone: "",
+    name: user?.name || "",
+    phone: user?.phone || "",
     deviceId: getStoredVolunteerId(),
   });
   const [location, setLocation] = useState(null);
@@ -37,6 +40,14 @@ export const VolunteerOperationsPage = () => {
   const [registering, setRegistering] = useState(false);
   const [quickSighting, setQuickSighting] = useState("");
   const [sendingSighting, setSendingSighting] = useState(false);
+
+  useEffect(() => {
+    setVolunteer((current) => ({
+      ...current,
+      name: user?.name || current.name,
+      phone: user?.phone || current.phone,
+    }));
+  }, [user]);
 
   const readiness = useMemo(
     () => [
@@ -161,6 +172,14 @@ export const VolunteerOperationsPage = () => {
             volunteer intake, location-based nearby case lookup, and the quick
             sighting endpoint for field response.
           </p>
+          <div className="mt-6 flex flex-wrap gap-3">
+            <Link
+              to="/cases"
+              className="rounded-full border border-stone-200 px-5 py-3 text-sm font-semibold text-stone-700 transition hover:border-terracotta/30 hover:text-terracotta"
+            >
+              Back to cases
+            </Link>
+          </div>
         </div>
       </section>
 

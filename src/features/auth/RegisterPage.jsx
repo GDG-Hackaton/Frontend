@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { useLanguage } from '../../lib/i18n';
 import { useAuth } from '../../hooks/useAuth';
+import { GoogleSignInButton } from './GoogleSignInButton';
 
 export const RegisterPage = () => {
   const { language } = useLanguage();
@@ -144,6 +145,32 @@ export const RegisterPage = () => {
 
         {/* Register Form */}
         <div className="bg-white rounded-2xl shadow-xl p-8 border border-warm-gray/30">
+          {step === 1 ? (
+            <div className="mb-6">
+              <GoogleSignInButton
+                onSuccess={() => {
+                  navigate('/wanted/profile/create', {
+                    state: {
+                      message:
+                        language === 'am'
+                          ? 'ጉግል በመጠቀም ገብተዋል። ፕሮፋይልዎን ያጠናቅቁ።'
+                          : 'Signed in with Google. Complete your profile.',
+                    },
+                  });
+                }}
+              />
+              <div className="relative my-6">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-warm-gray/30"></div>
+                </div>
+                <div className="relative flex justify-center text-xs">
+                  <span className="px-3 bg-white text-stone">
+                    {language === 'am' ? 'ወይም በኢሜይል' : 'or continue with email'}
+                  </span>
+                </div>
+              </div>
+            </div>
+          ) : null}
           {registerError && (
             <motion.div
               initial={{ opacity: 0, y: -10 }}

@@ -36,8 +36,10 @@ export const Router = () => {
       <Route path="/cases" element={<MissingCasesPage />} />
       <Route path="/cases/:id" element={<MissingCaseDetailPage />} />
       <Route path="/case/:id" element={<LegacyCaseRedirect />} />
-      <Route path="/report" element={<ReportCasePage />} />
-      <Route path="/volunteers" element={<VolunteerOperationsPage />} />
+      <Route element={<ProtectedRoute />}>
+        <Route path="/report" element={<ReportCasePage />} />
+        <Route path="/volunteers" element={<VolunteerOperationsPage />} />
+      </Route>
       <Route
         path="/volunteer"
         element={<Navigate to="/volunteers" replace />}
