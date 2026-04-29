@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Eye, MapPin, Navigation, Sparkles } from "lucide-react";
+import { Activity, Eye, MapPin, Navigation } from "lucide-react";
 import AddisMap from "@/components/map/AddisMap";
 import ReportSightingModal from "@/components/map/ReportSightingModal";
 import { sampleLocations } from "@/components/map/mapData";
@@ -11,7 +11,9 @@ export default function Map() {
   const [locations, setLocations] = useState(sampleLocations);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const [activeMarkerId, setActiveMarkerId] = useState(null);
+  const [selectedCaseId, setSelectedCaseId] = useState(null);
   const [reportLocation, setReportLocation] = useState(null);
+  const [mapTileStatus, setMapTileStatus] = useState("loading");
 
   useEffect(() => {
     const storedSightings = window.localStorage.getItem(
@@ -53,9 +55,13 @@ export default function Map() {
     { label: "Markers", value: String(locations.length) },
   ];
 
+  const selectedLocation =
+    locations.find((location) => location.caseId === selectedCaseId) || null;
+
   const handleReportSighting = (payload) => {
     const sightingId = `sighting-${Date.now()}`;
     setActiveMarkerId(sightingId);
+    setSelectedCaseId(sightingId);
 
     setLocations((current) => [
       {
@@ -85,16 +91,21 @@ export default function Map() {
     setReportLocation(null);
   };
 
+  const handleSelectLocation = (location) => {
+    setSelectedCaseId(location.caseId);
+    setActiveMarkerId(location.caseId);
+  };
+
   return (
     <section className="relative h-screen overflow-hidden bg-[#f4efe6]">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(212,165,74,0.22),_transparent_30%),radial-gradient(circle_at_top_right,_rgba(91,140,111,0.18),_transparent_28%),linear-gradient(180deg,_rgba(253,251,247,0.55),_rgba(253,251,247,0))]" />
 
-      <div className="relative grid h-full w-full lg:grid-cols-[380px_1fr]">
+      <div className="relative grid h-full w-full lg:grid-cols-[420px_1fr]">
         <aside className="z-[500] flex flex-col justify-between border-b border-white/50 bg-[#fdfbf7]/92 p-5 backdrop-blur-xl lg:border-b-0 lg:border-r">
           <div className="space-y-8">
             <div className="space-y-4">
               <span className="inline-flex items-center gap-2 rounded-full border border-[#d9cdc0] bg-white/90 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.24em] text-[#7b6f63]">
-                <Sparkles className="h-3.5 w-3.5 text-terracotta" />
+                <Activity className="h-3.5 w-3.5 text-terracotta" />
                 City Map
               </span>
 
@@ -107,6 +118,37 @@ export default function Map() {
                   capital, built as a clean full-screen map experience.
                 </p>
               </div>
+            </div>
+
+            <div className="rounded-[28px] border border-[#e8dfd3] bg-white/85 p-4 shadow-[0_16px_40px_rgba(44,40,37,0.06)]">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-stone-500">
+                    Live status
+                  </p>
+                  <p className="mt-1 text-sm font-semibold text-charcoal">
+                    {mapTileStatus === "loaded" ? "Map connected" : "Syncing tiles"}
+                  </p>
+                </div>
+                <div className="rounded-full bg-emerald-50 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-700">
+                  <span className="mr-1 inline-block h-2 w-2 rounded-full bg-emerald-500 align-middle" />
+                  Live
+                </div>
+              </div>
+              <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-stone-100">
+                <div
+                  className={`h-full rounded-full transition-all duration-500 ${
+                    mapTileStatus === "loaded"
+                      ? "w-full bg-emerald-500"
+                      : mapTileStatus === "error"
+                        ? "w-3/4 bg-amber-500"
+                        : "w-2/3 bg-terracotta animate-pulse"
+                  }`}
+                />
+              </div>
+              <p className="mt-3 text-xs leading-5 text-stone-500">
+                Marker updates, selection, and reporting run in real time.
+              </p>
             </div>
 
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
@@ -123,6 +165,66 @@ export default function Map() {
                   </p>
                 </div>
               ))}
+            </div>
+
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <h3 className="text-sm font-semibold uppercase tracking-[0.22em] text-stone-500">
+                  Cases on map
+                </h3>
+                <span className="rounded-full bg-stone-100 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-stone-600">
+                  {locations.length}
+                </span>
+              </div>
+
+              <div className="max-h-[34vh] space-y-3 overflow-y-auto pr-1">
+                {locations.map((location) => {
+                  const isSelected = location.caseId === selectedCaseId;
+
+                  return (
+                    <button
+                      key={location.caseId}
+                      type="button"
+                      onClick={() => handleSelectLocation(location)}
+                      className={`w-full rounded-3xl border p-4 text-left transition duration-200 ${
+                        isSelected
+                          ? "border-terracotta bg-terracotta/8 shadow-[0_16px_36px_rgba(196,101,74,0.14)]"
+                          : "border-[#e8dfd3] bg-white/85 hover:border-stone-300 hover:bg-white"
+                      }`}
+                    >
+                      <div className="flex items-start gap-3">
+                        <div
+                          className={`mt-1 h-3 w-3 rounded-full ${
+                            location.status === "Critical"
+                              ? "bg-red-500"
+                              : location.status === "Resolved"
+                                ? "bg-green-500"
+                                : "bg-blue-500"
+                          }`}
+                        />
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center justify-between gap-3">
+                            <div>
+                              <p className="truncate text-sm font-semibold text-charcoal">
+                                {location.name}
+                              </p>
+                              <p className="text-xs text-stone-500">
+                                {location.city || "Reported location"}
+                              </p>
+                            </div>
+                            <span className="rounded-full border border-stone-200 bg-stone-50 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-stone-600">
+                              {location.status}
+                            </span>
+                          </div>
+                          <p className="mt-2 line-clamp-2 text-sm leading-5 text-stone-600">
+                            {location.lastSeen}
+                          </p>
+                        </div>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           </div>
 
@@ -175,7 +277,11 @@ export default function Map() {
           <AddisMap
             locations={locations}
             activeMarkerId={activeMarkerId}
+            selectedMarkerId={selectedCaseId}
+            selectedLocation={selectedLocation}
             onMapClick={handleOpenReportModal}
+            onMarkerSelect={handleSelectLocation}
+            onTileStatusChange={setMapTileStatus}
           />
         </div>
       </div>

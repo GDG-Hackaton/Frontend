@@ -4,31 +4,39 @@ import L from "leaflet";
 import MarkerPopupCard from "./MarkerPopupCard";
 import { markerStatusStyles } from "./statusStyles";
 
-const createMarkerIcon = (status) => {
+const createMarkerIcon = (status, isSelected = false) => {
   const markerColor =
     markerStatusStyles[status]?.marker || markerStatusStyles.Active.marker;
+  const size = isSelected ? 24 : 18;
 
   return L.divIcon({
     className: "city-map-marker",
     html: `
-      <div class="city-map-marker__pin" style="display:flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:9999px;background:${markerColor};border:3px solid #FDFBF7;box-shadow:0 10px 24px rgba(44,40,37,0.18);"></div>
+      <div class="city-map-marker__pin ${isSelected ? "city-map-marker__pin--selected" : ""}" style="display:flex;align-items:center;justify-content:center;width:${size}px;height:${size}px;border-radius:9999px;background:${markerColor};border:${isSelected ? 4 : 3}px solid #FDFBF7;box-shadow:0 10px 24px rgba(44,40,37,0.18);"></div>
     `,
-    iconSize: [18, 18],
-    iconAnchor: [9, 9],
+    iconSize: [size, size],
+    iconAnchor: [size / 2, size / 2],
   });
 };
 
-export default function MapMarkers({ locations, activeMarkerId }) {
+export default function MapMarkers({
+  locations,
+  activeMarkerId,
+  selectedMarkerId,
+  onMarkerSelect,
+}) {
   return locations.map((location) => (
     <MarkerWithPopup
-      key={`${location.caseId}-${location.lat}-${location.lng}`}
+      key={location.caseId}
       location={location}
       shouldOpen={location.caseId === activeMarkerId}
+      isSelected={location.caseId === selectedMarkerId}
+      onMarkerSelect={onMarkerSelect}
     />
   ));
 }
 
-function MarkerWithPopup({ location, shouldOpen }) {
+function MarkerWithPopup({ location, shouldOpen, isSelected, onMarkerSelect }) {
   const popupRef = useRef(null);
   const markerRef = useRef(null);
 
@@ -42,7 +50,10 @@ function MarkerWithPopup({ location, shouldOpen }) {
     <Marker
       ref={markerRef}
       position={[location.lat, location.lng]}
-      icon={createMarkerIcon(location.status)}
+      icon={createMarkerIcon(location.status, isSelected)}
+      eventHandlers={{
+        click: () => onMarkerSelect?.(location),
+      }}
     >
       <Popup ref={popupRef}>
         <MarkerPopupCard

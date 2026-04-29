@@ -9,17 +9,27 @@ export function FitMapToMarkers({
   locations,
   padding = [48, 48],
   maxFitZoom = 14,
+  duration = 1.1,
 }) {
   const map = useMap();
 
   useEffect(() => {
-    if (!locations.length) return;
+    if (!map || !locations || locations.length === 0) return;
 
-    map.fitBounds(getMarkerBounds(locations), {
-      padding,
-      maxZoom: maxFitZoom,
-    });
-  }, [locations, map, maxFitZoom, padding]);
+    try {
+      const bounds = getMarkerBounds(locations);
+      if (bounds.isValid()) {
+        map.flyToBounds(bounds, {
+          padding,
+          maxZoom: maxFitZoom,
+          animate: true,
+          duration,
+        });
+      }
+    } catch (error) {
+      console.warn("MapBounds: Could not fit map to markers", error);
+    }
+  }, [duration, locations, map, maxFitZoom, padding]);
 
   return null;
 }
