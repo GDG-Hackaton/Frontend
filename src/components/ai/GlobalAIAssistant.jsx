@@ -94,13 +94,13 @@ export const GlobalAIAssistant = () => {
   return (
     <>
       <motion.button
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.97 }}
+        whileHover={{ scale: 1.08, boxShadow: "0 20px 40px rgba(0,0,0,0.3)" }}
+        whileTap={{ scale: 0.95 }}
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-5 right-5 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-charcoal text-white shadow-xl shadow-black/20"
+        className="fixed bottom-6 right-6 z-50 flex h-16 w-16 items-center justify-center rounded-full bg-terracotta text-white shadow-2xl shadow-terracotta/40 transition-all duration-300 hover:bg-clay"
         aria-label="Open AI assistant"
       >
-        <Bot className="h-6 w-6" />
+        <Bot className="h-7 w-7" />
       </motion.button>
 
       <AnimatePresence>
@@ -109,15 +109,15 @@ export const GlobalAIAssistant = () => {
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 24 }}
-            className="fixed bottom-24 right-5 z-40 flex h-[34rem] w-[min(24rem,calc(100vw-2.5rem))] flex-col overflow-hidden rounded-3xl border border-stone-200 bg-white shadow-2xl"
+            className="fixed bottom-28 right-6 z-40 flex h-[36rem] w-[min(26rem,calc(100vw-3rem))] flex-col overflow-hidden rounded-3xl border border-stone-200 bg-white shadow-2xl"
           >
-            <div className="flex items-center justify-between bg-charcoal px-4 py-4 text-white">
+            <div className="flex items-center justify-between bg-charcoal px-5 py-5 text-white">
               <div>
-                <div className="flex items-center gap-2 text-sm font-semibold">
-                  <Sparkles className="h-4 w-4 text-terracotta" />
+                <div className="flex items-center gap-2 text-base font-semibold">
+                  <Sparkles className="h-5 w-5 text-terracotta" />
                   <span>AI Coordination Desk</span>
                 </div>
-                <p className="mt-1 text-xs text-white/70">
+                <p className="mt-1.5 text-sm text-white/70">
                   Missing-person guidance from anywhere in the app.
                 </p>
               </div>
@@ -127,18 +127,18 @@ export const GlobalAIAssistant = () => {
                 className="rounded-full p-2 text-white/80 transition hover:bg-white/10 hover:text-white"
                 aria-label="Close AI assistant"
               >
-                <X className="h-4 w-4" />
+                <X className="h-5 w-5" />
               </button>
             </div>
 
-            <div className="border-b border-stone-200 bg-stone-50 px-4 py-3">
+            <div className="border-b border-stone-200 bg-stone-50 px-5 py-4">
               <div className="flex flex-wrap gap-2">
                 {quickLinks.map((item) => (
                   <Link
                     key={item.path}
                     to={item.path}
                     onClick={() => setIsOpen(false)}
-                    className="rounded-full border border-stone-200 bg-white px-3 py-1.5 text-xs font-medium text-stone-700 transition hover:border-terracotta/30 hover:text-terracotta"
+                    className="rounded-full border border-stone-200 bg-white px-4 py-2 text-sm font-medium text-stone-700 transition hover:border-terracotta/30 hover:text-terracotta"
                   >
                     {item.label}
                   </Link>
@@ -146,11 +146,11 @@ export const GlobalAIAssistant = () => {
               </div>
             </div>
 
-            <div className="flex-1 space-y-3 overflow-y-auto bg-stone-50 px-4 py-4">
+            <div className="flex-1 space-y-3 overflow-y-auto bg-stone-50 px-5 py-5">
               {messages.map((message) => (
                 <div
                   key={message.id}
-                  className={`max-w-[88%] rounded-2xl px-4 py-3 text-sm leading-6 ${
+                  className={`max-w-[88%] rounded-2xl px-4 py-3.5 text-base leading-7 ${
                     message.role === "user"
                       ? "ml-auto bg-terracotta text-white"
                       : "bg-white text-stone-800 shadow-sm"
@@ -161,14 +161,14 @@ export const GlobalAIAssistant = () => {
               ))}
             </div>
 
-            <div className="space-y-3 border-t border-stone-200 bg-white px-4 py-4">
+            <div className="space-y-3 border-t border-stone-200 bg-white px-5 py-5">
               <div className="flex flex-wrap gap-2">
                 {starterPrompts.map((prompt) => (
                   <button
                     key={prompt}
                     type="button"
                     onClick={() => handleSend(prompt)}
-                    className="rounded-full border border-stone-200 px-3 py-1.5 text-left text-xs text-stone-700 transition hover:border-terracotta/30 hover:text-terracotta"
+                    className="rounded-full border border-stone-200 px-3.5 py-2 text-left text-sm text-stone-700 transition hover:border-terracotta/30 hover:text-terracotta"
                   >
                     {prompt}
                   </button>
@@ -181,7 +181,7 @@ export const GlobalAIAssistant = () => {
                   onChange={(event) => setInput(event.target.value)}
                   rows={2}
                   placeholder="Ask the AI what to do next..."
-                  className="min-h-[3.25rem] flex-1 rounded-2xl border border-stone-200 px-4 py-3 text-sm outline-none transition focus:border-terracotta"
+                  className="min-h-[3.5rem] flex-1 rounded-2xl border border-stone-200 px-4 py-3.5 text-base outline-none transition focus:border-terracotta"
                   onKeyDown={(event) => {
                     if (event.key === "Enter" && !event.shiftKey) {
                       event.preventDefault();
@@ -193,9 +193,9 @@ export const GlobalAIAssistant = () => {
                   type="button"
                   onClick={() => handleSend()}
                   disabled={isSending || !input.trim()}
-                  className="flex h-11 w-11 items-center justify-center rounded-full bg-terracotta text-white transition hover:bg-clay disabled:cursor-not-allowed disabled:opacity-50"
+                  className="flex h-12 w-12 items-center justify-center rounded-full bg-terracotta text-white transition hover:bg-clay disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                  <Send className="h-4 w-4" />
+                  <Send className="h-5 w-5" />
                 </button>
               </div>
             </div>

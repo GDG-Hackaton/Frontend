@@ -26,7 +26,7 @@ function App() {
               </main>
               <MainFooter />
             </div>
-            {/* <GlobalAIAssistant /> */}
+            <GlobalAIAssistant />
             <Toaster
               position="top-center"
               toastOptions={{
