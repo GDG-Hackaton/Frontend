@@ -1,23 +1,25 @@
-const trimTrailingSlash = (value) => value.replace(/\/+$/, '');
+const trimTrailingSlash = (value) => value.replace(/\/+$/, "");
 
 const normalizeConfiguredApiUrl = (value) => {
-  if (typeof value !== 'string') return '';
-  
+  if (typeof value !== "string") return "";
+
   const trimmed = value.trim();
-  if (!trimmed) return '';
+  if (!trimmed) return "";
 
   return trimTrailingSlash(trimmed);
 };
 
-const stripApiSuffix = (value) => value.replace(/\/api(\/)?$/i, '');
+const stripApiSuffix = (value) => value.replace(/\/api(\/)?$/i, "");
 
 const rawApiUrl = import.meta.env.VITE_API_URL;
 const configuredApiUrl = normalizeConfiguredApiUrl(rawApiUrl);
 
-// In development, we use the proxy (empty base URL) if no VITE_API_URL is provided.
-// If VITE_API_URL is provided, we use it directly to avoid proxy issues with live APIs.
-export const apiBaseUrl = configuredApiUrl || (import.meta.env.DEV ? '' : '');
-export const socketServerUrl = stripApiSuffix(configuredApiUrl) || (import.meta.env.DEV ? undefined : undefined);
+// In development, always use the Vite proxy by keeping requests relative.
+// In production, use the configured backend URL.
+export const apiBaseUrl = import.meta.env.DEV ? "" : configuredApiUrl;
+export const socketServerUrl = import.meta.env.DEV
+  ? undefined
+  : stripApiSuffix(configuredApiUrl);
 
 export default {
   apiBaseUrl,
