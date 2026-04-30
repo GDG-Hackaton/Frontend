@@ -26,6 +26,9 @@ import { isAdminRole } from "../../lib/authRoles";
 
 const primaryLinks = [
   { path: "/", label: { en: "Home", am: "Home" } },
+];
+
+const operationsLinks = [
   {
     path: "/map",
     label: { en: "Live Map", am: "Live Map" },
@@ -38,8 +41,6 @@ const primaryLinks = [
     path: "/volunteers",
     label: { en: "Volunteer Response", am: "የበጎ ፈቃደኞች ምላሽ" },
   },
-  { path: "/admin", label: { en: "Command Center", am: "Command Center" } },
-  { path: "/ai", label: { en: "Help", am: "ዕርዳታ" }, icon: Bot },
 ];
 
 const reconnectLinks = [
@@ -87,11 +88,14 @@ export const MainHeader = () => {
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const [isLangMenuOpen, setIsLangMenuOpen] = useState(false);
   const [isReconnectMenuOpen, setIsReconnectMenuOpen] = useState(false);
+  const [isOperationsMenuOpen, setIsOperationsMenuOpen] = useState(false);
   const [pendingClaimsCount, setPendingClaimsCount] = useState(0);
   const canAccessAdmin = isAdminRole(user?.role);
   const reconnectMenuRef = useRef(null);
+  const operationsMenuRef = useRef(null);
   const langMenuRef = useRef(null);
   const profileMenuRef = useRef(null);
+  
   const visiblePrimaryLinks = primaryLinks.filter(
     (link) => link.path !== "/admin" || canAccessAdmin,
   );
@@ -101,8 +105,16 @@ export const MainHeader = () => {
     [location.pathname],
   );
 
+  const isOperationsActive = useMemo(
+    () => operationsLinks.some(link => location.pathname === link.path || location.pathname.startsWith(`${link.path}/`)),
+    [location.pathname]
+  );
+
   useEffect(() => {
-    const onScroll = () => setIsScrolled(window.scrollY > 12);
+    const onScroll = () => {
+      // Trigger solid background only after scrolling past the hero (100vh)
+      setIsScrolled(window.scrollY > (window.innerHeight - 100));
+    };
     window.addEventListener("scroll", onScroll);
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
@@ -135,6 +147,12 @@ export const MainHeader = () => {
       ) {
         setIsReconnectMenuOpen(false);
       }
+      if (
+        operationsMenuRef.current &&
+        !operationsMenuRef.current.contains(event.target)
+      ) {
+        setIsOperationsMenuOpen(false);
+      }
       if (langMenuRef.current && !langMenuRef.current.contains(event.target)) {
         setIsLangMenuOpen(false);
       }
@@ -158,26 +176,29 @@ export const MainHeader = () => {
     navigate("/");
   };
 
+  const isHomePage = location.pathname === "/";
+  const isTransparent = !isScrolled && isHomePage;
+
   return (
     <>
       <header
-        className={`fixed left-0 right-0 top-0 z-50 transition-all duration-300 ${
-          isScrolled
-            ? "border-b border-stone-200 bg-white/95 shadow-sm backdrop-blur-xl"
-            : "bg-transparent"
+        className={`fixed left-0 right-0 top-0 z-[100] transition-all duration-300 ${
+          isTransparent
+            ? "bg-transparent"
+            : "border-b border-stone-200 bg-white/95 shadow-sm backdrop-blur-xl"
         }`}
       >
         <nav className="mx-auto max-w-8xl px-4 sm:px-6 lg:px-8">
           <div className="flex h-16 items-center justify-between md:h-20">
             <Link to="/" className="flex items-center gap-3">
-              <div className="relative" ref={reconnectMenuRef}>
-                <img src={reuniteImg} alt="Reunite" width={50} />
+              <div className="relative z-[110]">
+                <img src={reuniteImg} alt="Reunite" width={50} className={isTransparent ? "brightness-0 invert" : ""} />
               </div>
               <div>
-                <div className="font-display text-xl font-bold text-charcoal md:text-2xl">
+                <div className={`font-display text-xl font-bold md:text-2xl transition-colors ${isTransparent ? "text-white" : "text-charcoal"}`}>
                   Reunite
                 </div>
-                <div className="hidden text-xs text-stone-500 md:block">
+                <div className={`hidden text-xs md:block transition-colors ${isTransparent ? "text-white/70" : "text-stone-500"}`}>
                   Missing-person response first
                 </div>
               </div>
@@ -190,15 +211,19 @@ export const MainHeader = () => {
                   to={link.path}
                   className={`rounded-full px-4 py-2 text-md font-medium transition ${
                     isActive(link.path)
-                      ? "bg-terracotta/10 text-terracotta"
-                      : "text-stone-700 hover:bg-stone-100 hover:text-charcoal"
+                      ? isTransparent ? "bg-white/20 text-white" : "bg-terracotta/10 text-terracotta"
+                      : isTransparent ? "text-white hover:bg-white/10" : "text-stone-700 hover:bg-stone-100 hover:text-charcoal"
                   }`}
                 >
                   <span className="inline-flex items-center gap-2">
                     {link.icon ? <link.icon className="h-4 w-4" /> : null}
                     {language === "am" ? link.label.am : link.label.en}
                     {link.badge ? (
-                      <span className="rounded-full border border-stone-200 bg-stone-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-stone-600">
+                      <span className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.18em] transition ${
+                        isTransparent 
+                          ? "border-white/30 bg-white/10 text-white"
+                          : "border-stone-200 bg-stone-100 text-stone-600" 
+                      }`}>
                         {link.badge}
                       </span>
                     ) : null}
@@ -206,14 +231,63 @@ export const MainHeader = () => {
                 </Link>
               ))}
 
-              <div className="relative">
+              {/* Operations Dropdown */}
+              <div className="relative" ref={operationsMenuRef}>
+                <button
+                  type="button"
+                  onClick={() => setIsOperationsMenuOpen((current) => !current)}
+                  className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition ${
+                    isOperationsActive
+                      ? isTransparent ? "bg-white/20 text-white" : "bg-terracotta/10 text-terracotta"
+                      : isTransparent ? "text-white hover:bg-white/10" : "text-stone-700 hover:bg-stone-100 hover:text-charcoal"
+                  }`}
+                >
+                  <span>
+                    {language === "am" ? "ክንውኖች" : "Operations"}
+                  </span>
+                  <ChevronDown className="h-4 w-4" />
+                </button>
+
+                <AnimatePresence>
+                  {isOperationsMenuOpen ? (
+                    <motion.div
+                      initial={{ opacity: 0, y: 8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: 8 }}
+                      className="absolute left-0 mt-3 w-72 rounded-3xl border border-stone-200 bg-white p-3 shadow-xl"
+                    >
+                      {operationsLinks.map((link) => (
+                        <Link
+                          key={link.path}
+                          to={link.path}
+                          onClick={() => setIsOperationsMenuOpen(false)}
+                          className="flex items-center gap-3 rounded-2xl px-4 py-3 transition hover:bg-stone-50"
+                        >
+                          {link.icon && <link.icon className="h-4 w-4 text-terracotta" />}
+                          <div className="font-medium text-charcoal">
+                            {language === "am" ? link.label.am : link.label.en}
+                          </div>
+                          {link.badge && (
+                            <span className="rounded-full bg-terracotta/10 px-2 py-0.5 text-[10px] font-bold text-terracotta">
+                              {link.badge}
+                            </span>
+                          )}
+                        </Link>
+                      ))}
+                    </motion.div>
+                  ) : null}
+                </AnimatePresence>
+              </div>
+
+              {/* Reconnect Dropdown */}
+              <div className="relative" ref={reconnectMenuRef}>
                 <button
                   type="button"
                   onClick={() => setIsReconnectMenuOpen((current) => !current)}
                   className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition ${
                     isReconnectActive
-                      ? "bg-terracotta/10 text-terracotta"
-                      : "text-stone-700 hover:bg-stone-100 hover:text-charcoal"
+                      ? isTransparent ? "bg-white/20 text-white" : "bg-terracotta/10 text-terracotta"
+                      : isTransparent ? "text-white hover:bg-white/10" : "text-stone-700 hover:bg-stone-100 hover:text-charcoal"
                   }`}
                 >
                   <span>
@@ -240,17 +314,40 @@ export const MainHeader = () => {
                           <div className="font-medium text-charcoal">
                             {language === "am" ? link.label.am : link.label.en}
                           </div>
-                          {/* <div className="mt-1 text-xs leading-5 text-stone-500">
-                            {language === "am"
-                              ? link.description.am
-                              : link.description.en}
-                          </div> */}
                         </Link>
                       ))}
                     </motion.div>
                   ) : null}
                 </AnimatePresence>
               </div>
+
+              {canAccessAdmin && (
+                <Link
+                  to="/admin"
+                  className={`rounded-full px-4 py-2 text-sm font-medium transition ${
+                    isActive("/admin")
+                      ? isTransparent ? "bg-white/20 text-white" : "bg-terracotta/10 text-terracotta"
+                      : isTransparent ? "text-white hover:bg-white/10" : "text-stone-700 hover:bg-stone-100 hover:text-charcoal"
+                  }`}
+                >
+                  {language === "am" ? "አስተዳደር" : "Admin"}
+                </Link>
+              )}
+
+              {/* Help Button Moved to End of Main Nav Group */}
+              <Link
+                to="/ai"
+                className={`rounded-full px-4 py-2 text-md font-medium transition ${
+                  isActive("/ai")
+                    ? isTransparent ? "bg-white/20 text-white" : "bg-terracotta/10 text-terracotta"
+                    : isTransparent ? "text-white hover:bg-white/10" : "text-stone-700 hover:bg-stone-100 hover:text-charcoal"
+                }`}
+              >
+                <span className="inline-flex items-center gap-2">
+                  <Bot className="h-4 w-4" />
+                  {language === "am" ? "ዕርዳታ" : "Help"}
+                </span>
+              </Link>
             </div>
 
             <div className="flex items-center gap-2">
@@ -258,7 +355,9 @@ export const MainHeader = () => {
                 <button
                   type="button"
                   onClick={() => setIsLangMenuOpen((current) => !current)}
-                  className="inline-flex items-center gap-2 rounded-full px-3 py-2 text-sm text-stone-600 transition hover:bg-stone-100 hover:text-charcoal"
+                  className={`inline-flex items-center gap-2 rounded-full px-3 py-2 text-sm transition ${
+                    isTransparent ? "text-white hover:bg-white/10" : "text-stone-600 hover:bg-stone-100 hover:text-charcoal"
+                  }`}
                 >
                   <Globe className="h-4 w-4" />
                   <span>{language === "am" ? "አማ" : "EN"}</span>
@@ -301,7 +400,9 @@ export const MainHeader = () => {
                 <>
                   <Link
                     to="/wanted/claims"
-                    className="relative rounded-full p-2 text-stone-600 transition hover:bg-stone-100 hover:text-charcoal"
+                    className={`relative rounded-full p-2 transition ${
+                      isTransparent ? "text-white hover:bg-white/10" : "text-stone-600 hover:bg-stone-100 hover:text-charcoal"
+                    }`}
                     aria-label="Claims"
                   >
                     <Inbox className="h-5 w-5" />
@@ -314,7 +415,9 @@ export const MainHeader = () => {
 
                   <Link
                     to="/wanted/chat"
-                    className="rounded-full p-2 text-stone-600 transition hover:bg-stone-100 hover:text-charcoal"
+                    className={`rounded-full p-2 transition ${
+                      isTransparent ? "text-white hover:bg-white/10" : "text-stone-600 hover:bg-stone-100 hover:text-charcoal"
+                    }`}
                     aria-label="Reconnect chat"
                   >
                     <MessageCircle className="h-5 w-5" />
@@ -329,7 +432,9 @@ export const MainHeader = () => {
                       onClick={() =>
                         setIsProfileMenuOpen((current) => !current)
                       }
-                      className="inline-flex items-center gap-2 rounded-full p-1.5 transition hover:bg-stone-100"
+                      className={`inline-flex items-center gap-2 rounded-full p-1.5 transition ${
+                        isTransparent ? "hover:bg-white/10" : "hover:bg-stone-100"
+                      }`}
                     >
                       <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-terracotta to-sahara text-sm font-semibold text-white">
                         {profile?.avatarUrl ? (
@@ -345,7 +450,7 @@ export const MainHeader = () => {
                           "R"
                         )}
                       </div>
-                      <ChevronDown className="h-4 w-4 text-stone-500" />
+                      <ChevronDown className={`h-4 w-4 transition ${isTransparent ? "text-white" : "text-stone-500"}`} />
                     </button>
 
                     <AnimatePresence>
@@ -426,16 +531,24 @@ export const MainHeader = () => {
                   </div>
                 </>
               ) : (
-                <div className="hidden items-center gap-2 sm:flex">
+                <div className="hidden items-center gap-3 sm:flex">
                   <Link
                     to="/auth/login"
-                    className="rounded-full px-4 py-2 text-sm font-medium text-stone-700 transition hover:bg-stone-100 hover:text-charcoal"
+                    className={`rounded-full px-5 py-2.5 text-sm font-medium transition ${
+                      isTransparent 
+                        ? "border border-white/40 text-white hover:bg-white/10"
+                        : "text-stone-700 hover:bg-stone-100" 
+                    }`}
                   >
                     Sign in
                   </Link>
                   <Link
                     to="/auth/register"
-                    className="rounded-full bg-terracotta px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-clay"
+                    className={`rounded-full px-6 py-2.5 text-sm font-semibold transition ${
+                      isTransparent
+                        ? "border border-white bg-white/10 text-white backdrop-blur-sm hover:bg-white hover:text-charcoal"
+                        : "bg-terracotta text-white hover:bg-clay shadow-sm"
+                    }`}
                   >
                     Join Reunite
                   </Link>
@@ -445,7 +558,9 @@ export const MainHeader = () => {
               <button
                 type="button"
                 onClick={() => setIsMobileMenuOpen((current) => !current)}
-                className="rounded-full p-2 text-charcoal transition hover:bg-stone-100 md:hidden"
+                className={`rounded-full p-2 transition md:hidden ${
+                  isTransparent ? "text-white hover:bg-white/10" : "text-charcoal hover:bg-stone-100"
+                }`}
                 aria-label="Toggle menu"
               >
                 {isMobileMenuOpen ? (
@@ -474,9 +589,9 @@ export const MainHeader = () => {
             <div className="absolute right-0 top-0 h-full w-[20rem] overflow-y-auto bg-white px-5 py-6 shadow-2xl">
               <div className="space-y-2">
                 <p className="text-xs font-semibold uppercase tracking-[0.24em] text-stone-500">
-                  Missing-person operations
+                  Operations
                 </p>
-                {visiblePrimaryLinks.map((link) => (
+                {operationsLinks.map((link) => (
                   <Link
                     key={link.path}
                     to={link.path}
@@ -487,14 +602,7 @@ export const MainHeader = () => {
                         : "text-stone-700 hover:bg-stone-50"
                     }`}
                   >
-                    <span className="inline-flex items-center gap-2">
-                      {language === "am" ? link.label.am : link.label.en}
-                      {link.badge ? (
-                        <span className="rounded-full border border-stone-200 bg-stone-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-stone-600">
-                          {link.badge}
-                        </span>
-                      ) : null}
-                    </span>
+                    {language === "am" ? link.label.am : link.label.en}
                   </Link>
                 ))}
               </div>
@@ -517,6 +625,37 @@ export const MainHeader = () => {
                     {language === "am" ? link.label.am : link.label.en}
                   </Link>
                 ))}
+              </div>
+
+              <div className="mt-6 space-y-2">
+                <p className="text-xs font-semibold uppercase tracking-[0.24em] text-stone-500">
+                  General
+                </p>
+                {visiblePrimaryLinks.map((link) => (
+                  <Link
+                    key={link.path}
+                    to={link.path}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className={`block rounded-2xl px-4 py-3 text-sm font-medium transition ${
+                      isActive(link.path)
+                        ? "bg-terracotta/10 text-terracotta"
+                        : "text-stone-700 hover:bg-stone-50"
+                    }`}
+                  >
+                    {language === "am" ? link.label.am : link.label.en}
+                  </Link>
+                ))}
+                <Link
+                  to="/ai"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className={`block rounded-2xl px-4 py-3 text-sm font-medium transition ${
+                    isActive("/ai")
+                      ? "bg-terracotta/10 text-terracotta"
+                      : "text-stone-700 hover:bg-stone-50"
+                  }`}
+                >
+                  {language === "am" ? "ዕርዳታ" : "Help"}
+                </Link>
               </div>
 
               <div className="mt-6 rounded-3xl border border-stone-200 p-4">
@@ -589,7 +728,7 @@ export const MainHeader = () => {
         ) : null}
       </AnimatePresence>
 
-      <div className="h-16 md:h-20" />
+      {!isHomePage && <div className="h-16 md:h-20" />}
     </>
   );
 };

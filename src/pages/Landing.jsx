@@ -9,6 +9,20 @@ const assetImages = import.meta.glob('../assets/images/*.{png,jpg,jpeg,svg}', {
 });
 import {useImpactStats} from "../features/wanted/hooks/useImpactStats"
 import { ImpactStats } from '../features/wanted/components/layout/ImpactStats';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { EffectCoverflow, Autoplay } from 'swiper/modules';
+
+// Asset Imports for Features
+import reuniteImg from "../assets/reunite.png";
+import sol1Img from "../assets/images/sol 1.png";
+import sol2Img from "../assets/images/sol 2.png";
+import heroImg from "../assets/images/hero1.png";
+
+// Import Swiper styles
+import 'swiper/css';
+import 'swiper/css/effect-coverflow';
+import 'swiper/css/autoplay';
+
 import { 
   ArrowRight, 
   Shield, 
@@ -32,7 +46,7 @@ const OrgHeroSection = () => {
   const { language } = useLanguage();
 
   return (
-    <section className="relative min-h-[80vh] flex items-center justify-center text-white overflow-hidden">
+    <section className="relative min-h-screen flex items-center justify-center text-white overflow-hidden">
 
       {/* 🎥 VIDEO BACKGROUND */}
       <video
@@ -48,12 +62,13 @@ const OrgHeroSection = () => {
       <div className="absolute inset-0 bg-black/70 backdrop-blur-[2px]" />
 
       {/* ✨ CONTENT */}
-      <div className="relative z-10 text-center px-6 max-w-3xl mx-auto">
+      <div className="relative z-10 w-full px-6 max-w-7xl mx-auto flex items-center justify-start text-left min-h-screen">
 
         <motion.div
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
+          initial={{ opacity: 0, x: -40 }}
+          animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.9, ease: "easeOut" }}
+          className="max-w-2xl mt-12 md:mt-20"
         >
 
           {/* HEADLINE */}
@@ -68,47 +83,47 @@ const OrgHeroSection = () => {
             mb-6
           ">
             {language === "am" ? (
-              <>የጠፉትን ይፈልጉ የልቦትን ሰው ያግኙ</>
+              <>የጠፉትን ይፈልጉ <br /> የልቦትን ሰው ያግኙ</>
             ) : (
-              <>Find the lost. Reconnect the heart</>
+              <>Find the lost. <br /> Reconnect the heart</>
             )}
           </h1>
 
           {/* SUBTEXT */}
           <p className="
-            text-base 
-            sm:text-lg 
+            text-lg 
             md:text-xl 
-            text-white/80 
+            text-white/90 
             leading-relaxed 
             mb-10 
-            max-w-2xl 
-            mx-auto
+            max-w-lg
           ">
             {language === "am"
-              ? "ምንም እንኳ ረጅም ጊዜ ቢቆጠር፣ የቱንም ያህል ርቀት ቢኖር፣ ወይም የአድራሻቸው መረጃ ቢጎድልዎ፤ ድረ ገጻችን ይህንን ክፍተት እንድታገናኙ ታሳቢ ተደርጎ የተዘጋጀ ነው። የግል ምስጢሮችን መጠበቅ፣ ሁሉን አቃፊነት እና ታአማኒነት የድረ ገጻችን መገለጫ ነው።"
-              : "No matter how long it has been, how far away they are, or how little information you have, our platform is designed to help you bridge that gap. Privacy, inclusivity, and trust are the hallmarks of our platform."}
+              ? "የጠፉ ሰዎችን ለማግኘት እና ቤተሰቦችን መልሶ ለማገናኘት የሚረዳ አስተማማኝ እና ፈጣን ማህበረሰባዊ መድረክ።"
+              : "The most trusted platform for missing person response and heart-centered community reconnection."}
           </p>
 
           {/* CTA BUTTONS */}
-          <div className="flex flex-wrap justify-center gap-4">
+          <div className="flex justify-start gap-4">
 
             <Link to="/read-more">
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.97 }}
                 className="
-                  px-8 py-4 
-                  bg-red-500 
-                  hover:bg-red-600 
+                  px-10 py-4 
+                  bg-red-600 
+                  hover:bg-red-700 
                   rounded-full 
-                  font-semibold 
-                  shadow-lg 
-                  shadow-red-500/30 
+                  font-bold 
+                  text-lg
+                  shadow-xl 
+                  shadow-red-900/20 
                   transition-all
+                  border border-red-500/50
                 "
               >
-                 {language === "am" ? "ዝርዝሩን ይመልከቱ" : "Read More"}
+                 {language === "am" ? "ያስሱ" : "Explore"}
               </motion.button>
             </Link>
 
@@ -116,6 +131,116 @@ const OrgHeroSection = () => {
 
           </div>
         </motion.div>
+      </div>
+    </section>
+  );
+};
+
+
+// 2. FEATURES SECTION
+
+const FeatureCard = ({ title, description, image, isActive }) => {
+  return (
+    <div className="relative group w-[380px] h-[540px] mx-auto transition-all duration-500">
+      {/* Subtle Pink/Orange Glow - only on active center card */}
+      <div className={`absolute -inset-1 bg-gradient-to-r from-orange-500/10 to-pink-500/10 rounded-[2.5rem] blur-2xl transition-opacity duration-700 ${isActive ? 'opacity-100' : 'opacity-0'}`} />
+      
+      {/* Professional Dark Card */}
+      <div className="relative h-full bg-[#0d0d0d] border border-white/10 rounded-[2.5rem] flex flex-col overflow-hidden shadow-2xl">
+        
+        {/* Image - EXACTLY 65% height with object-cover */}
+        <div className="w-full h-[65%] overflow-hidden relative">
+          <img 
+            src={image || reuniteImg} 
+            alt={title} 
+            className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+          />
+          {/* Subtle gradient overlay to blend into text section */}
+          <div className="absolute inset-0 bg-gradient-to-t from-[#0d0d0d] via-transparent to-transparent opacity-60" />
+        </div>
+        
+        {/* Content - EXACTLY Bottom 35% with deep dark gradient for MAXIMUM contrast */}
+        <div className="h-[35%] p-8 flex flex-col justify-center text-left bg-gradient-to-b from-[#0d0d0d] via-black to-black">
+            <h3 className="text-xl font-bold text-white mb-2 tracking-tight">{title}</h3>
+            <p className="text-slate-200 text-xs leading-relaxed line-clamp-2">{description}</p>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const FeaturesSection = () => {
+  const { language } = useLanguage();
+  const [activeIndex, setActiveIndex] = React.useState(0);
+  
+  const features = [
+    {
+      title: language === "am" ? "ፈጣን ማስጠንቀቂያ" : "Instant Alerts",
+      description: language === "am" 
+        ? "የጠፉ ሰዎችን በፍጥነት ለማግኘት የሚረዳ የቀጥታ መረጃ ልውውጥ።" 
+        : "Real-time sightings and community mobilization.",
+      image: reuniteImg
+    },
+    {
+      title: language === "am" ? "ዓለም አቀፍ ካርታ" : "Global Map",
+      description: language === "am"
+        ? "በኢትዮጵያ ዙሪያ የሚገኙ የፍለጋ መረጃዎችን በካርታ የሚያሳይ ሥርዓት።"
+        : "Interactive search grid with live status updates.",
+      image: sol1Img
+    },
+    {
+      title: language === "am" ? "ብልህ የኤአይ ፍለጋ" : "Smart AI",
+      description: language === "am"
+        ? "በአርቴፊሻል ኢንተለጀንስ የታገዘ ፈጣን የመረጃ ትንተና እና ማዛመጃ።"
+        : "Deep-learning algorithms for automatic matching.",
+      image: sol2Img
+    },
+    {
+      title: language === "am" ? "የተባበረ መረብ" : "United Network",
+      description: language === "am"
+        ? "ቤተሰቦችን እንደገና ለማገናኘት ከሚሠሩ በሺዎች ከሚቆጠሩ በጎ ፈቃደኞች ጋር ይተባበሩ።"
+        : "Join thousands of dedicated verified volunteers.",
+      image: heroImg
+    }
+  ];
+
+  return (
+    <section className="py-32 relative overflow-hidden bg-transparent">
+      {/* Background decoration */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-pink-500/5 rounded-full blur-[160px] pointer-events-none" />
+      
+      <div className="w-full max-w-[1400px] mx-auto px-4">
+          <Swiper
+            effect={'coverflow'}
+            grabCursor={true}
+            centeredSlides={true}
+            slidesPerView={'auto'}
+            loop={true}
+            spaceBetween={30}
+            onSlideChange={(swiper) => setActiveIndex(swiper.realIndex)}
+            autoplay={{
+              delay: 3000,
+              disableOnInteraction: false,
+            }}
+            coverflowEffect={{
+              rotate: 30,
+              stretch: 0,
+              depth: 100,
+              modifier: 1.5,
+              slideShadows: false,
+            }}
+            modules={[EffectCoverflow, Autoplay]}
+            className="features-swiper !py-20"
+          >
+            {features.map((feature, index) => (
+              <SwiperSlide key={index} className="!w-auto">
+                <FeatureCard 
+                  {...feature} 
+                  isActive={activeIndex === index}
+                />
+              </SwiperSlide>
+            ))}
+          </Swiper>
       </div>
     </section>
   );
@@ -153,55 +278,9 @@ const DualSystemSection = () => {
 
       <div className="container">
 
-        {/* == HEADER == */}
-        <motion.div
-          ref={ref}
-          variants={containerVariants}
-          initial="hidden"
-          animate={controls}
-          className="text-center max-w-5xl mx-auto mb-20 md:mb-24 space-y-6"
-        >
-
-          <motion.h2
-            variants={itemVariants}
-            className="text-3xl md:text-5xl font-bold tracking-tight text-charcoal"
-          >
-            {language === "am"
-              ? "ሪዩናይት ምን አገልግሎት ይሰጣል።"
-              : "What Reunite Offers"}
-          </motion.h2>
-
-          <motion.p
-            variants={itemVariants}
-            className="text-base md:text-lg text-stone-600 leading-relaxed"
-          >
-            {language === "am"
-              ? " ሪዩናይት ለእናንተ ሁለት ዋና ዋና መንገዶችን ያቀርባል፤ የመጀመሪያው በድንገት ለጠፉ ሰዎች እና  ፈጣን ምላሽ ለሚሹ ጉዳዮች በማህበረሰቡ ተሳትፎ ፈጣን ምላሽ የሚሰጥ ሲሆን። ሁለተኛው ደግሞ ለረጅም ጊዜ አድራሻቸውን በማጣት ከተለዩዋቸው ከምትወዳቸው ሰዎች ጋር ለመገናኘት አስተማማኝ መንገድ ማቅረብ የሚቀርብ ነው።በሕይወት ያለ ሰው ይገናኛል እና ማንም ሰው ጠፍቶ መቅረት የለበትም። ፍለጋዎን ዛረዉኑ ይጀምሩ።"
-              : "Reunite delivers a dual approach to reconnection. Our Rapid Response system  provides immediate community visibility for urgent situations, helping you mobilize resources when every second counts, while our Heart-Centered Connection offers a secure, private, and verified bridge for finding those you have lost touch with, ensuring dignity and safety throughout the process. At the core of our platform is an unwavering commitment: we believe no one should stay lost. We provide the essential tools, technology, and community trust required to turn 'missing' into 'found. "}
-          </motion.p>
-
-          <motion.h2
-            variants={itemVariants}
-            className="text-3xl md:text-5xl font-bold tracking-tight text-charcoal pt-8"
-          >
-            {language === "am"
-              ? "ሪዩናይትን እንዴት ልጠቀም።"
-              : "How to Use Reunite"}
-          </motion.h2>
-
-          <motion.p
-            variants={itemVariants}
-            className="text-base md:text-lg text-stone-600 leading-relaxed"
-          >
-            {language === "am"
-              ? "የምትወዱትን ሰው መፈለግ ጥንቃቄ የሚጠይቅ ሂደት ነው። ፍለጋዎን ለመጀመር፣ ከእርሶ ፍለጋ ጋር የሚስማማውን ሂደት ይምረጡ።"
-              : "Finding a loved one is a sensitive process. To get started, please choose the system that best matches your current needs:"}
-          </motion.p>
-
-        </motion.div>
-
         {/* == CARDS  */}
         <motion.div
+          ref={ref}
           variants={containerVariants}
           initial="hidden"
           animate={controls}
@@ -548,8 +627,9 @@ export const LandingPage = () => {
   }, []);
 
   return (
-    <div className="bg-warm-white">
+    <div className="bg-gradient-to-b from-white to-gray-100 min-h-screen">
       <OrgHeroSection />
+      <FeaturesSection />
       <DualSystemSection />
       <LossUnderstandingSection />
       <TrustSection />
