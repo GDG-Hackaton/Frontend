@@ -60,6 +60,7 @@ const HeroSection = () => {
     },
     {
       step: '2',
+      icon: Heart,
       title: { en: 'Share Your Story', am: 'ታሪክዎን ያካፍሉ' },
       description: { 
         en: 'Post a memory with details only the person you\'re looking for would know',

@@ -108,13 +108,14 @@ async function handleAPIRequest(request) {
     if (request.method !== 'GET') {
       // Send message to client to queue the request
       const clients = await self.clients.matchAll();
-      clients.forEach(client => {
+      const bodyText = await request.clone().text();
+      clients.forEach((client) => {
         client.postMessage({
           type: 'OFFLINE_QUEUE',
           request: {
             url: request.url,
             method: request.method,
-            body: await request.clone().text(),
+            body: bodyText,
             headers: Object.fromEntries(request.headers),
           },
         });
