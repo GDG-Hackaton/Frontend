@@ -158,8 +158,8 @@ export const MainHeader = () => {
       <header
         className={`fixed left-0 right-0 top-0 z-50 transition-all duration-300 ${
           isScrolled
-            ? "border-b border-stone-200  shadow-sm backdrop-blur-xl"
-            : "bg-transparent"
+            ? "border-b border-white/10 bg-gradient-to-r from-[#0b0505]/95 via-[#2a120d]/95 to-[#3a1a12]/95 shadow-xl backdrop-blur-xl"
+            : "bg-gradient-to-r from-[#0b0505] via-[#2a120d] to-[#3a1a12]"
         }`}
       >
         <nav className="mx-auto max-w-7.5xl px-4 sm:px-6 lg:px-8">
@@ -169,7 +169,7 @@ export const MainHeader = () => {
                 <img src={reuniteImg} alt="Reunite" width={50} />
               </div>
               <div>
-                <div className="font-display text-xl font-bold text-charcoal md:text-2xl">
+                <div className="font-display text-xl font-bold text-white md:text-2xl">
                   Reunite
                 </div>
               </div>
@@ -182,8 +182,8 @@ export const MainHeader = () => {
                   to={link.path}
                   className={`rounded-full px-4 py-2 text-md font-medium transition ${
                     isActive(link.path)
-                      ? "bg-terracotta/10 text-terracotta"
-                      : "text-stone-700 hover:bg-stone-100 hover:text-charcoal"
+                      ? "bg-white/15 text-white"
+                      : "text-white/75 hover:bg-white/10 hover:text-white"
                   }`}
                 >
                   <span className="inline-flex items-center gap-2">
@@ -199,8 +199,8 @@ export const MainHeader = () => {
                   onClick={() => setIsReconnectMenuOpen((current) => !current)}
                   className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-md font-medium transition ${
                     isReconnectActive
-                      ? "bg-terracotta/10 text-terracotta"
-                      : "text-stone-700 hover:bg-stone-100 hover:text-charcoal"
+                      ? "bg-white/15 text-white"
+                      : "text-white/75 hover:bg-white/10 hover:text-white"
                   }`}
                 >
                   <span>
@@ -240,8 +240,8 @@ export const MainHeader = () => {
                 to="/ai"
                 className={`rounded-full px-4 py-2 text-md font-medium transition hidden md:inline-flex items-center gap-2 ${
                   isActive("/ai")
-                    ? "bg-terracotta/10 text-terracotta"
-                    : "text-stone-700 hover:bg-stone-100 hover:text-charcoal"
+                    ? "bg-white/15 text-white"
+                    : "text-white/75 hover:bg-white/10 hover:text-white"
                 }`}
               >
                 <Bot className="w-4 h-4" />
@@ -253,7 +253,7 @@ export const MainHeader = () => {
               <button
                 type="button"
                 onClick={toggleTheme}
-                className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-stone-200 bg-white/80 text-stone-700 transition hover:border-terracotta/30 hover:text-terracotta"
+                className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/15 bg-white/10 text-white transition hover:border-white/25 hover:bg-white/15"
                 title={
                   theme === "dark"
                     ? "Switch to light mode"
@@ -271,11 +271,12 @@ export const MainHeader = () => {
                   <Moon className="h-4 w-4" />
                 )}
               </button>
+
               <div className="relative hidden sm:block" ref={langMenuRef}>
                 <button
                   type="button"
                   onClick={() => setIsLangMenuOpen((current) => !current)}
-                  className="inline-flex items-center gap-2 rounded-full px-3 py-2 text-sm text-stone-600 transition hover:bg-stone-100 hover:text-charcoal"
+                  className="inline-flex items-center gap-2 rounded-full px-3 py-2 text-sm text-white/75 transition hover:bg-white/10 hover:text-white"
                 >
                   <Globe className="h-4 w-4" />
                   <span>{language === "am" ? "አማ" : "EN"}</span>
@@ -318,7 +319,7 @@ export const MainHeader = () => {
                 <>
                   <Link
                     to="/wanted/claims"
-                    className="relative rounded-full p-2 text-stone-600 transition hover:bg-stone-100 hover:text-charcoal"
+                    className="relative rounded-full p-2 text-white/75 transition hover:bg-white/10 hover:text-white"
                     aria-label="Claims"
                   >
                     <Inbox className="h-5 w-5" />
@@ -331,7 +332,7 @@ export const MainHeader = () => {
 
                   <Link
                     to="/wanted/chat"
-                    className="rounded-full p-2 text-stone-600 transition hover:bg-stone-100 hover:text-charcoal"
+                    className="rounded-full p-2 text-white/75 transition hover:bg-white/10 hover:text-white"
                     aria-label="Reconnect chat"
                   >
                     <MessageCircle className="h-5 w-5" />
@@ -346,7 +347,7 @@ export const MainHeader = () => {
                       onClick={() =>
                         setIsProfileMenuOpen((current) => !current)
                       }
-                      className="inline-flex items-center gap-2 rounded-full p-1.5 transition hover:bg-stone-100"
+                      className="inline-flex items-center gap-2 rounded-full p-1.5 transition hover:bg-white/10"
                     >
                       <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-terracotta to-sahara text-sm font-semibold text-white">
                         {profile?.avatarUrl ? (
@@ -362,7 +363,7 @@ export const MainHeader = () => {
                           "R"
                         )}
                       </div>
-                      <ChevronDown className="h-4 w-4 text-stone-500" />
+                      <ChevronDown className="h-4 w-4 text-white/60" />
                     </button>
 
                     <AnimatePresence>
@@ -447,7 +448,7 @@ export const MainHeader = () => {
                 <div className="hidden items-center gap-2 md:flex">
                   <Link
                     to="/auth/login"
-                    className="rounded-full px-4 py-2 text-sm font-medium text-stone-700 transition hover:bg-stone-100 hover:text-charcoal"
+                    className="rounded-full px-4 py-2 text-sm font-medium text-white/75 transition hover:bg-white/10 hover:text-white"
                   >
                     Sign in
                   </Link>
@@ -463,7 +464,7 @@ export const MainHeader = () => {
               <button
                 type="button"
                 onClick={() => setIsMobileMenuOpen((current) => !current)}
-                className="rounded-full p-2 text-charcoal transition hover:bg-stone-100 md:hidden"
+                className="rounded-full p-2 text-white transition hover:bg-white/10 md:hidden"
                 aria-label="Toggle menu"
               >
                 {isMobileMenuOpen ? (
