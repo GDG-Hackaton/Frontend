@@ -344,52 +344,8 @@ export const ReportCasePage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-stone-50 to-white">
-      {/* Header */}
-      <header className="sticky top-0 z-30 bg-white/80 backdrop-blur-xl border-b border-stone-200">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <button
-              onClick={() => navigate(-1)}
-              className="flex items-center gap-2 text-stone-600 hover:text-stone-900 transition-colors"
-            >
-              <ChevronRight className="w-5 h-5 rotate-180" />
-              <span className="text-sm font-medium hidden sm:inline">
-                {language === "am" ? "ተመለስ" : "Back"}
-              </span>
-            </button>
-
-            <h1 className="text-lg font-bold text-stone-900">
-              {language === "am" ? "የጠፋ ሰው ሪፖርት ያድርጉ" : "Report Missing Person"}
-            </h1>
-
-            {/* Language Toggle */}
-            <div className="flex items-center gap-1 bg-stone-100 rounded-xl p-1">
-              <button
-                onClick={() => setLanguage("en")}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                  language === "en"
-                    ? "bg-white text-stone-900 shadow-sm"
-                    : "text-stone-500 hover:text-stone-700"
-                }`}
-              >
-                EN
-              </button>
-              <button
-                onClick={() => setLanguage("am")}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                  language === "am"
-                    ? "bg-white text-stone-900 shadow-sm"
-                    : "text-stone-500 hover:text-stone-700"
-                }`}
-              >
-                አማ
-              </button>
-            </div>
-          </div>
-        </div>
-      </header>
-
+<div className="min-h-screen bg-white dark:bg-[#0f0f0f] transition-colors">      {/* Header */}
+    
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
         {/* Hero Section */}
         <div className="mb-5">
@@ -434,7 +390,7 @@ export const ReportCasePage = () => {
           <div className="space-y-6">
             {/* Section 1: Missing Person Details */}
             {activeSection === "person" && (
-              <div className="bg-white rounded-3xl border border-stone-200 p-6 sm:p-8 space-y-6">
+              <div className="bg-white rounded-3xl border border-stone-200 dark:border-orange-500/30 p-6 sm:p-8 space-y-6">
                 <div>
                   <h2 className="text-xl font-bold text-stone-900">
                     {language === "am"
@@ -465,7 +421,7 @@ export const ReportCasePage = () => {
                       className={`w-full rounded-2xl border-2 px-4 py-3.5 text-sm focus:ring-4 outline-none transition-all ${
                         validationErrors.missingPersonName
                           ? "border-red-300 focus:border-red-500 focus:ring-red-100 bg-red-50"
-                          : "border-stone-200 focus:border-terracotta focus:ring-terracotta/10"
+                          : "border-stone-200 dark:border-orange-500/30 focus:border-terracotta focus:ring-terracotta/10"
                       }`}
                     />
                     {validationErrors.missingPersonName && (
@@ -492,7 +448,7 @@ export const ReportCasePage = () => {
                       className={`w-full rounded-2xl border-2 px-4 py-3.5 text-sm focus:ring-4 outline-none transition-all ${
                         validationErrors.age
                           ? "border-red-300 focus:border-red-500 focus:ring-red-100 bg-red-50"
-                          : "border-stone-200 focus:border-terracotta focus:ring-terracotta/10"
+                          : "border-stone-200 dark:border-orange-500/30 focus:border-terracotta focus:ring-terracotta/10"
                       }`}
                     />
                     {validationErrors.age && (
@@ -509,7 +465,7 @@ export const ReportCasePage = () => {
                     <select
                       value={form.gender}
                       onChange={(e) => updateField("gender", e.target.value)}
-                      className="w-full rounded-2xl border-2 border-stone-200 px-4 py-3.5 text-sm focus:border-terracotta focus:ring-4 focus:ring-terracotta/10 outline-none transition-all bg-white"
+                      className="w-full rounded-2xl border-2 border-stone-200 dark:border-orange-500/30 px-4 py-3.5 text-sm focus:border-terracotta focus:ring-4 focus:ring-terracotta/10 outline-none transition-all bg-white"
                     >
                       <option value="unknown">
                         {language === "am" ? "አይታወቅም" : "Unknown"}
@@ -534,7 +490,7 @@ export const ReportCasePage = () => {
                           ? "ለምሳሌ፡ ቀይ ሸሚዝ፣ ጂንስ"
                           : "e.g., Red shirt, blue jeans"
                       }
-                      className="w-full rounded-2xl border-2 border-stone-200 px-4 py-3.5 text-sm focus:border-terracotta focus:ring-4 focus:ring-terracotta/10 outline-none transition-all"
+                      className="w-full rounded-2xl border-2 border-stone-200 dark:border-orange-500/30 px-4 py-3.5 text-sm focus:border-terracotta focus:ring-4 focus:ring-terracotta/10 outline-none transition-all"
                     />
                   </div>
                 </div>
@@ -583,7 +539,7 @@ export const ReportCasePage = () => {
 
             {/* Section 2: Incident Details */}
             {activeSection === "incident" && (
-              <div className="bg-white rounded-3xl border border-stone-200 p-6 sm:p-8 space-y-6">
+              <div className="bg-white rounded-3xl border border-stone-200 dark:border-orange-500/30 p-6 sm:p-8 space-y-6">
                 <div>
                   <h2 className="text-xl font-bold text-stone-900">
                     {language === "am" ? "የክስተት ዝርዝሮች" : "Incident Details"}
@@ -629,7 +585,7 @@ export const ReportCasePage = () => {
                         type="button"
                         onClick={handleResolveLocation}
                         disabled={resolvingLocation}
-                        className="px-4 py-3.5 bg-stone-900 text-white rounded-2xl text-sm font-semibold hover:bg-stone-800 disabled:opacity-50 transition-all flex items-center gap-2 flex-shrink-0"
+                        className="px-4 py-3.5 bg-stone-900 dark:bg-orange-600 text-white hover:bg-stone-800 dark:hover:bg-orange-700 rounded-2xl text-sm font-semibold hover:bg-stone-800 disabled:opacity-50 transition-all flex items-center gap-2 flex-shrink-0"
                       >
                         {resolvingLocation ? (
                           <Loader2 className="w-4 h-4 animate-spin" />
@@ -674,7 +630,7 @@ export const ReportCasePage = () => {
                         className={`w-full pl-11 pr-4 py-3.5 rounded-2xl border-2 text-sm focus:ring-4 outline-none transition-all ${
                           validationErrors.lastSeenDate
                             ? "border-red-300 focus:border-red-500 focus:ring-red-100 bg-red-50"
-                            : "border-stone-200 focus:border-terracotta focus:ring-terracotta/10"
+                            : "border-stone-200 dark:border-orange-500/30 focus:border-terracotta focus:ring-terracotta/10"
                         }`}
                       />
                     </div>
@@ -705,7 +661,7 @@ export const ReportCasePage = () => {
                       className={`w-full rounded-2xl border-2 px-4 py-3.5 text-sm focus:ring-4 outline-none transition-all resize-none ${
                         validationErrors.description
                           ? "border-red-300 focus:border-red-500 focus:ring-red-100 bg-red-50"
-                          : "border-stone-200 focus:border-terracotta focus:ring-terracotta/10"
+                          : "border-stone-200 dark:border-orange-500/30 focus:border-terracotta focus:ring-terracotta/10"
                       }`}
                     />
                     {validationErrors.description && (
@@ -734,7 +690,7 @@ export const ReportCasePage = () => {
                   </div>
 
                   {/* Voice Input */}
-                  <div className="rounded-2xl border-2 border-stone-200 p-5 bg-stone-50">
+                  <div className="rounded-2xl border-2 border-stone-200 dark:border-orange-500/30 p-5 bg-stone-50">
                     <div className="flex items-center gap-2 mb-3">
                       <div className="w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center">
                         <Mic className="w-4 h-4 text-red-600" />
@@ -796,7 +752,7 @@ export const ReportCasePage = () => {
 
             {/* Section 3: Reporter Details */}
             {activeSection === "reporter" && (
-              <div className="bg-white rounded-3xl border border-stone-200 p-6 sm:p-8 space-y-6">
+              <div className="bg-white rounded-3xl border border-stone-200 dark:border-orange-500/30 p-6 sm:p-8 space-y-6">
                 <div>
                   <h2 className="text-xl font-bold text-stone-900">
                     {language === "am" ? "የሪፖርተር መረጃ" : "Reporter Information"}
@@ -829,7 +785,7 @@ export const ReportCasePage = () => {
                         className={`w-full pl-11 pr-4 py-3.5 rounded-2xl border-2 text-sm focus:ring-4 outline-none transition-all ${
                           validationErrors.reporterName
                             ? "border-red-300 focus:border-red-500 focus:ring-red-100 bg-red-50"
-                            : "border-stone-200 focus:border-terracotta focus:ring-terracotta/10"
+                            : "border-stone-200 dark:border-orange-500/30 focus:border-terracotta focus:ring-terracotta/10"
                         }`}
                         required
                       />
@@ -877,7 +833,7 @@ export const ReportCasePage = () => {
                       value={form.smsPhone}
                       onChange={(e) => updateField("smsPhone", e.target.value)}
                       placeholder={language === "am" ? "አማራጭ" : "Optional"}
-                      className="w-full rounded-2xl border-2 border-stone-200 px-4 py-3.5 text-sm focus:border-terracotta focus:ring-4 focus:ring-terracotta/10 outline-none transition-all"
+                      className="w-full rounded-2xl border-2 border-stone-200 dark:border-orange-500/30 px-4 py-3.5 text-sm focus:border-terracotta focus:ring-4 focus:ring-terracotta/10 outline-none transition-all"
                     />
                   </div>
                   <div className="sm:col-span-2">
@@ -929,7 +885,7 @@ export const ReportCasePage = () => {
                               ? "ግንኙነትዎን ይግለጹ"
                               : "Please specify your relationship"
                           }
-                          className="w-full rounded-2xl border-2 border-stone-200 px-4 py-3.5 text-sm focus:border-terracotta focus:ring-4 focus:ring-terracotta/10 outline-none transition-all"
+                          className="w-full rounded-2xl border-2 border-stone-200 dark:border-orange-500/30 px-4 py-3.5 text-sm focus:border-terracotta focus:ring-4 focus:ring-terracotta/10 outline-none transition-all"
                         />
                       </div>
                     )}
@@ -975,7 +931,7 @@ export const ReportCasePage = () => {
                       window.scrollTo({ top: 0, behavior: "smooth" });
                     }
                   }}
-                  className="px-8 py-3.5 bg-stone-900 text-white font-semibold rounded-2xl hover:bg-stone-800 transition-all shadow-lg"
+                  className="px-8 py-3.5 bg-stone-900 dark:bg-orange-600 text-white hover:bg-stone-800 dark:hover:bg-orange-700 shadow-lg font-semibold rounded-2xl hover:bg-stone-800 transition-all shadow-lg"
                 >
                   {language === "am" ? "ቀጣይ" : "Next"} →
                 </button>

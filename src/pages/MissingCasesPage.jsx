@@ -156,7 +156,7 @@ export const MissingCasesPage = () => {
           <div className="flex gap-2">
             <button
               onClick={() => setShowFilters(!showFilters)}
-              className="inline-flex items-center gap-2 rounded-2xl border border-stone-200 bg-white px-4 py-3.5 text-sm font-medium text-stone-700 transition hover:bg-stone-50"
+              className=" inline-flex items-center gap-2 rounded-2xl border border-stone-200 bg-white px-4 py-3.5 text-sm font-medium text-stone-700 transition hover:bg-stone-50 "
             >
               <Filter className="h-4 w-4" />
               Filters
@@ -165,8 +165,7 @@ export const MissingCasesPage = () => {
             <button
               type="button"
               onClick={() => loadCases(status, query)}
-              className="rounded-2xl bg-charcoal px-6 py-3.5 text-sm font-semibold text-white transition hover:bg-charcoal/90"
-            >
+className="rounded-2xl bg-terracotta px-6 py-3.5 text-base font-semibold text-white transition hover:bg-terracotta/90 dark:bg-orange-600 dark:hover:bg-orange-700"            >
               Search
             </button>
           </div>
@@ -211,8 +210,9 @@ export const MissingCasesPage = () => {
                     setStatus("active");
                     loadCases("active", query);
                   }}
-                  className="rounded-full bg-stone-100 px-4 py-2 text-xs font-semibold text-stone-600 transition hover:bg-stone-200"
-                >
+            className="rounded-full bg-gradient-to-r from-red-500 to-orange-500 px-4 
+            py-2 text-xs font-semibold text-white shadow-sm transition
+             hover:shadow-md hover:scale-105 focus:outline-none focus:ring-2 focus:ring-red-400/40"                >
                   High Priority
                 </button>
               </div>
@@ -222,22 +222,42 @@ export const MissingCasesPage = () => {
       </section>
 
       {/* Quick Stats - Redesigned */}
-      <section className="mx-auto max-w-7xl px-4 pb-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-3 gap-3 sm:gap-4">
-          <div className="rounded-2xl border border-terracotta/20 bg-terracotta/5 p-4 text-center sm:p-5">
-            <p className="text-xl font-bold text-terracotta sm:text-2xl">{activeCount}</p>
-            <p className="mt-1 text-xs font-medium text-stone-600">Active</p>
-          </div>
-          <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-center sm:p-5">
-            <p className="text-xl font-bold text-amber-600 sm:text-2xl">{highPriorityCount}</p>
-            <p className="mt-1 text-xs font-medium text-stone-600">High Priority</p>
-          </div>
-          <div className="rounded-2xl border border-green-200 bg-green-50 p-4 text-center sm:p-5">
-            <p className="text-xl font-bold text-green-600 sm:text-2xl">{resolvedCount}</p>
-            <p className="mt-1 text-xs font-medium text-stone-600">Resolved</p>
-          </div>
-        </div>
-      </section>
+      {/* Quick Stats - Improved Visibility */}
+<section className="mx-auto max-w-7xl px-4 pb-4 sm:px-6 lg:px-8">
+  <div className="grid grid-cols-3 gap-3 sm:gap-4">
+
+    {/* 🟠 ACTIVE */}
+  <div className="rounded-2xl border border-yellow-300 bg-yellow-100 dark:bg-yellow-900/30 p-4 text-center sm:p-5">
+  <p className="text-xl font-extrabold text-yellow-700 dark:text-yellow-300 sm:text-2xl">
+    {activeCount}
+  </p>
+  <p className="mt-1 text-sm font-bold text-yellow-800 dark:text-yellow-200">
+    Active
+  </p>
+</div>
+
+    {/* 🔴 HIGH PRIORITY */}
+    <div className="rounded-2xl border border-red-300 bg-gradient-to-r from-red-500/10 to-orange-500/10 dark:from-red-900/30 dark:to-orange-900/30 p-4 text-center sm:p-5">
+      <p className="text-xl font-extrabold text-red-600 dark:text-red-400 sm:text-2xl">
+        {highPriorityCount}
+      </p>
+      <p className="mt-1 text-sm font-bold text-red-700 dark:text-red-300">
+        High Priority
+      </p>
+    </div>
+
+    {/* 🟢 RESOLVED */}
+    <div className="rounded-2xl border border-green-300 bg-green-100 dark:bg-green-900/30 p-4 text-center sm:p-5">
+      <p className="text-xl font-extrabold text-green-700 dark:text-green-400 sm:text-2xl">
+        {resolvedCount}
+      </p>
+      <p className="mt-1 text-sm font-bold text-green-800 dark:text-green-300">
+        Resolved
+      </p>
+    </div>
+
+  </div>
+</section>
 
       {/* Cases Grid - Redesigned */}
       <section className="mx-auto max-w-8xl px-4 pb-12 sm:px-6 lg:px-8">

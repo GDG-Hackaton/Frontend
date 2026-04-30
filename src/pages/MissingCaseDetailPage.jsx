@@ -877,12 +877,13 @@ export const MissingCaseDetailPage = () => {
                 Sign in to submit a sighting for this case so the team can verify who reported it and follow up safely.
               </p>
               <div className="mt-4 flex flex-wrap gap-3">
-                <Link
-                  to={`/auth/login?redirect=${encodeURIComponent(`/cases/${caseData.caseId}`)}`}
-                  className="rounded-full bg-charcoal px-4 py-2 text-xs font-semibold text-white"
-                >
-                  Sign in
-                </Link>
+               <Link
+  to={`/auth/login?redirect=${encodeURIComponent(`/cases/${caseData.caseId}`)}`}
+  className="rounded-full bg-terracotta px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition 
+             hover:bg-clay hover:shadow-md focus:outline-none focus:ring-2 focus:ring-terracotta/40"
+>
+  Sign in
+</Link>
                 <Link
                   to="/volunteers"
                   className="rounded-full border border-stone-200 px-4 py-2 text-xs font-semibold text-stone-700"

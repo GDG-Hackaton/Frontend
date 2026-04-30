@@ -13,6 +13,7 @@ export default function CaseList() {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [stats, setStats] = useState(null);
+  const [activeFilter, setActiveFilter] = useState("all"); // all, high-priority, active, resolved
 
   useEffect(() => {
     loadCases();
@@ -59,6 +60,11 @@ export default function CaseList() {
     }
   };
 
+  const handleFilterChange = (filter) => {
+    setActiveFilter(filter);
+    // Filter logic would be applied here in real implementation
+  };
+
   const getPriorityColor = (level) => {
     switch (level) {
       case "HIGH":
@@ -101,19 +107,80 @@ export default function CaseList() {
         </div>
       )}
 
-      {/* Search Bar */}
-      <div className="flex gap-2">
-        <Input
-          placeholder="Search by name, location, or case ID..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          onKeyPress={(e) => e.key === "Enter" && handleSearch()}
-          className="flex-1"
-        />
-        <Button onClick={handleSearch}>
-          <Search className="w-4 h-4 mr-2" />
-          Search
-        </Button>
+      {/* Search Bar and Filters */}
+      <div className="space-y-4">
+        {/* Search Bar */}
+        <div className="flex gap-3">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-orange-400 dark:text-orange-500 pointer-events-none" />
+            <Input
+              placeholder="Search by name, location, or case ID..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onKeyPress={(e) => e.key === "Enter" && handleSearch()}
+              className="pl-9 border-orange-200 dark:border-orange-700 focus:border-orange-400 dark:focus:border-orange-500 focus:ring-orange-300 dark:focus:ring-orange-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-xl h-11"
+            />
+          </div>
+          <Button
+            onClick={handleSearch}
+            className="bg-orange-500 hover:bg-orange-600 dark:bg-orange-600 dark:hover:bg-orange-700 text-white font-bold rounded-xl h-11 px-6 shadow-md hover:shadow-lg transition-all duration-150 text-base"
+          >
+            <Search className="w-5 h-5 mr-2" />
+            Search
+          </Button>
+        </div>
+
+        {/* Filter Buttons */}
+        <div className="flex flex-wrap gap-3">
+          <button
+            onClick={() => handleFilterChange("all")}
+            className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all duration-150 ${
+              activeFilter === "all"
+                ? "bg-orange-500 dark:bg-orange-600 text-white shadow-md"
+                : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-2 border-gray-300 dark:border-gray-600 hover:border-orange-400 dark:hover:border-orange-500 hover:bg-orange-50 dark:hover:bg-gray-700"
+            }`}
+          >
+            All Cases
+          </button>
+          
+          <button
+            onClick={() => handleFilterChange("high-priority")}
+            className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all duration-150 flex items-center gap-2 ${
+              activeFilter === "high-priority"
+                ? "bg-red-500 dark:bg-red-600 text-white shadow-md"
+                : "bg-white dark:bg-gray-800 text-red-600 dark:text-red-400 border-2 border-red-300 dark:border-red-700 hover:border-red-500 dark:hover:border-red-500 hover:bg-red-50 dark:hover:bg-gray-700"
+            }`}
+          >
+            <AlertCircle className="w-4 h-4" />
+            High Priority
+          </button>
+          
+          <button
+            onClick={() => handleFilterChange("active")}
+            className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all duration-150 flex items-center gap-2 ${
+              activeFilter === "active"
+                ? "bg-orange-500 dark:bg-orange-600 text-white shadow-md"
+                : "bg-white dark:bg-gray-800 text-orange-600 dark:text-orange-400 border-2 border-orange-300 dark:border-orange-700 hover:border-orange-500 dark:hover:border-orange-500 hover:bg-orange-50 dark:hover:bg-gray-700"
+            }`}
+          >
+            <Clock className="w-4 h-4" />
+            Active
+          </button>
+          
+          <button
+            onClick={() => handleFilterChange("resolved")}
+            className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all duration-150 flex items-center gap-2 ${
+              activeFilter === "resolved"
+                ? "bg-green-500 dark:bg-green-600 text-white shadow-md"
+                : "bg-white dark:bg-gray-800 text-green-600 dark:text-green-400 border-2 border-green-300 dark:border-green-700 hover:border-green-500 dark:hover:border-green-500 hover:bg-green-50 dark:hover:bg-gray-700"
+            }`}
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            </svg>
+            Resolved
+          </button>
+        </div>
       </div>
 
       {/* Cases List */}
