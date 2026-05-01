@@ -14,7 +14,7 @@ export const MainFooter = () => {
   return (
     <footer className="bg-gradient-to-r from-[#1a1a1a] via-[#2b0f0a] to-[#1a1a1a] text-white/80">
       <div className="container py-12 max-w-7xl mx-auto">
-        <div className="mb-12 grid gap-8 md:grid-cols-4">
+        <div className="mb-12 grid grid-cols-2 gap-8 md:grid-cols-4">
 
           {/* Logo Section */}
           <div className="col-span-1">

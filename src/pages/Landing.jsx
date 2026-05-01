@@ -313,9 +313,8 @@ const LossUnderstandingSection = () => {
   }, [controls, inView]);
 
   return (
-    <section className="py-24 md:py-32 bg-gradient-to-b from-white to-stone-50 dark:from-black dark:via-zinc-950 dark:to-black">
-      <div className="container max-w-5xl">
-
+    <section className="py-16 md:py-32 bg-gradient-to-b from-white to-stone-50 dark:from-black dark:via-zinc-950 dark:to-black">
+      <div className="container max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           ref={ref}
           initial={{ opacity: 0, y: 40 }}
@@ -323,32 +322,28 @@ const LossUnderstandingSection = () => {
           transition={{ duration: 0.6 }}
           className="text-center"
         >
-          {/* ===== TITLE ===== */}
-          <h2 className="text-3xl md:text-5xl font-bold tracking-tight mb-6 text-black dark:text-white">
+          <h2 className="text-2xl sm:text-3xl md:text-5xl font-bold tracking-tight mb-4 md:mb-6 text-black dark:text-white">
             {language === "am" 
               ? "ሰዎች በተለያየ መንገድ ይራራቃሉ"
               : "People Get Lost in Different Ways"}
           </h2>
 
-          {/* ===== SUBTEXT ===== */}
-          <p className="text-base md:text-lg text-stone-700 dark:text-stone-300 mb-20 max-w-2xl mx-auto leading-relaxed">
+          <p className="text-sm md:text-base lg:text-lg text-stone-700 dark:text-stone-300 mb-12 md:mb-20 max-w-2xl mx-auto leading-relaxed px-4 md:px-0">
             {language === "am"
               ? "ሰዎች በድንገት ይጠፋፋሉ፣ በጊዜ ሂደት ውስጥም ኑሮን ለማሸነፍ በሚያደርጉት ውጣ ውረድ ውስጥ አንዱ የአንዱ አንድራሳ በማጣት፣ ይራራቃሉ አንዱ የሕይወት አካል ነውና። "
               : "Understanding the nature of separation helps us build better tools for reconnection."}
           </p>
 
-          {/* ===== CARDS ===== */}
-          <div className="grid md:grid-cols-2 gap-12">
-
-            {/* ===== SUDDEN LOSS ===== */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-12">
             <motion.div
-              initial={{ opacity: 0, x: -40 }}
+              initial={{ opacity: 0, y: 20 }}
               animate={controls}
               transition={{ delay: 0.2 }}
               className="
-                relative p-8 md:p-10 
-                rounded-3xl bg-white dark:bg-stone-900/30
-                 backdrop-blur-md 
+                relative p-6 md:p-10 
+                rounded-2xl md:rounded-3xl 
+                bg-white dark:bg-stone-900/30
+                backdrop-blur-md 
                 border border-red-100 dark:border-stone-800
                 shadow-lg shadow-red-100/40 dark:shadow-lg dark:shadow-black/20
                 hover:shadow-xl hover:shadow-red-200/50 dark:hover:shadow-xl dark:hover:shadow-black/30
@@ -356,28 +351,24 @@ const LossUnderstandingSection = () => {
                 transition-all duration-300
               "
             >
-              {/* subtle glow */}
-              <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-red-100/20 to-transparent pointer-events-none" />
-
-              <h3 className="text-xl md:text-2xl font-semibold text-red-600 dark:text-red-400 mb-4">
-                 {language === "am" ? "በድንገት መጥፋት" : "Sudden Loss"}
+              <div className="absolute inset-0 rounded-2xl md:rounded-3xl bg-gradient-to-br from-red-100/20 to-transparent pointer-events-none" />
+              <h3 className="text-lg md:text-xl lg:text-2xl font-semibold text-red-600 dark:text-red-400 mb-3 md:mb-4">
+                {language === "am" ? "በድንገት መጥፋት" : "Sudden Loss"}
               </h3>
-
-              <p className="text-stone-600 dark:text-stone-400 leading-relaxed">
+              <p className="text-sm md:text-base text-stone-600 dark:text-stone-400 leading-relaxed">
                 {language === "am"
                   ? "በድንገት የጠፉ ሰዎች በፍጥነት መረጃን ማሰራጭት እና ፈጣን ምላሽ ያስፈልጋቸዋል "
                   : "Missing persons, emergencies, urgent situations where every minute matters. Fast action required."}
               </p>
             </motion.div>
 
-            {/* ===== SILENT LOSS ===== */}
             <motion.div
-              initial={{ opacity: 0, x: 40 }}
+              initial={{ opacity: 0, y: 20 }}
               animate={controls}
               transition={{ delay: 0.4 }}
               className="
-                relative p-8 md:p-10 
-                rounded-3xl 
+                relative p-6 md:p-10 
+                rounded-2xl md:rounded-3xl 
                 bg-white dark:bg-stone-900/30 backdrop-blur-md 
                 border border-amber-100 dark:border-stone-800
                 shadow-lg shadow-amber-100/40 dark:shadow-lg dark:shadow-black/20
@@ -386,27 +377,22 @@ const LossUnderstandingSection = () => {
                 transition-all duration-300
               "
             >
-              {/* subtle glow */}
-              <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-amber-100/20 to-transparent pointer-events-none" />
-
-              <h3 className="text-xl md:text-2xl font-semibold text-yellow-500 dark:text-yellow-400 mb-4">
-                 {language === "am" ? "አርዳሻቸውን በማጣት መራራቅ" : "Silent Loss"}
+              <div className="absolute inset-0 rounded-2xl md:rounded-3xl bg-gradient-to-br from-amber-100/20 to-transparent pointer-events-none" />
+              <h3 className="text-lg md:text-xl lg:text-2xl font-semibold text-yellow-500 dark:text-yellow-400 mb-3 md:mb-4">
+                {language === "am" ? "አርዳሻቸውን በማጣት መራራቅ" : "Silent Loss"}
               </h3>
-
-              <p className="text-stone-600 dark:text-stone-400 leading-relaxed">
+              <p className="text-sm md:text-base text-stone-600 dark:text-stone-400 leading-relaxed">
                 {language === "am"
                   ? "የተጠፋፉ ጓደኛሞች፣ የተለያዩ ቤተሰቦች፣ በጊዜ ሂደት ግንኙነታቸው እየደበዘዘ ትዝታቸው እየጨመረ ናፍቆትን ያባብሳልና ። ዘላቂ መፍትሄ ያስፈልግርዋል።"
-                  : "Lost friends and separated families. As time passes, connections may fade, but memories linger—deepening the longing. We provide the lasting solution to bridge the gap.."}
+                  : "Lost friends and separated families. As time passes, connections may fade, but memories linger—deepening the longing. We provide the lasting solution to bridge the gap."}
               </p>
             </motion.div>
-
           </div>
         </motion.div>
       </div>
     </section>
   );
 };
-
 
 // 4. IMPACT STATS
 
@@ -415,7 +401,7 @@ const ImpactSection = () => {
   const { data: stats } = useImpactStats();
 
   return (
-    <section className="p-10 bg-white dark:from-black dark:via-orange-950/20 dark:to-black dark:bg-gradient-to-b text-charcoal dark:text-white">
+    <section className="p-10 bg-white dark:from-black mt-24 dark:via-orange-950/20 dark:to-black dark:bg-gradient-to-b text-charcoal dark:text-white">
       <div className="container">
         <div className="text-center mb-16">
           <h2 className="text-4xl font-bold mb-4">

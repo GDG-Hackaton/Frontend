@@ -58,7 +58,7 @@ export const ProfilePage = () => {
 
   if (!profile) {
     return (
-      <div className="container py-8">
+      <div className="container py-8 mt-24">
         <div className="max-w-md mx-auto text-center py-12">
           <User className="w-16 h-16 text-stone mx-auto mb-4 opacity-50" />
           <h2 className="font-display text-2xl font-bold text-charcoal mb-3">
@@ -83,7 +83,7 @@ export const ProfilePage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-warm-white">
+    <div className="min-h-screen mt-24 bg-warm-white">
       {/* Profile Header */}
       <div className="bg-gradient-to-b from-cream to-transparent pt-8 pb-12">
         <div className="container">

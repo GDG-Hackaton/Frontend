@@ -190,7 +190,7 @@ const FAQPage = () => {
   const displayFaqs = searchTerm ? getFilteredFaqs() : (faqs[activeCategory] || []);
 
   return (
-    <div className="min-h-screen bg-warm-white">
+    <div className="min-h-screen mt-24 bg-warm-white">
       {/* Hero */}
       <section className="bg-gradient-to-b from-cream to-transparent pt-24 pb-12">
         <div className="container">

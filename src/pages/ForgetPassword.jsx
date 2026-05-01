@@ -4,7 +4,7 @@ import { MailQuestion, ArrowLeft } from "lucide-react";
 
 export default function ForgetPassword() {
   return (
-    <div className="min-h-screen bg-slate-50 flex items-center justify-center px-4 py-10">
+    <div className="min-h-screen bg-slate-50 flex items-center justify-center px-4 py-10 mt-24">
       <div className="max-w-md w-full bg-white rounded-3xl shadow-xl border border-slate-200 p-8 text-center">
         <MailQuestion className="mx-auto h-12 w-12 text-emerald-600 mb-4" />
         <h1 className="text-2xl font-bold text-slate-900 mb-3">

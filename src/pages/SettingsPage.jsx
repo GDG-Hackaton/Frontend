@@ -120,7 +120,7 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-white dark:from-black dark:via-orange-950/20 dark:to-black dark:bg-gradient-to-b">
+    <div className="min-h-screen mt-24 bg-white dark:from-black dark:via-orange-950/20 dark:to-black dark:bg-gradient-to-b">
       <section className="border-b border-stone-200 dark:border-stone-800 bg-white dark:bg-black/50">
         <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8">
           <div className="flex flex-wrap items-start justify-between gap-6">

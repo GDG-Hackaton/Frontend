@@ -96,7 +96,7 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-white dark:from-black dark:via-orange-950/20 dark:to-black dark:bg-gradient-to-b">
+    <div className="min-h-screen bg-white mt-24 dark:from-black dark:via-orange-950/20 dark:to-black dark:bg-gradient-to-b">
       <MissionBanner />
 
       {/* Header */}

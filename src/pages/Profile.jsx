@@ -61,7 +61,7 @@ export default function Profile() {
   }
 
   return (
-    <div className="min-h-screen bg-white dark:from-black dark:via-orange-950/20 dark:to-black dark:bg-gradient-to-b py-10">
+    <div className="min-h-screen bg-white mt-24 dark:from-black dark:via-orange-950/20 dark:to-black dark:bg-gradient-to-b py-10">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}

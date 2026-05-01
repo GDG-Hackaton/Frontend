@@ -82,7 +82,7 @@ export const LoginPage = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-cream to-warm-white">
+    <div className="min-h-screen mt-24 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-cream to-warm-white">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}

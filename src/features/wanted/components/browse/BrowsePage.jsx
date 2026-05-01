@@ -1,5 +1,5 @@
 ﻿import { useState, useRef, useEffect } from "react";
-import { motion, useInView } from 'framer-motion';
+import { motion, useInView } from "framer-motion";
 import {
   Search,
   Filter,
@@ -22,11 +22,15 @@ import { LoadingSkeleton } from "../shared/LoadingSkeleton";
 import { useLanguage } from "../../../../lib/i18n";
 import { Link } from "react-router-dom";
 
-const assetImages = import.meta.glob('../../../../assets/images/*.{png,jpg,jpeg,svg}', { 
-  eager: true, 
-  import: 'default' 
-});
-const getAsset = (name) => assetImages[`../../../../assets/images/${name}.png`] || '';
+const assetImages = import.meta.glob(
+  "../../../../assets/images/*.{png,jpg,jpeg,svg}",
+  {
+    eager: true,
+    import: "default",
+  },
+);
+const getAsset = (name) =>
+  assetImages[`../../../../assets/images/${name}.png`] || "";
 
 const HeroSection = () => {
   const { language } = useLanguage();
@@ -39,7 +43,6 @@ const HeroSection = () => {
     { src: 'hero 4', alt: 'Reconnection moment' },
     { src: 'hero 5', alt: 'Joyful reunion' },
     { src: 'hero 4', alt: 'Joyful reunion' },
-
   ];
 
   useEffect(() => {
@@ -49,7 +52,6 @@ const HeroSection = () => {
     return () => clearInterval(interval);
   }, []);
 
-  // How it works steps
   const steps = [
     {
       step: '1',
@@ -83,85 +85,197 @@ const HeroSection = () => {
       icon: Sparkles,
       title: { en: 'Reconnect Safely', am: 'በደህንነት ይገናኙ' },
       description: { 
-        en: 'Once verified, you can chat through text,vedio send photo and reconnect securely through our platform',
+        en: 'Once verified, you can chat through text, video, send photo and reconnect securely through our platform',
         am: 'አንዴ የሚፈልጉትን ካገኙ ቡኃላ መተግበሪያችንን በመጠቀም ምስጢሮ በተጠበቀ መንገድ ቢፈልጉ በጹፍ፣ በድምጽ ወይም ቪዲዮ ማውራት ይችላሉ'
       }
     }
   ];
 
   return (
-    <section className="mt-19 relative min-h-screen flex bg-white">
-      <div className="w-full lg:w-1/2 relative overflow-hidden bg-charcoal">
-        {heroBackgrounds.map((bg, idx) => (
-          <motion.div
-            key={idx}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: idx === currentImage ? 1 : 0 }}
-            transition={{ duration: 1.5, ease: "easeInOut" }}
-            className="absolute inset-0"
-          >
-            <img 
-              src={getAsset(bg.src)}
-              alt={bg.alt}
-              className="w-full h-full object-cover"
-            />
-          </motion.div>
-        ))}
-        
-        <div className="absolute inset-0 " />
-        
-        {/* Hero Text Content */}
-        <div className="relative z-10 h-full flex items-center px-8 md:px-12 lg:px-16 py-20">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="w-full"
-          >
-            {/* Main Headline */}
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold text-white mb-4 leading-tight">
-              {language === 'am' ? (
-                <>የጠፉትን ይፈልጉ<br />የልቦትን ሰው ያግኙ</>
-              ) : (
-                <>Find the lost<br />Reconnect the heart <span className="text-3xl md:text-4xl lg:text-5xl font-display  font-bold text-terracotta mb-6 ">
-            </span></>
-              )}
-            </h1>
-            
-            
+    <section className="relative bg-white">
+      {/* ===== DESKTOP LAYOUT ===== */}
+      <div className="hidden lg:flex min-h-screen">
+        {/* Left side - Background Images with Text */}
+        <div className="w-1/2 relative overflow-hidden bg-charcoal">
+          {heroBackgrounds.map((bg, idx) => (
+            <motion.div
+              key={idx}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: idx === currentImage ? 1 : 0 }}
+              transition={{ duration: 1.5, ease: "easeInOut" }}
+              className="absolute inset-0"
+            >
+              <img 
+                src={getAsset(bg.src)}
+                alt={bg.alt}
+                className="w-full h-full object-cover object-center"
+                loading={idx === 0 ? "eager" : "lazy"}
+              />
+            </motion.div>
+          ))}
+          
+          <div className="absolute inset-0 bg-black/30" />
+          
+          <div className="relative z-10 h-full flex items-center px-12 lg:px-16 py-20">
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8 }}
+              className="w-full"
+            >
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold text-white mb-6 leading-tight">
+                {language === 'am' ? (
+                  <>የጠፉትን ይፈልጉ<br />የልቦትን ሰው ያግኙ</>
+                ) : (
+                  <>Find the lost<br />Reconnect the heart</>
+                )}
+              </h1>
+              
+              <p className="text-lg text-white/90 max-w-md font-semibold leading-relaxed mb-10">
+                {language === 'am'
+                  ? 'ምንም እንኳ ረጅም ጊዜ ቢቆጠር፣ የቱንም ያህል ርቀት ቢኖር፣ ወይም የአድራሻቸው መረጃ ቢጎድልዎ፤ በድረ ገጻችን በመገናኘት ናፍቆቶን ይወጡ።'
+                  : 'No matter how much time has passed, how great the distance, or if their contact details are lost—reconnect through our platform and ease your longing.'
+                }
+              </p>
 
-            {/* Subheadline */}
-            <p className="text-lg text-white/90 max-w-md lg:mb-4 font-semibold leading-relaxed mt-8 mb-8">
-              {language === 'am'
-                ? 'ምንም እንኳ ረጅም ጊዜ ቢቆጠር፣ የቱንም ያህል ርቀት ቢኖር፣ ወይም የአድራሻቸው መረጃ ቢጎድልዎ፤ በድረ ገጻችን በመገናኘት ናፍቆቶን ይወጡ።'
-                : 'No matter how much time has passed, how great the distance, or if their contact details are lost—reconnect through our platform and ease your longing.'
-              }
-            </p>
+              <div className="flex gap-2 absolute bottom-10 left-1/2 -translate-x-1/2">
+                {heroBackgrounds.map((_, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => setCurrentImage(idx)}
+                    aria-label={`View image ${idx + 1}`}
+                    className={`h-1.5 rounded-full transition-all duration-300 ${
+                      idx === currentImage 
+                        ? 'w-8 bg-terracotta' 
+                        : 'w-4 bg-white/30 hover:bg-white/50'
+                    }`}
+                  />
+                ))}
+              </div>
+            </motion.div>
+          </div>
+        </div>
 
-            {/* Image navigation dots */}
-            <div className="flex gap-2 absolute bottom-10 left-1/2 -translate-x-1/2">
-              {heroBackgrounds.map((_, idx) => (
-                <button
-                  key={idx}
-                  onClick={() => setCurrentImage(idx)}
-                  className={`h-1.5 rounded-full transition-all duration-300 ${
-                    idx === currentImage 
-                      ? 'w-8 bg-terracotta' 
-                      : 'w-4 bg-white/30 hover:bg-white/50'
-                  }`}
-                />
-              ))}
-            </div>
-          </motion.div>
+        {/* Right side - How it Works */}
+        <div className="w-1/2 bg-white flex items-center">
+          <div className="px-12 lg:px-16 py-20 w-full">
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.8, delay: 0.3 }}
+            >
+              <h3 className="text-2xl lg:text-3xl font-display font-bold text-charcoal mb-2">
+                {language === 'am' ? 'እንዴት እንደሚሰራ' : 'How It Works'}
+              </h3>
+              <p className="text-stone mb-8">
+                {language === 'am' 
+                  ? 'በነዚህ ቀላል መንገዶች የጠፉትን ሰዎች ያግኙ'
+                  : 'Find lost connections in these simple steps'
+                }
+              </p>
+              
+              <div className="space-y-6">
+                {steps.map((item, idx) => (
+                  <motion.div
+                    key={idx}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.5 + idx * 0.1 }}
+                    className="flex gap-4"
+                  >
+                    <div className="flex-shrink-0">
+                      <div className="w-12 h-12 rounded-xl bg-terracotta/10 flex items-center justify-center">
+                        <item.icon className="w-6 h-6 text-terracotta" />
+                      </div>
+                    </div>
+                    <div>
+                      <h4 className="text-charcoal font-semibold mb-1">
+                        {language === 'am' ? item.title.am : item.title.en}
+                      </h4>
+                      <p className="text-stone text-sm leading-relaxed">
+                        {language === 'am' ? item.description.am : item.description.en}
+                      </p>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            </motion.div>
+          </div>
         </div>
       </div>
 
-      <div className="hidden w-full lg:flex lg:w-1/2 md:w-1/2 bg-white items-center">
-        <div className="px-12 lg:px-16 py-20 w-full">
+      {/* ===== MOBILE LAYOUT ===== */}
+      <div className="lg:hidden">
+        {/* Hero Image Section - Shorter height */}
+        <div className="relative h-[55vh] overflow-hidden bg-charcoal">
+          {heroBackgrounds.map((bg, idx) => (
+            <motion.div
+              key={idx}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: idx === currentImage ? 1 : 0 }}
+              transition={{ duration: 1.5, ease: "easeInOut" }}
+              className="absolute inset-0"
+            >
+              <img 
+                src={getAsset(bg.src)}
+                alt={bg.alt}
+                className="w-full h-full object-cover object-center"
+                loading={idx === 0 ? "eager" : "lazy"}
+              />
+            </motion.div>
+          ))}
+          
+          <div className="absolute inset-0 bg-black/50" />
+          
+          {/* Hero Text Overlaid at bottom */}
+          <div className="relative z-10 h-full flex flex-col justify-end px-6 pb-8">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8 }}
+              className="w-full"
+            >
+              <h1 className="text-3xl font-display font-bold text-white mb-3 leading-tight">
+                {language === 'am' ? (
+                  <>የጠፉትን ይፈልጉ<br />የልቦትን ሰው ያግኙ</>
+                ) : (
+                  <>Find the lost<br />Reconnect the heart</>
+                )}
+              </h1>
+              
+              <p className="text-sm text-white/90 font-medium leading-relaxed mb-6 max-w-md">
+                {language === 'am'
+                  ? 'ምንም እንኳ ረጅም ጊዜ ቢቆጠር፣ የቱንም ያህል ርቀት ቢኖር፣ ወይም የአድራሻቸው መረጃ ቢጎድልዎ፤ በድረ ገጻችን በመገናኘት ናፍቆቶን ይወጡ።'
+                  : 'No matter how much time has passed, how great the distance, or if their contact details are lost—reconnect through our platform and ease your longing.'
+                }
+              </p>
+
+              {/* Navigation dots */}
+              <div className="flex gap-2 justify-center">
+                {heroBackgrounds.map((_, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => setCurrentImage(idx)}
+                    aria-label={`View image ${idx + 1}`}
+                    className={`h-1.5 rounded-full transition-all duration-300 ${
+                      idx === currentImage 
+                        ? 'w-8 bg-terracotta' 
+                        : 'w-4 bg-white/30 hover:bg-white/50'
+                    }`}
+                  />
+                ))}
+              </div>
+            </motion.div>
+          </div>
+        </div>
+
+        {/* How it Works - Connected directly below hero */}
+        <div className="bg-white px-6 py-12">
           <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8, delay: 0.3 }}
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 0.6 }}
           >
             <h3 className="text-2xl font-display font-bold text-charcoal mb-2">
               {language === 'am' ? 'እንዴት እንደሚሰራ' : 'How It Works'}
@@ -169,7 +283,7 @@ const HeroSection = () => {
             <p className="text-stone mb-8">
               {language === 'am' 
                 ? 'በነዚህ ቀላል መንገዶች የጠፉትን ሰዎች ያግኙ'
-                : 'Find lost connections in this simple steps'
+                : 'Find lost connections in simple steps'
               }
             </p>
             
@@ -177,19 +291,17 @@ const HeroSection = () => {
               {steps.map((item, idx) => (
                 <motion.div
                   key={idx}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.5 + idx * 0.1 }}
+                  initial={{ opacity: 0, x: -20 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: idx * 0.1 }}
                   className="flex gap-4"
                 >
-                  {/* Step number with icon */}
                   <div className="flex-shrink-0">
                     <div className="w-12 h-12 rounded-xl bg-terracotta/10 flex items-center justify-center">
                       <item.icon className="w-6 h-6 text-terracotta" />
                     </div>
                   </div>
-                  
-                  {/* Content */}
                   <div>
                     <h4 className="text-charcoal font-semibold mb-1">
                       {language === 'am' ? item.title.am : item.title.en}
@@ -204,47 +316,11 @@ const HeroSection = () => {
           </motion.div>
         </div>
       </div>
-
-      <div className="lg:hidden w-full bg-white py-16 px-8">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-        >
-          <h3 className="text-2xl font-display font-bold text-charcoal mb-2">
-            {language === 'am' ? 'እንዴት እንደሚሰራ' : 'How It Works'}
-          </h3>
-          <p className="text-stone mb-8">
-            {language === 'am' 
-              ? 'በነዚህ ቀላል መንገዶች የጠፉትን ሰዎች ያግኙ'
-              : 'Find lost connections in  simple steps'
-            }
-          </p>
-          
-          <div className="space-y-6">
-            {steps.map((item, idx) => (
-              <div key={idx} className="flex gap-4">
-                <div className="flex-shrink-0">
-                  <div className="w-12 h-12 rounded-xl bg-terracotta/10 flex items-center justify-center">
-                    <item.icon className="w-6 h-6 text-terracotta" />
-                  </div>
-                </div>
-                <div>
-                  <h4 className="text-charcoal font-semibold mb-1">
-                    {language === 'am' ? item.title.am : item.title.en}
-                  </h4>
-                  <p className="text-stone text-sm leading-relaxed">
-                    {language === 'am' ? item.description.am : item.description.en}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </motion.div>
-      </div>
     </section>
   );
 };
+
+
 
 const ProblemSection = () => {
   const { language } = useLanguage();
@@ -254,38 +330,39 @@ const ProblemSection = () => {
   const problems = [
     {
       icon: Users,
-      image: 'hero 9',
-      title: { en: 'Migration Separates', am: 'ስደት ይለያል' },
-      description: { 
-        en: 'Whether seeking a better life, peace, or new career opportunities, people often move or migrate. Unfortunately, this often leads to distance and the loss of long-held connections.',
-        am: 'ሰዎች ሕይወትን ለማሸነፍ፣ ሰላምን ፍለጋ፣ በሥራ ምክንያት በሀገር ውስጥም ሆነ ከሀገር ውጭ ሊዘዋወሩ፣ ሊሰደዱ ይችላሉ  ይሄም መራራቅን መጠፋፋትን ሊያስከትል ይችላል።'
-      }
+      image: "hero 9",
+      title: { en: "Migration Separates", am: "ስደት ይለያል" },
+      description: {
+        en: "Whether seeking a better life, peace, or new career opportunities, people often move or migrate. Unfortunately, this often leads to distance and the loss of long-held connections.",
+        am: "ሰዎች ሕይወትን ለማሸነፍ፣ ሰላምን ፍለጋ፣ በሥራ ምክንያት በሀገር ውስጥም ሆነ ከሀገር ውጭ ሊዘዋወሩ፣ ሊሰደዱ ይችላሉ  ይሄም መራራቅን መጠፋፋትን ሊያስከትል ይችላል።",
+      },
     },
     {
       icon: Globe,
-      image: 'hero 3',
-      title: { en: 'Connections Fade', am: 'የጊዜ ርዝመት ያደበዘዘው ግንኙነት' },
-      description: { 
-        en: 'Classmates, colleagues, communities you never found again. Time erases connections.',
-        am: 'ሰዎች በሥራ፣ በትምህርት ቤት እና በተለላዩ ቦታዎች በአጭር ጊዜ ውስጥ ጥሩ ጓደኝነት ሊመሰርቱ ይችላሉ። በዛው ፍጥነት መለያየት ሊመጣ ይችላል። ጊዜ ዳኛ ነውና።'
-      }
+      image: "hero 3",
+      title: { en: "Connections Fade", am: "የጊዜ ርዝመት ያደበዘዘው ግንኙነት" },
+      description: {
+        en: "Classmates, colleagues, communities you never found again. Time erases connections.",
+        am: "ሰዎች በሥራ፣ በትምህርት ቤት እና በተለላዩ ቦታዎች በአጭር ጊዜ ውስጥ ጥሩ ጓደኝነት ሊመሰርቱ ይችላሉ። በዛው ፍጥነት መለያየት ሊመጣ ይችላል። ጊዜ ዳኛ ነውና።",
+      },
     },
     {
       icon: StopCircleIcon,
-      image: 'hero 4',
-      title: { en: 'Silence Grows', am: 'በኛ በዝምታ የመገናኘት ጊዘው ሊረዝም ይቻላል። ' },
-      description: { 
-        en: 'Years of silence turn into decades. The longer you wait, the harder it gets to reconnect.',
-        am: 'የዕለት ተለት ዝምታችን ዓመታትን እየወለደ በመጣ ቁጥር የመገናኘት ዕድላችንን ሊያጠበው ይችላል። እርሶም ፍለጋውን ዛረዉኑ ይጀምሩ።'
+      image: "hero 4",
+      title: { en: "Silence Grows", am: "በኛ በዝምታ የመገናኘት ጊዘው ሊረዝም ይቻላል። " },
+      description: {
+        en: "Years of silence turn into decades. The longer you wait, the harder it gets to reconnect.",
+        am: "የዕለት ተለት ዝምታችን ዓመታትን እየወለደ በመጣ ቁጥር የመገናኘት ዕድላችንን ሊያጠበው ይችላል። እርሶም ፍለጋውን ዛረዉኑ ይጀምሩ።",
       },
-    },{
+    },
+    {
       icon: StopCircleIcon,
-      image: 'hero 7',
-      title: { en: 'Silence Grows', am: 'በኛ በዝምታ የመገናኘት ጊዘው ሊረዝም ይቻላል። ' },
-      description: { 
-        en: 'Years of silence turn into decades. The longer you wait, the harder it gets to reconnect.',
-        am: 'የዕለት ተለት ዝምታችን ዓመታትን እየወለደ በመጣ ቁጥር የመገናኘት ዕድላችንን ሊያጠበው ይችላል። እርሶም ፍለጋውን ዛረዉኑ ይጀምሩ።'
-      }
+      image: "hero 7",
+      title: { en: "Silence Grows", am: "በኛ በዝምታ የመገናኘት ጊዘው ሊረዝም ይቻላል። " },
+      description: {
+        en: "Years of silence turn into decades. The longer you wait, the harder it gets to reconnect.",
+        am: "የዕለት ተለት ዝምታችን ዓመታትን እየወለደ በመጣ ቁጥር የመገናኘት ዕድላችንን ሊያጠበው ይችላል። እርሶም ፍለጋውን ዛረዉኑ ይጀምሩ።",
+      },
     },
   ];
 
@@ -294,10 +371,9 @@ const ProblemSection = () => {
       <div className="container">
         <div className="text-center max-w-3xl mx-auto mb-16">
           <h2 className="text-4xl md:text-5xl font-display font-bold text-charcoal mb-4">
-            {language === 'am' 
-              ? 'ሰዎች በተለያዩ ምክንያቶች ይለያያሉ'
-              : 'Every Day, Connections Disappear'
-            }
+            {language === "am"
+              ? "ሰዎች በተለያዩ ምክንያቶች ይለያያሉ"
+              : "Every Day, Connections Disappear"}
           </h2>
           {/* <p className="text-stone text-lg max-w-2xl mx-auto">
             {language === 'am'
@@ -320,20 +396,21 @@ const ProblemSection = () => {
               <div className="relative h-56 overflow-hidden">
                 <img
                   src={getAsset(problem.image)}
-                  alt={language === 'am' ? problem.title.am : problem.title.en}
+                  alt={language === "am" ? problem.title.am : problem.title.en}
                   className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-charcoal/60 to-transparent" />
-                
               </div>
-              
+
               {/* Text content */}
               <div className="p-8">
                 <h3 className="text-xl font-display font-semibold text-charcoal mb-3">
-                  {language === 'am' ? problem.title.am : problem.title.en}
+                  {language === "am" ? problem.title.am : problem.title.en}
                 </h3>
                 <p className="text-stone leading-relaxed">
-                  {language === 'am' ? problem.description.am : problem.description.en}
+                  {language === "am"
+                    ? problem.description.am
+                    : problem.description.en}
                 </p>
               </div>
             </motion.div>
@@ -348,14 +425,15 @@ export const BrowsePage = () => {
   const { language } = useLanguage();
   const [showFilters, setShowFilters] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
- const [activeFilters, setActiveFilters] = useState([]);
+  const [activeFilters, setActiveFilters] = useState([]);
   const [filters, setFilters] = useState({
     city: "",
     year: "",
     category: "",
   });
   const { data, isLoading, fetchNextPage, hasNextPage } = usePosts(filters);
-  const allPosts = data?.pages?.flatMap((page) => page?.data || page?.posts || []) || [];
+  const allPosts =
+    data?.pages?.flatMap((page) => page?.data || page?.posts || []) || [];
 
   const quickFilters = [
     { label: "Addis Ababa", type: "city", value: "Addis Ababa" },
@@ -369,13 +447,17 @@ export const BrowsePage = () => {
   // Handle quick filter click
   const handleQuickFilter = (filter) => {
     // Check if filter is already active
-    const isActive = activeFilters.find(f => f.value === filter.value && f.type === filter.type);
-    
+    const isActive = activeFilters.find(
+      (f) => f.value === filter.value && f.type === filter.type,
+    );
+
     if (isActive) {
       // Remove filter
-      const newActiveFilters = activeFilters.filter(f => !(f.value === filter.value && f.type === filter.type));
+      const newActiveFilters = activeFilters.filter(
+        (f) => !(f.value === filter.value && f.type === filter.type),
+      );
       setActiveFilters(newActiveFilters);
-      
+
       // Update filters state
       const newFilters = { ...filters };
       if (filter.type === "city") newFilters.city = "";
@@ -384,10 +466,12 @@ export const BrowsePage = () => {
       setFilters(newFilters);
     } else {
       // Add filter (replace same type)
-      const newActiveFilters = activeFilters.filter(f => f.type !== filter.type);
+      const newActiveFilters = activeFilters.filter(
+        (f) => f.type !== filter.type,
+      );
       newActiveFilters.push(filter);
       setActiveFilters(newActiveFilters);
-      
+
       // Update filters state
       const newFilters = { ...filters };
       if (filter.type === "city") newFilters.city = filter.value;
@@ -406,7 +490,6 @@ export const BrowsePage = () => {
       category: "",
     });
   };
-
 
   return (
     <div className="min-h-screen bg-warm-white">
@@ -456,7 +539,6 @@ export const BrowsePage = () => {
               </button>
             </div>
 
-          
             {/* Active Filters Display */}
             {activeFilters.length > 0 && (
               <div className="flex items-center justify-center gap-2 mt-4">
@@ -490,9 +572,9 @@ export const BrowsePage = () => {
             <div className="flex flex-wrap justify-center gap-2 mt-5">
               {quickFilters.map((filter) => {
                 const isActive = activeFilters.some(
-                  f => f.value === filter.value && f.type === filter.type
+                  (f) => f.value === filter.value && f.type === filter.type,
                 );
-                
+
                 return (
                   <button
                     key={filter.label}
@@ -504,9 +586,7 @@ export const BrowsePage = () => {
                     }`}
                   >
                     {filter.label}
-                    {isActive && (
-                      <X className="w-3 h-3 inline ml-1" />
-                    )}
+                    {isActive && <X className="w-3 h-3 inline ml-1" />}
                   </button>
                 );
               })}
@@ -540,7 +620,8 @@ export const BrowsePage = () => {
               {language === "am" ? "በቅርብ ጊዜ የተለጠፉ ትዝታዎች" : "Latest Memories"}
             </h2>
             <span className="text-sm text-stone">
-              {data?.pages[0]?.total || 0} {language === "am" ? "ልጥፎች" : "posts"}
+              {data?.pages[0]?.total || 0}{" "}
+              {language === "am" ? "ልጥፎች" : "posts"}
             </span>
           </div>
 

@@ -48,7 +48,7 @@ const ReadMorePage = () => {
     switch (activeSection) {
       case 'overview':
         return (
-          <div className="max-w-3xl space-y-8">
+          <div className="max-w-4xl  space-y-8">
             {/* Header */}
             <div>
               <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-3">
@@ -423,7 +423,7 @@ const ReadMorePage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen mt-24 bg-gray-50 dark:bg-gray-900">
       <div className="max-w-7xl mx-auto flex flex-col lg:flex-row">
         {/* Sidebar - Fixed on left */}
         <aside className="lg:w-64 lg:flex-shrink-0 lg:sticky lg:top-0 lg:h-screen lg:overflow-y-auto border-b lg:border-b-0 lg:border-r border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">

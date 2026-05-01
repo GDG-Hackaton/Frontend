@@ -109,7 +109,7 @@ export const RegisterPage = () => {
   };
 
   return (
-    <div className=" mt-13 min-h-screen flex items-center justify-center py-6 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-cream to-warm-white">
+    <div className=" mt-24 min-h-screen flex items-center justify-center py-6 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-cream to-warm-white">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}

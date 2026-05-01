@@ -158,20 +158,20 @@ export const MainHeader = () => {
   return (
     <>
       <header
-        className={`absolute left-0 right-0 mb-17 top-0 z-50 transition-all duration-300 ${
+        className={`absolute left-0 right-0 top-0 z-50 transition-all duration-300 ${
           isScrolled
-            ? "border-b border-stone-200 shadow-sm backdrop-blur-xl bg-white/80"
+            ? "border-b border-stone-200 shadow-sm backdrop-blur-lg bg-white/80"
             : "bg-transparent"
         }`}
       >
-        <nav className="mx-auto max-w-7.5xl px-4 sm:px-6 lg:px-8">
+        <nav className="mx-auto  max-w-7.5xl px-4 sm:px-6 lg:px-8 mb-5">
           <div className="flex h-16 items-center justify-between md:h-20">
-            <Link to="/" className="flex items-center gap-3">
-              <div className="relative" ref={reconnectMenuRef}>
-                <img src={reuniteImg} alt="Reunite" width={50} />
+            <Link to="/" className="flex items-center gap-3 flex-shrink-0">
+              <div className="relative">
+                <img src={reuniteImg} alt="Reunite" width={40} className="md:w-[50px]" />
               </div>
               <div>
-                <div className={`font-display text-xl font-bold md:text-2xl ${
+                <div className={`font-display text-lg md:text-xl lg:text-2xl font-bold ${
                   isLandingPage && !isScrolled ? 'text-white' : 'text-charcoal'
                 }`}>
                   Reunite
@@ -179,7 +179,7 @@ export const MainHeader = () => {
               </div>
             </Link>
 
-            <div className="hidden items-center gap-2 md:flex">
+            <div className="hidden items-center gap-2 xl:flex">
               {visiblePrimaryLinks.map((link) => (
                 <Link
                   key={link.path}
@@ -199,7 +199,7 @@ export const MainHeader = () => {
                 </Link>
               ))}
 
-              <div className="relative">
+              <div className="relative" ref={reconnectMenuRef}>
                 <button
                   type="button"
                   onClick={() => setIsReconnectMenuOpen((current) => !current)}
@@ -241,12 +241,10 @@ export const MainHeader = () => {
                   ) : null}
                 </AnimatePresence>
               </div>
-            </div>
 
-            <div className="relative">
               <Link
                 to="/ai"
-                className={`rounded-full px-4 py-2 text-md font-medium transition hidden md:inline-flex items-center gap-2 ${
+                className={`rounded-full px-4 py-2 text-md font-medium transition inline-flex items-center gap-2 ${
                   isActive("/ai")
                     ? "bg-terracotta/10 text-terracotta"
                     : isLandingPage && !isScrolled
@@ -259,20 +257,15 @@ export const MainHeader = () => {
               </Link>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1 sm:gap-2">
               <button
                 type="button"
                 onClick={toggleTheme}
-                className={`inline-flex h-10 w-10 items-center justify-center rounded-full border transition ${
+                className={`inline-flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-full border transition ${
                   isLandingPage && !isScrolled
                     ? "border-white/30 bg-white/10 text-white hover:bg-white/20"
                     : "border-stone-200 bg-white/80 text-stone-700 hover:border-terracotta/30 hover:text-terracotta"
                 }`}
-                title={
-                  theme === "dark"
-                    ? "Switch to light mode"
-                    : "Switch to dark mode"
-                }
                 aria-label={
                   theme === "dark"
                     ? "Switch to light mode"
@@ -286,18 +279,18 @@ export const MainHeader = () => {
                 )}
               </button>
 
-              <div className="relative hidden sm:block" ref={langMenuRef}>
+              <div className="relative" ref={langMenuRef}>
                 <button
                   type="button"
                   onClick={() => setIsLangMenuOpen((current) => !current)}
-                  className={`inline-flex items-center gap-2 rounded-full px-3 py-2 text-sm transition ${
+                  className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1.5 sm:px-3 sm:py-2 text-sm transition ${
                     isLandingPage && !isScrolled
                       ? "text-white hover:bg-white/10"
                       : "text-stone-600 hover:bg-stone-100 hover:text-charcoal"
                   }`}
                 >
-                  <Globe className="h-4 w-4" />
-                  <span>{language === "am" ? "አማ" : "EN"}</span>
+                  <Globe className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                  <span className="hidden sm:inline">{language === "am" ? "አማ" : "EN"}</span>
                 </button>
 
                 <AnimatePresence>
@@ -337,16 +330,16 @@ export const MainHeader = () => {
                 <>
                   <Link
                     to="/wanted/claims"
-                    className={`relative rounded-full p-2 transition ${
+                    className={`relative rounded-full p-1.5 sm:p-2 transition hidden xs:block ${
                       isLandingPage && !isScrolled
                         ? "text-white hover:bg-white/10"
                         : "text-stone-600 hover:bg-stone-100 hover:text-charcoal"
                     }`}
                     aria-label="Claims"
                   >
-                    <Inbox className="h-5 w-5" />
+                    <Inbox className="h-4 w-4 sm:h-5 sm:w-5" />
                     {pendingClaimsCount > 0 ? (
-                      <span className="absolute -right-0.5 -top-0.5 flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-terracotta px-1 text-[11px] font-semibold text-white">
+                      <span className="absolute -right-0.5 -top-0.5 flex h-4 sm:h-5 min-w-[1rem] sm:min-w-[1.25rem] items-center justify-center rounded-full bg-terracotta px-1 text-[10px] sm:text-[11px] font-semibold text-white">
                         {pendingClaimsCount > 9 ? "9+" : pendingClaimsCount}
                       </span>
                     ) : null}
@@ -354,32 +347,29 @@ export const MainHeader = () => {
 
                   <Link
                     to="/wanted/chat"
-                    className={`rounded-full p-2 transition ${
+                    className={`rounded-full p-1.5 sm:p-2 transition hidden xs:block ${
                       isLandingPage && !isScrolled
                         ? "text-white hover:bg-white/10"
                         : "text-stone-600 hover:bg-stone-100 hover:text-charcoal"
                     }`}
                     aria-label="Reconnect chat"
                   >
-                    <MessageCircle className="h-5 w-5" />
+                    <MessageCircle className="h-4 w-4 sm:h-5 sm:w-5" />
                   </Link>
 
-                  <div
-                    className="relative hidden sm:block"
-                    ref={profileMenuRef}
-                  >
+                  <div className="relative" ref={profileMenuRef}>
                     <button
                       type="button"
                       onClick={() =>
                         setIsProfileMenuOpen((current) => !current)
                       }
-                      className={`inline-flex items-center gap-2 rounded-full p-1.5 transition ${
+                      className={`inline-flex items-center gap-1.5 rounded-full p-1 sm:p-1.5 transition ${
                         isLandingPage && !isScrolled
                           ? "hover:bg-white/10"
                           : "hover:bg-stone-100"
                       }`}
                     >
-                      <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-terracotta to-sahara text-sm font-semibold text-white">
+                      <div className="flex h-8 w-8 sm:h-10 sm:w-10 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-terracotta to-sahara text-xs sm:text-sm font-semibold text-white">
                         {profile?.avatarUrl ? (
                           <img
                             src={profile.avatarUrl}
@@ -393,7 +383,7 @@ export const MainHeader = () => {
                           "R"
                         )}
                       </div>
-                      <ChevronDown className={`h-4 w-4 ${
+                      <ChevronDown className={`h-3.5 w-3.5 sm:h-4 sm:w-4 hidden sm:block ${
                         isLandingPage && !isScrolled ? "text-white" : "text-stone-500"
                       }`} />
                     </button>
@@ -477,10 +467,10 @@ export const MainHeader = () => {
                   </div>
                 </>
               ) : (
-                <div className="hidden items-center gap-2 md:flex">
+                <div className="hidden sm:flex items-center gap-1 sm:gap-2">
                   <Link
                     to="/auth/login"
-                    className={`rounded-full px-4 py-2 text-sm font-medium transition ${
+                    className={`rounded-full px-3 sm:px-4 py-1.5 sm:py-2 text-sm font-medium transition whitespace-nowrap ${
                       isLandingPage && !isScrolled
                         ? "text-white hover:bg-white/10"
                         : "text-stone-700 hover:bg-stone-100 hover:text-charcoal"
@@ -490,7 +480,7 @@ export const MainHeader = () => {
                   </Link>
                   <Link
                     to="/auth/register"
-                    className={`rounded-full px-5 py-2.5 text-sm font-semibold transition ${
+                    className={`rounded-full px-3 sm:px-5 py-1.5 sm:py-2.5 text-sm font-semibold transition whitespace-nowrap ${
                       isLandingPage && !isScrolled
                         ? "bg-white/20 text-white hover:bg-white/30 backdrop-blur-sm"
                         : "bg-terracotta text-white hover:bg-clay"
@@ -504,7 +494,7 @@ export const MainHeader = () => {
               <button
                 type="button"
                 onClick={() => setIsMobileMenuOpen((current) => !current)}
-                className={`rounded-full p-2 transition md:hidden ${
+                className={`rounded-full p-1.5 sm:p-2 transition xl:hidden ${
                   isLandingPage && !isScrolled
                     ? "text-white hover:bg-white/10"
                     : "text-charcoal hover:bg-stone-100"
@@ -512,9 +502,9 @@ export const MainHeader = () => {
                 aria-label="Toggle menu"
               >
                 {isMobileMenuOpen ? (
-                  <X className="h-6 w-6" />
+                  <X className="h-5 w-5 sm:h-6 sm:w-6" />
                 ) : (
-                  <Menu className="h-6 w-6" />
+                  <Menu className="h-5 w-5 sm:h-6 sm:w-6" />
                 )}
               </button>
             </div>
@@ -528,20 +518,21 @@ export const MainHeader = () => {
             initial={{ opacity: 0, x: "100%" }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: "100%" }}
-            className="fixed inset-0 z-40 md:hidden"
+            transition={{ type: "spring", damping: 25, stiffness: 200 }}
+            className="fixed inset-0 z-40 xl:hidden"
           >
             <div
-              className="absolute inset-0"
+              className="absolute inset-0 bg-black/20 backdrop-blur-sm"
               onClick={() => setIsMobileMenuOpen(false)}
             />
-            <div className="absolute right-0 top-0 h-full w-[20rem] overflow-y-auto bg-white px-5 py-12 shadow-2xl">
+            <div className="absolute right-0 top-0 h-full w-full max-w-[18rem] sm:max-w-[20rem] overflow-y-auto bg-white px-5 py-12 shadow-2xl">
               <div className="space-y-1">
                 {visiblePrimaryLinks.map((link) => (
                   <Link
                     key={link.path}
                     to={link.path}
                     onClick={() => setIsMobileMenuOpen(false)}
-                    className={`block rounded-2xl px- py-2 text-sm font-medium transition ${
+                    className={`block rounded-2xl px-4 py-3 text-sm font-medium transition ${
                       isActive(link.path)
                         ? "bg-terracotta/10 text-terracotta"
                         : "text-stone-700 hover:bg-stone-50"
@@ -559,12 +550,13 @@ export const MainHeader = () => {
                       : "text-stone-700 hover:bg-stone-50"
                   }`}
                 >
+                  <Bot className="h-4 w-4" />
                   <span>{language === "am" ? "እርዳታ" : "Help"}</span>
                 </Link>
               </div>
 
               <div className="mt-6 space-y-2">
-                <p className="text-xs font-semibold uppercase tracking-[0.24em] text-stone-500">
+                <p className="text-xs font-semibold uppercase tracking-[0.24em] text-stone-500 px-1">
                   Reconnect
                 </p>
                 {reconnectLinks.map((link) => (
@@ -572,7 +564,7 @@ export const MainHeader = () => {
                     key={link.path}
                     to={link.path}
                     onClick={() => setIsMobileMenuOpen(false)}
-                    className={`block rounded-2xl px-3 py-2 text-sm font-medium transition ${
+                    className={`block rounded-2xl px-4 py-3 text-sm font-medium transition ${
                       isActive(link.path)
                         ? "bg-terracotta/10 text-terracotta"
                         : "text-stone-700 hover:bg-stone-50"
@@ -583,7 +575,7 @@ export const MainHeader = () => {
                 ))}
               </div>
 
-              <div className="mt-6 rounded-3xl border border-stone-200 p-4">
+              <div className="mt-6 rounded-2xl border border-stone-200 p-4">
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-medium text-charcoal">
                     Language
@@ -597,10 +589,10 @@ export const MainHeader = () => {
                         key={item.code}
                         type="button"
                         onClick={() => setLanguage(item.code)}
-                        className={`rounded-full px-3 py-1.5 text-xs font-semibold ${
+                        className={`rounded-full px-3 py-1.5 text-xs font-semibold transition ${
                           language === item.code
                             ? "bg-terracotta text-white"
-                            : "bg-stone-100 text-stone-600"
+                            : "bg-stone-100 text-stone-600 hover:bg-stone-200"
                         }`}
                       >
                         {item.label}
@@ -612,37 +604,95 @@ export const MainHeader = () => {
 
               {isAuthenticated ? (
                 <div className="mt-6 space-y-2">
+                  <div className="rounded-2xl bg-stone-50 p-4 mb-4">
+                    <p className="font-semibold text-charcoal text-sm">
+                      {profile?.realName || user?.name || "Reunite user"}
+                    </p>
+                    <p className="mt-1 text-xs text-stone-500">
+                      {user?.email || user?.phone || "Authenticated"}
+                    </p>
+                    {profile?.trustScore ? (
+                      <div className="mt-2">
+                        <TrustBadge score={profile.trustScore} size="sm" />
+                      </div>
+                    ) : null}
+                  </div>
+
                   <Link
                     to="/wanted/profile"
                     onClick={() => setIsMobileMenuOpen(false)}
-                    className="block rounded-2xl px-4 py-3 text-sm font-medium text-stone-700 transition hover:bg-stone-50"
+                    className="flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium text-stone-700 transition hover:bg-stone-50"
                   >
+                    <User className="h-4 w-4" />
                     Profile
                   </Link>
+                  <Link
+                    to="/wanted/claims"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium text-stone-700 transition hover:bg-stone-50"
+                  >
+                    <Inbox className="h-4 w-4" />
+                    Claims
+                    {pendingClaimsCount > 0 ? (
+                      <span className="ml-auto rounded-full bg-terracotta px-2 py-0.5 text-xs font-semibold text-white">
+                        {pendingClaimsCount}
+                      </span>
+                    ) : null}
+                  </Link>
+                  <Link
+                    to="/wanted/chat"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium text-stone-700 transition hover:bg-stone-50"
+                  >
+                    <MessageCircle className="h-4 w-4" />
+                    Chat
+                  </Link>
+
+                  {canAccessAdmin ? (
+                    <Link
+                      to="/admin"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className="flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium text-stone-700 transition hover:bg-stone-50"
+                    >
+                      <Shield className="h-4 w-4" />
+                      Command Center
+                    </Link>
+                  ) : null}
+
+                  <Link
+                    to="/settings"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium text-stone-700 transition hover:bg-stone-50"
+                  >
+                    <Settings className="h-4 w-4" />
+                    Settings
+                  </Link>
+
                   <button
                     type="button"
                     onClick={async () => {
                       setIsMobileMenuOpen(false);
                       await handleLogout();
                     }}
-                    className="block w-full rounded-2xl px-4 py-3 text-left text-sm font-medium text-red-600 transition hover:bg-red-50"
+                    className="flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-left text-sm font-medium text-red-600 transition hover:bg-red-50 mt-2"
                   >
+                    <LogOut className="h-4 w-4" />
                     Sign out
                   </button>
                 </div>
               ) : (
-                <div className="mt-6 space-y-2">
+                <div className="mt-6 space-y-3">
                   <Link
                     to="/auth/login"
                     onClick={() => setIsMobileMenuOpen(false)}
-                    className="block rounded-2xl border border-stone-200 px-4 py-3 text-center text-sm font-medium text-stone-700"
+                    className="block rounded-2xl border border-stone-200 px-4 py-3 text-center text-sm font-medium text-stone-700 hover:bg-stone-50 transition"
                   >
                     Sign in
                   </Link>
                   <Link
                     to="/auth/register"
                     onClick={() => setIsMobileMenuOpen(false)}
-                    className="block rounded-2xl bg-terracotta px-4 py-3 text-center text-sm font-semibold text-white"
+                    className="block rounded-2xl bg-terracotta px-4 py-3 text-center text-sm font-semibold text-white hover:bg-clay transition"
                   >
                     Join Reunite
                   </Link>

@@ -82,7 +82,7 @@ const Volunteer = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white dark:from-black dark:via-orange-950/20 dark:to-black dark:bg-gradient-to-b">
+    <div className="min-h-screen bg-white mt-24 dark:from-black dark:via-orange-950/20 dark:to-black dark:bg-gradient-to-b">
       {/* Header */}
       <header className="bg-white dark:bg-black/50 shadow-sm dark:shadow-orange-950/20">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
