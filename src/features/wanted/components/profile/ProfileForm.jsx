@@ -192,43 +192,6 @@ export const ProfileForm = ({ profile, onClose, onSubmit, isSubmitting: isFormSu
               className="hidden"
             />
           </div>
-
-          <div className="rounded-2xl border border-warm-gray/30 bg-cream/50 p-4">
-            <div className="flex items-start justify-between gap-3">
-              <div>
-                <p className="text-sm font-medium text-charcoal">
-                  {language === 'am' ? 'የፊት ማረጋገጫ ፎቶ (አማራጭ)' : 'Face verification photo (Optional)'}
-                </p>
-                <p className="mt-1 text-xs text-stone">
-                  {language === 'am'
-                    ? 'ተጨማሪ እምነት ከፈለጉ ግልጽ የፊት ፎቶ ይጫኑ።'
-                    : 'Upload a clear face photo if you want extra verification support.'}
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={() => identityFileInputRef.current?.click()}
-                className="rounded-full border border-warm-gray px-3 py-1.5 text-xs font-medium text-stone hover:border-terracotta/40 hover:text-terracotta"
-              >
-                {identityPreview ? (language === 'am' ? 'ቀይር' : 'Change') : (language === 'am' ? 'ጫን' : 'Upload')}
-              </button>
-            </div>
-            <input
-              type="file"
-              ref={identityFileInputRef}
-              onChange={handleIdentityChange}
-              accept="image/*"
-              className="hidden"
-            />
-            {identityPreview ? (
-              <img
-                src={identityPreview}
-                alt="Verification"
-                className="mt-4 h-40 w-full rounded-2xl object-cover"
-              />
-            ) : null}
-          </div>
-
           {/* Real Name */}
           <div>
             <label className="block text-sm font-medium text-charcoal mb-1.5">

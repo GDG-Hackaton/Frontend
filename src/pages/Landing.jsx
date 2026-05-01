@@ -222,19 +222,16 @@ const DualSystemSection = () => {
                 ? " በቅርብ ጊዜም ሆነ ከረጅም ጊዜ  በፊት በድንገት የጠፉ ሰዎችን ለመፈለግ እሄኛውን መተግበሪያ ይጠቀሙ።።"
                 : "Use this system if you are dealing with a sudden loss or an urgent situation where time is of the essence."}
             </p>
-
-            <ul className="space-y-4">
+ <ul className="space-y-3 mb-8">
               {[
-                { icon: Clock, text: language === "am" ? "መቼ ልጠቀም?" : "When to use:" , description:language === "am" ? "..." : "Use this system for missing persons or emergency situations..." },
-                { icon: Users, text: language === "am" ? "እንዴት ላመልክት?" : "How to use it" , description: language === "am" ? "..." : "Click the Find Missing Person search below" },
-                { icon: MapPin, text: language === "am" ? "እንዴት ልከታተል?" : "What to expect:", description: language === "am" ? "..." : "When you start a search, your report is prioritized..." }
+                { icon: Clock, text: language === "am" ? "መቼ ልጠቀም?" : "When to use:" , description:language === "am" ? "አድራሻቸው ለጠፋባችሁ የልጅነት ጓደኞች፣ የትህምርት ቤት ጓደኛዮች፣ ቀደም ሲል ለነበሩዎት የሥራ ባልደረቦች፣ እና የመሳሰሉትን ሰዎች ለመፈለግ ይሄንን ይጠቀሙ።": "Use this to reconnect with people from your past, such as former colleagues, childhood friends, or anyone with whom you have simply lost touch." },
+                { icon: Users, text: language === "am" ? "እንዴት ላመልክት?" : "How to use it" , description: language === "am" ? "ከተራራቁት ሰዎች ጋር ይገናኙ የሚለውን ከታች ይጫኑ": "Click the Reconnect With Someone search below" },
+                { icon: MapPin, text: language === "am" ? "እንዴት ልከታተል?" : "What to expect:", description: language === "am" ? "ፍለጋውን ሲጀምሩ፣ ስለሚፈልጉት ሰው ያለዎትን ትዝታ ወይም መረጃ ለማህበረሰቡ ያጋሩ። የምትፈልጉት ሰው ያጋሩትን መረጃ  ካየ እና  ለመነጋገር ፍላጎት ካለው፣ መልእክት በመላክ ምላሽ ይሰጣል። አንዴ ከተገናኛችሁ በኋላ በግል በማውራት ትገናኛላችሁ።": "When you begin, share a memory or detail about the person with our community. If the person you’re looking for sees your post and wants to reconnect, they can respond to you. Once connected, you can start chatting privately." }
               ].map((item, i) => (
-                <li key={i} className="flex items-start gap-3 text-sm text-stone-600 dark:text-stone-400">
-                  <item.icon className="w-4 h-4 text-red-500 dark:text-red-400 mt-1 flex-shrink-0" />
-                  <div>
-                    <span className="font-medium text-charcoal dark:text-white">{item.text}</span>
-                    <p className="text-stone-500 dark:text-stone-400">{item.description}</p>
-                  </div>
+                <li key={i} className="flex items-center gap-3 text-sm text-stone/80">
+                  <item.icon className="w-4 h-4 text-red-500 flex-shrink-0" />
+                  <span className="font-bold p-1 text-teal-600 text-md">{item.text}</span>
+                  <p> {item.description}</p>
                 </li>
               ))}
             </ul>
@@ -267,18 +264,16 @@ const DualSystemSection = () => {
                 : "Reconnect with people from your past using shared memories and stories. Safe verification and private reconnection built in."}
             </p>
 
-            <ul className="space-y-4">
+           <ul className="space-y-3 mb-8">
               {[
-                { icon: Clock, text: language === "am" ? "መቼ ልጠቀም?" : "When to use:" , description: language === "am" ? "..." : "Use this to reconnect with people from your past..." },
-                { icon: Users, text: language === "am" ? "እንዴት ላመልክት?" : "How to use it" , description: language === "am" ? "..." : "Click the Reconnect With Someone search below" },
-                { icon: MapPin, text: language === "am" ? "እንዴት ልከታተል?" : "What to expect:", description: language === "am" ? "..." : "When you begin, share a memory..." }
+                { icon: Clock, text: language === "am" ? "መቼ ልጠቀም?" : "When to use:" , description:language === "am" ? "አድራሻቸው ለጠፋባችሁ የልጅነት ጓደኞች፣ የትህምርት ቤት ጓደኛዮች፣ ቀደም ሲል ለነበሩዎት የሥራ ባልደረቦች፣ እና የመሳሰሉትን ሰዎች ለመፈለግ ይሄንን ይጠቀሙ።": "Use this to reconnect with people from your past, such as former colleagues, childhood friends, or anyone with whom you have simply lost touch." },
+                { icon: Users, text: language === "am" ? "እንዴት ላመልክት?" : "How to use it" , description: language === "am" ? "ከተራራቁት ሰዎች ጋር ይገናኙ የሚለውን ከታች ይጫኑ": "Click the Reconnect With Someone search below" },
+                { icon: MapPin, text: language === "am" ? "እንዴት ልከታተል?" : "What to expect:", description: language === "am" ? "ፍለጋውን ሲጀምሩ፣ ስለሚፈልጉት ሰው ያለዎትን ትዝታ ወይም መረጃ ለማህበረሰቡ ያጋሩ። የምትፈልጉት ሰው ያጋሩትን መረጃ  ካየ እና  ለመነጋገር ፍላጎት ካለው፣ መልእክት በመላክ ምላሽ ይሰጣል። አንዴ ከተገናኛችሁ በኋላ በግል በማውራት ትገናኛላችሁ።": "When you begin, share a memory or detail about the person with our community. If the person you’re looking for sees your post and wants to reconnect, they can respond to you. Once connected, you can start chatting privately." }
               ].map((item, i) => (
-                <li key={i} className="flex items-start gap-3 text-sm text-stone-600 dark:text-stone-400">
-                  <item.icon className="w-4 h-4 text-amber-500 dark:text-amber-400 mt-1 flex-shrink-0" />
-                  <div>
-                    <span className="font-medium text-charcoal dark:text-white">{item.text}</span>
-                    <p className="text-stone-500 dark:text-stone-400">{item.description}</p>
-                  </div>
+                <li key={i} className="flex items-center gap-3 text-sm text-stone/80">
+                  <item.icon className="w-4 h-4 text-red-500 flex-shrink-0" />
+                  <span className="font-bold p-1 text-teal-600 text-md">{item.text}</span>
+                  <p> {item.description}</p>
                 </li>
               ))}
             </ul>

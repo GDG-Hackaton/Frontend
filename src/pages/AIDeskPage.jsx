@@ -314,9 +314,10 @@ export const AIDeskPage = () => {
                   <h2 className="text-lg font-semibold text-stone-900 dark:text-stone-100">
                     {language === "am" ? "መረጃ ማውጣት" : "Structured Extraction"}
                   </h2>
-                  <p className="text-xs text-stone-500 dark:text-stone-400">
-                    {language === "am" ? "AI ከጽሁፍ መረጃ ያወጣል" : "AI extracts details from text"}
-                  </p>
+                  <div className="text-sm text-stone-500 dark:text-stone-400">
+                    {language === "am" ? "የምትፈልጉትን ሰው ለማግኘት የሚረዳዎትን መረጃ በሙሉ ይጻፉ፤ ከዚያም ቅጾቹን ለመሙላት የሚያስፈልጓችሁን ዝርዝሮች እኛ እናወጣዋለን እንችላለን።" : "Just write all the information that will help you find the person you are looking for, and then we can extract the details you need to fill out the forms."}
+                  </div>
+                   
                 </div>
               </div>
 
@@ -343,7 +344,7 @@ export const AIDeskPage = () => {
                   <div className="rounded-2xl border-2 border-purple-200 dark:border-purple-800 bg-purple-50 dark:bg-purple-900/20 p-5">
                     <p className="text-sm font-semibold text-purple-900 dark:text-purple-300 mb-4 flex items-center gap-2">
                       <Sparkles className="w-4 h-4" />
-                      {language === "am" ? "AI ያወጣቸው መረጃዎች" : "AI Extracted Details"}
+                      {language === "am" ? "የተዋቀረ መረጃ ለማግኘት" : "AI Extracted Details"}
                     </p>
 
                     <div className="grid sm:grid-cols-2 gap-3">

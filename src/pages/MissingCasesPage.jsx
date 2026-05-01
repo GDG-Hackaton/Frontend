@@ -14,6 +14,7 @@ import {
   getStatusClasses,
 } from "../lib/caseFormatting";
 import { isAdminRole } from "../lib/authRoles";
+import { useLanguage } from "../lib/i18n";
 
 const defaultStats = {
   total: 0,
@@ -45,6 +46,7 @@ export const MissingCasesPage = () => {
     [stats],
   );
   const canAccessAdmin = isAdminRole(user?.role);
+  const {language}  = useLanguage();
 
   const loadStats = async () => {
     const response = await caseService.getStats();
@@ -78,22 +80,20 @@ export const MissingCasesPage = () => {
           <div className="grid gap-8 lg:grid-cols-[1.3fr_0.7fr]">
             <div>
               <p className="text-sm font-semibold uppercase tracking-[0.24em] text-terracotta">
-                Missing Person Operations
+               {language === "am" ? "የጠፉ ሰዎች ፍለጋ ሥራዎች" : "Missing Person Operations"}
               </p>
               <h1 className="mt-3 text-4xl font-semibold text-charcoal">
-                Active cases, live priorities, and search readiness in one place
+               {language === "am" ? "ንቁ ጉዳዮች፣ ወቅታዊ ቅድሚያ የሚሰጣቸው ጉዳዮች እና የፍለጋ ዝግጁነት በአንድ ቦታ ": "Active cases, live priorities, and search readiness in one place"}
               </h1>
               <p className="mt-4 max-w-3xl text-base leading-7 text-stone">
-                This view is aligned to the  case system. You can review
-                open reports, inspect urgency, follow sightings, and move
-                directly into reporting or coordination work.
+               {language === "am" ? "ይህ ገጽ ከጠፉ ሰዎች ጋር የተገናኘ  ነው። በዚህ ገጽ ክፍት ሪፖርቶችን መገምገም ይችላሉ፣ አስቸኳይነቱን መመርመር፣ ስለመታየታቸው የሚወጡ መረጃዎችን መከታተል እንዲሁም በቀጥታ ወደ ሪፖርት ማቅረቢያ ወይም የማስተባበር ሥራ መሸጋገር ይችላሉ።" : "This view is aligned to the  case system. You can review open reports, inspect urgency, follow sightings, and move directly into reporting or coordination work."}
               </p>
               <div className="mt-6 flex flex-wrap gap-3">
                 <Link
                   to="/report"
                   className="rounded-full bg-terracotta px-5 py-3 text-sm font-semibold text-white transition hover:bg-clay"
                 >
-                  Report Missing Person
+                  {language === "am" ? "የጠፉ ሰዎችን ያመልክቱ" : "Report Missing Person"}
                 </Link>
                 {canAccessAdmin ? (
                   <Link
