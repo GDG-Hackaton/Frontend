@@ -92,7 +92,7 @@ export const MainFooter = () => {
                   Volunteer Response
                 </Link>
               </li>
-[30/04/2026 19:11] Sifen Tesfaye: {canAccessAdmin && (
+           {canAccessAdmin && (
                 <li>
                   <Link to="/admin" className="text-white/60 transition-all duration-300 hover:text-orange-400 hover:translate-x-1">
                     Command Center
