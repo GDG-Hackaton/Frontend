@@ -45,7 +45,7 @@ const OrgHeroSection = () => {
         <source src="/videos/vedio1.mp4" type="video/mp4" />
       </video>
 
-      <div className="absolute inset-0 bg-black/70 backdrop-blur-[2px]" />
+      <div className="absolute inset-0 bg-black/10 backdrop-blur-[1px]" />
 
       {/* ✨ CONTENT */}
       <div className="relative z-10 text-center px-6 max-w-3xl mx-auto">
