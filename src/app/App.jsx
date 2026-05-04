@@ -9,6 +9,7 @@ import { ThemeProvider } from "./providers/ThemeProvider";
 import { MainHeader } from "../components/layout/MainHeader";
 import { MainFooter } from "../components/layout/MainFooter";
 import { useOfflineSync } from "../features/wanted/hooks/useOfflineSync";
+import { OfflineIndicator } from "../features/wanted/components/shared/OfflineIndicator";
 import { GlobalAIAssistant } from "../components/ai/GlobalAIAssistant";
 import { Router } from "./Router";
 
@@ -29,6 +30,7 @@ function App() {
                 <MainFooter />
               </div>
               {/* <GlobalAIAssistant /> */}
+              <OfflineIndicator />
               <Toaster
                 position="top-center"
                 toastOptions={{

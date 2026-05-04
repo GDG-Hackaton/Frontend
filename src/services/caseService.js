@@ -37,6 +37,11 @@ export const caseService = {
     return response.data;
   },
 
+  verifyResolution: async (caseId, payload) => {
+    const response = await api.patch(`/cases/${caseId}/verify-resolution`, payload);
+    return response.data;
+  },
+
   // Get nearby cases
   getNearbyCases: async (lat, lng, radius = 5000) => {
     const response = await api.get("/cases/nearby", {
@@ -61,6 +66,13 @@ export const caseService = {
   sendSMSUpdate: async (caseId, payload) => {
     const response = await api.post(`/cases/${caseId}/sms`, payload);
     return response.data;
+  },
+
+  exportCase: async (caseId) => {
+    const response = await api.get(`/cases/${caseId}/export`, {
+      responseType: "blob",
+    });
+    return response;
   },
 
   // Get high priority cases

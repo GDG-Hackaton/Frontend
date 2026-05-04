@@ -1,34 +1,34 @@
-﻿import { motion } from 'framer-motion';
+import { motion as Motion } from 'framer-motion';
 import { Heart, Users, Globe, Star } from 'lucide-react';
 import { useImpactStats } from '../../hooks/useImpactStats';
 import { useLanguage } from '../../../../lib/i18n';
 
-export const ImpactStats = ({ compact = false }) => {
+export const ImpactStats = ({ compact = false, scope = "wanted" }) => {
   const { language } = useLanguage();
-  const { data: stats, isLoading } = useImpactStats();
+  const { data: stats } = useImpactStats(scope);
 
   const items = [
     {
-      value: stats?.reunited || '147',
-      label: { en: 'People Reunited', am: 'የተገናኙ ሰዎች' },
+      value: stats?.reunited ?? 0,
+      label: { en: 'People Reunited', am: '????? ???' },
       icon: Heart,
       color: 'text-terracotta',
     },
     {
-      value: stats?.activePosts || '450',
-      label: { en: 'Active Searches', am: 'በፍለጋ ላይ ያሉ' },
+      value: stats?.activeSearches ?? stats?.activePosts ?? 0,
+      label: { en: 'Active Searches', am: '???? ?? ??' },
       icon: Users,
       color: 'text-sahara',
     },
     {
-      value: stats?.countries || '9',
-      label: { en: 'Countries', am: 'ሀገራት' },
+      value: stats?.countries ?? 0,
+      label: { en: 'Countries', am: '????' },
       icon: Globe,
       color: 'text-hope-green',
     },
     {
-      value: stats?.successRate || '74%',
-      label: { en: 'Success Rate', am: 'የስኬት መለኪያ' },
+      value: `${stats?.successRate ?? 0}%`,
+      label: { en: 'Success Rate', am: '???? ????' },
       icon: Star,
       color: 'text-warmth',
     },
@@ -54,7 +54,7 @@ export const ImpactStats = ({ compact = false }) => {
   return (
     <div className="grid md:grid-cols-4 gap-6">
       {items.map((item, idx) => (
-        <motion.div
+        <Motion.div
           key={idx}
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -67,8 +67,9 @@ export const ImpactStats = ({ compact = false }) => {
           <div className="stat-label">
             {language === 'am' ? item.label.am : item.label.en}
           </div>
-        </motion.div>
+        </Motion.div>
       ))}
     </div>
   );
 };
+

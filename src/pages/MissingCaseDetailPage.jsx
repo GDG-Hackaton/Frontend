@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import {
   ArrowLeft,
@@ -58,44 +58,48 @@ export const MissingCaseDetailPage = () => {
     isAuthenticated &&
     caseData?.reportedBy?.user &&
     String(caseData.reportedBy.user) === String(user?.id);
+  const canVerifyResolution = isAuthenticated && (canManageCase || isReporter);
 
   const [updatingNotifications, setUpdatingNotifications] = useState(false);
   const [smsPhone, setSmsPhone] = useState("");
 
-  const loadCase = async () => {
-    setLoading(true);
-    try {
-      const response = await caseService.getCaseById(id);
-      setCaseData(response.data);
-    } catch {
-      toast.error("Unable to load this case.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const loadStrategy = async (caseId) => {
+  const loadStrategy = useCallback(async (caseId) => {
     try {
       const response = await api.get(`/search-strategy/${caseId}`);
       setStrategy(response.data.data || null);
     } catch {
       setStrategy(null);
     }
-  };
+  }, []);
 
-  useEffect(() => {
-    loadCase();
-  }, [id]);
-
-  useEffect(() => {
-    if (caseData?.caseId) {
-      loadStrategy(caseData.caseId);
+  const loadCase = useCallback(async () => {
+    setLoading(true);
+    try {
+      const response = await caseService.getCaseById(id);
+      setCaseData(response.data);
+      setSmsPhone(response.data?.notifications?.smsPhone || "");
+      if (response.data?.caseId) {
+        await loadStrategy(response.data.caseId);
+      } else {
+        setStrategy(null);
+      }
+    } catch {
+      toast.error("Unable to load this case.");
+      setStrategy(null);
+    } finally {
+      setLoading(false);
     }
-  }, [caseData?.caseId]);
+  }, [id, loadStrategy]);
 
   useEffect(() => {
-    setSmsPhone(caseData?.notifications?.smsPhone || "");
-  }, [caseData?.notifications?.smsPhone]);
+    const timeoutId = window.setTimeout(() => {
+      void loadCase();
+    }, 0);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+    };
+  }, [id, loadCase]);
 
   const mapUrl = useMemo(() => {
     if (!caseData) return "https://www.google.com/maps";
@@ -109,7 +113,7 @@ export const MissingCaseDetailPage = () => {
     if (!caseData?.caseId) return;
     setUpdatingNotifications(true);
     try {
-      const next = !Boolean(caseData.notifications?.emailEnabled);
+      const next = !caseData.notifications?.emailEnabled;
       await api.patch(`/cases/${caseData.caseId}/notifications`, {
         emailEnabled: next,
       });
@@ -126,7 +130,7 @@ export const MissingCaseDetailPage = () => {
     if (!caseData?.caseId) return;
     setUpdatingNotifications(true);
     try {
-      const next = !Boolean(caseData.notifications?.smsEnabled);
+      const next = !caseData.notifications?.smsEnabled;
       await api.patch(`/cases/${caseData.caseId}/notifications`, {
         smsEnabled: next,
         smsPhone: smsPhone.trim() || undefined,
@@ -264,6 +268,45 @@ export const MissingCaseDetailPage = () => {
       toast.error("Unable to update the case status.");
     } finally {
       setResolving(false);
+    }
+  };
+
+  const handleVerifyResolution = async (decision) => {
+    if (!caseData?.caseId) return;
+    setResolving(true);
+    try {
+      await caseService.verifyResolution(caseData.caseId, {
+        decision,
+        notes: `Resolution ${decision} from case detail on ${new Date().toISOString()}`,
+      });
+      toast.success(
+        decision === "confirmed"
+          ? "Resolution confirmed."
+          : "Resolution rejected and case reopened.",
+      );
+      await loadCase();
+    } catch (error) {
+      toast.error(error?.response?.data?.error || "Unable to verify the resolution.");
+    } finally {
+      setResolving(false);
+    }
+  };
+
+  const handleExportCase = async () => {
+    if (!caseData?.caseId) return;
+    try {
+      const response = await caseService.exportCase(caseData.caseId);
+      const blobUrl = window.URL.createObjectURL(response.data);
+      const link = document.createElement("a");
+      link.href = blobUrl;
+      link.download = `${caseData.caseId}-police-export.html`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(blobUrl);
+      toast.success("Police export downloaded.");
+    } catch (error) {
+      toast.error(error?.response?.data?.error || "Unable to export case.");
     }
   };
 
@@ -420,6 +463,15 @@ export const MissingCaseDetailPage = () => {
                     Close Case
                   </button>
                 </>
+              ) : null}
+              {(isReporter || canManageCase) ? (
+                <button
+                  type="button"
+                  onClick={handleExportCase}
+                  className="rounded-full border border-stone-200 px-4 py-3 text-sm font-semibold text-stone-700 transition hover:border-terracotta/30 hover:text-terracotta"
+                >
+                  Export for Police
+                </button>
               ) : null}
             </div>
           </div>
@@ -734,8 +786,63 @@ export const MissingCaseDetailPage = () => {
             </div>
           ) : null}
 
+          {caseData.status === "pending_verification" ? (
+            <div className="rounded-3xl border border-amber-200 bg-amber-50 p-6">
+              <h2 className="text-xl font-semibold text-charcoal">
+                Resolution verification
+              </h2>
+              <p className="mt-2 text-sm text-stone-700">
+                This case is waiting for both coordinator and reporter confirmation before it is fully closed.
+              </p>
+              <p className="mt-3 text-sm text-stone-600">
+                Verification status:{" "}
+                <span className="font-semibold">
+                  {caseData.resolution?.verificationStatus || "pending"}
+                </span>
+              </p>
+              {(caseData.resolution?.verifications || []).length ? (
+                <div className="mt-4 space-y-2 text-sm text-stone-600">
+                  {caseData.resolution.verifications.map((item, index) => (
+                    <p key={`${item.byUser || "entry"}-${index}`}>
+                      {item.role || "User"}: {item.decision} at{" "}
+                      {formatDateTime(item.timestamp)}
+                    </p>
+                  ))}
+                </div>
+              ) : null}
+              {canVerifyResolution ? (
+                <div className="mt-4 flex flex-wrap gap-3">
+                  <button
+                    type="button"
+                    disabled={resolving}
+                    onClick={() => handleVerifyResolution("confirmed")}
+                    className="rounded-full bg-emerald-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:opacity-60"
+                  >
+                    Confirm resolution
+                  </button>
+                  <button
+                    type="button"
+                    disabled={resolving}
+                    onClick={() => handleVerifyResolution("rejected")}
+                    className="rounded-full border border-stone-200 px-4 py-3 text-sm font-semibold text-stone-700 transition hover:border-terracotta/30 hover:text-terracotta disabled:opacity-60"
+                  >
+                    Reject and reopen
+                  </button>
+                </div>
+              ) : null}
+              <div className="mt-4 rounded-2xl border border-stone-200 bg-white px-4 py-3 text-sm text-stone-600">
+                For any physical handover, use a police station or another public safe meeting point and avoid sharing private contact details until both sides are verified.
+              </div>
+            </div>
+          ) : null}
+
           <div className="rounded-3xl border border-stone-200 bg-white p-6">
             <h2 className="text-xl font-semibold text-charcoal">Sightings</h2>
+            {!canManageCase && !isReporter ? (
+              <p className="mt-2 text-sm text-stone-500">
+                Exact sighting coordinates are restricted to vetted volunteers, coordinators, and the original reporter.
+              </p>
+            ) : null}
             <div className="mt-5 space-y-3">
               {(caseData.sightings || []).length === 0 ? (
                 <div className="rounded-2xl border border-dashed border-stone-300 bg-stone-50 p-6 text-sm text-stone-500">
@@ -760,17 +867,20 @@ export const MissingCaseDetailPage = () => {
                       {sighting.location?.address || "No address provided"} -{" "}
                       {sighting.confidence || 0}% confidence
                     </p>
-                    <a
-                      href={buildGoogleMapsUrl(
-                        sighting.location?.coordinates,
-                        sighting.location?.address,
-                      )}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="mt-3 inline-flex rounded-full border border-stone-200 px-3 py-1.5 text-xs font-semibold text-stone-700 transition hover:border-terracotta/30 hover:text-terracotta"
-                    >
-                      Open sighting location
-                    </a>
+                    {Array.isArray(sighting.location?.coordinates) &&
+                    sighting.location.coordinates.length === 2 ? (
+                      <a
+                        href={buildGoogleMapsUrl(
+                          sighting.location?.coordinates,
+                          sighting.location?.address,
+                        )}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="mt-3 inline-flex rounded-full border border-stone-200 px-3 py-1.5 text-xs font-semibold text-stone-700 transition hover:border-terracotta/30 hover:text-terracotta"
+                      >
+                        Open sighting location
+                      </a>
+                    ) : null}
                   </div>
                 ))
               )}

@@ -1,10 +1,10 @@
 import { useQuery } from '@tanstack/react-query';
 import { wantedApi } from '../services/wantedApi';
 
-export const useImpactStats = () => {
+export const useImpactStats = (scope = "wanted") => {
   return useQuery({
-    queryKey: ['wanted', 'impact-stats'],
-    queryFn: () => wantedApi.getImpactStats(),
+    queryKey: ['impact-stats', scope],
+    queryFn: () => wantedApi.getImpactStats(scope),
     staleTime: 30 * 60 * 1000, 
     refetchOnWindowFocus: false,
   });

@@ -19,9 +19,11 @@ import {
 import { toast } from "sonner";
 import api, { aiService } from "../services/api";
 import { useLanguage } from "../lib/i18n";
-import { parseCommaSeparated } from "../lib/caseFormatting";
 import VoiceInput from "../features/report/VoiceInput";
 import { geocodeLocation } from "../services/locationService";
+import { useAuth } from "../hooks/useAuth";
+import { useOfflineSync } from "../features/wanted/hooks/useOfflineSync";
+import { offlineStorage } from "../features/wanted/services/offlineStorage";
 
 const initialForm = {
   missingPersonName: "",
@@ -53,6 +55,21 @@ const RELATIONSHIP_OPTIONS = [
   { value: "other", label: "Other" },
 ];
 
+const IMMEDIATE_ACTION_CHECKLIST = {
+  en: [
+    "Call nearby family members, guardians, or companions immediately.",
+    "Check the last confirmed location, route, and nearby clinics or police posts.",
+    "Keep the missing person's recent photo, clothing details, and phone numbers ready.",
+    "Submit the quickest possible report first, then add details as you confirm them.",
+  ],
+  am: [
+    "በቅርብ ያሉ ቤተሰቦችን ወይም አሳዳጊዎችን ወዲያውኑ ያነጋግሩ።",
+    "የመጨረሻ የታወቀውን ቦታ፣ መንገድ እና አቅራቢያ ያሉ ጤና ተቋማት ወይም ፖሊስ ጣቢያዎችን ይመልከቱ።",
+    "የቅርብ ፎቶ፣ የአለባበስ ዝርዝር እና የመገናኛ ቁጥሮችን ዝግጁ ያድርጉ።",
+    "መጀመሪያ ፈጣን ሪፖርት ያስገቡ፣ ከዚያ በኋላ የተረጋገጡ ዝርዝሮችን ያክሉ።",
+  ],
+};
+
 const normalizeEthiopianMobile = (value) => {
   let digits = String(value || "").replace(/\D/g, "");
 
@@ -75,9 +92,18 @@ const normalizeEthiopianMobile = (value) => {
   return "";
 };
 
+const REPORT_DRAFT_KEY = "missing-case-report";
+
+const hasDraftableContent = (form, voiceText, photo) =>
+  Object.values(form).some((value) => String(value || "").trim()) ||
+  String(voiceText || "").trim() ||
+  Boolean(photo);
+
 export const ReportCasePage = () => {
   const navigate = useNavigate();
-  const { language, setLanguage } = useLanguage();
+  const { language } = useLanguage();
+  const { isAuthenticated } = useAuth();
+  const { isOnline, refreshPendingCount } = useOfflineSync();
   const [form, setForm] = useState(initialForm);
   const [photo, setPhoto] = useState(null);
   const [photoPreview, setPhotoPreview] = useState(null);
@@ -89,6 +115,8 @@ export const ReportCasePage = () => {
   const [aiPreview, setAiPreview] = useState(null);
   const [activeSection, setActiveSection] = useState("person");
   const [validationErrors, setValidationErrors] = useState({});
+  const [quickMode, setQuickMode] = useState(true);
+  const [draftStatus, setDraftStatus] = useState("");
 
   // Validation function
   const validateSection = (sectionId) => {
@@ -99,7 +127,10 @@ export const ReportCasePage = () => {
         errors.missingPersonName =
           language === "am" ? "ስም ያስፈልጋል" : "Name is required";
       }
-      if (!form.age || isNaN(form.age) || form.age < 0 || form.age > 120) {
+      if (
+        !quickMode &&
+        (!form.age || isNaN(form.age) || form.age < 0 || form.age > 120)
+      ) {
         errors.age =
           language === "am" ? "ትክክለኛ ዕድሜ ያስፈልጋል" : "Valid age required (0-120)";
       }
@@ -110,11 +141,11 @@ export const ReportCasePage = () => {
         errors.lastSeenLocation =
           language === "am" ? "ቦታ ያስፈልጋል" : "Location is required";
       }
-      if (!form.lastSeenDate) {
+      if (!quickMode && !form.lastSeenDate) {
         errors.lastSeenDate =
           language === "am" ? "ቀን ያስፈልጋል" : "Date and time is required";
       }
-      if (!form.description.trim()) {
+      if (!quickMode && !form.description.trim()) {
         errors.description =
           language === "am" ? "መግለጫ ያስፈልጋል" : "Description is required";
       }
@@ -243,6 +274,30 @@ export const ReportCasePage = () => {
     }
   };
 
+  const buildReportFields = (locationForSubmit, normalizedSmsPhone) => {
+    const formToSubmit = { ...form, smsPhone: normalizedSmsPhone };
+
+    if (form.reporterRelation === "other" && form.customRelation) {
+      formToSubmit.reporterRelation = form.customRelation;
+    }
+
+    const fields = {};
+    Object.entries(formToSubmit).forEach(([key, value]) => {
+      if (key !== "customRelation" && value !== undefined && value !== null) {
+        fields[key] = value;
+      }
+    });
+
+    fields.description = voiceText || form.description;
+
+    if (locationForSubmit) {
+      fields.lastSeenCoordinates = `${locationForSubmit.longitude}, ${locationForSubmit.latitude}`;
+      fields.lastSeenLocation = locationForSubmit.address || form.lastSeenLocation;
+    }
+
+    return fields;
+  };
+
   const handleSubmit = async (event) => {
     event.preventDefault();
 
@@ -268,6 +323,11 @@ export const ReportCasePage = () => {
       return;
     }
 
+    if (!isAuthenticated) {
+      toast.error("Sign in so your report can be verified and tracked safely.");
+      return;
+    }
+
     setLoading(true);
     try {
       let locationForSubmit = resolvedLocation;
@@ -281,26 +341,33 @@ export const ReportCasePage = () => {
         }
       }
 
-      const payload = new FormData();
-      const formToSubmit = { ...form, smsPhone: normalizedSmsPhone };
+      const fields = buildReportFields(locationForSubmit, normalizedSmsPhone);
 
-      if (form.reporterRelation === "other" && form.customRelation) {
-        formToSubmit.reporterRelation = form.customRelation;
-      }
-
-      Object.entries(formToSubmit).forEach(([key, value]) => {
-        if (key !== "customRelation") {
-          payload.append(key, value);
-        }
-      });
-      payload.set("description", voiceText || form.description);
-
-      if (locationForSubmit) {
-        payload.append(
-          "lastSeenCoordinates",
-          `${locationForSubmit.longitude}, ${locationForSubmit.latitude}`,
+      if (!isOnline) {
+        await offlineStorage.saveDraft(REPORT_DRAFT_KEY, {
+          form,
+          voiceText,
+          aiPreview,
+          photoPreview,
+          quickMode,
+          pendingSync: true,
+        });
+        await offlineStorage.addToQueue("createMissingCaseReport", { fields });
+        await refreshPendingCount();
+        setDraftStatus("Queued for sync");
+        toast.success(
+          photo
+            ? "Offline alert queued. Re-add the photo when you reconnect if needed."
+            : "Offline alert queued. It will sync automatically when you reconnect.",
         );
+        navigate("/cases");
+        return;
       }
+
+      const payload = new FormData();
+      Object.entries(fields).forEach(([key, value]) => {
+        payload.append(key, value);
+      });
 
       if (photo) {
         payload.append("files", photo);
@@ -309,6 +376,8 @@ export const ReportCasePage = () => {
       const response = await api.post("/cases/report", payload);
       const createdCase = response.data?.data;
 
+      await offlineStorage.deleteDraft(REPORT_DRAFT_KEY);
+      setDraftStatus("");
       toast.success("Missing-person report submitted.");
       if (createdCase?.caseId) {
         navigate(`/cases/${createdCase.caseId}`);
@@ -335,6 +404,8 @@ export const ReportCasePage = () => {
     if (prefillData) {
       try {
         const parsed = JSON.parse(prefillData);
+        // Prefill is a one-time hydration from session storage after navigation.
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setForm((current) => ({
           ...current,
           ...parsed,
@@ -350,18 +421,83 @@ export const ReportCasePage = () => {
         // ignore parse errors
       }
     }
+  }, [language]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadDraft = async () => {
+      try {
+        const draft = await offlineStorage.getDraft(REPORT_DRAFT_KEY);
+        if (!draft?.data || cancelled) return;
+
+        const savedDraft = draft.data;
+        // Draft hydration restores the last in-progress report for this browser.
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        setForm((current) => ({
+          ...current,
+          ...(savedDraft.form || {}),
+        }));
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        setVoiceText(savedDraft.voiceText || "");
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        setAiPreview(savedDraft.aiPreview || null);
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        setPhotoPreview(savedDraft.photoPreview || null);
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        setQuickMode(savedDraft.quickMode ?? true);
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        setDraftStatus(savedDraft.pendingSync ? "Queued for sync" : "Draft restored");
+
+        toast.success("Saved report draft restored.");
+      } catch (error) {
+        console.error("Failed to restore report draft:", error);
+      }
+    };
+
+    void loadDraft();
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
+
+  useEffect(() => {
+    if (!hasDraftableContent(form, voiceText, photoPreview)) {
+      return;
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      offlineStorage
+        .saveDraft(REPORT_DRAFT_KEY, {
+          form,
+          voiceText,
+          aiPreview,
+          photoPreview,
+          quickMode,
+          pendingSync: draftStatus === "Queued for sync",
+        })
+        .then(() => setDraftStatus((current) => current || "Draft saved"))
+        .catch((error) => {
+          console.error("Failed to save report draft:", error);
+        });
+    }, 700);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+    };
+  }, [aiPreview, draftStatus, form, photoPreview, quickMode, voiceText]);
 
   // Check if section is complete (for visual indicator)
   const isSectionComplete = (sectionId) => {
     if (sectionId === "person") {
-      return form.missingPersonName.trim() && form.age;
+      return form.missingPersonName.trim() && (quickMode || form.age);
     }
     if (sectionId === "incident") {
       return (
         form.lastSeenLocation.trim() &&
-        form.lastSeenDate &&
-        form.description.trim()
+        (quickMode || form.lastSeenDate) &&
+        (quickMode || form.description.trim())
       );
     }
     if (sectionId === "reporter") {
@@ -394,6 +530,24 @@ export const ReportCasePage = () => {
               : "Every detail matters in finding someone"}
           </h1>
           <p className="text-lg text-stone-600 max-w-2xl">{helperText}</p>
+          <div className="mt-4 flex flex-wrap items-center gap-3">
+            <button
+              type="button"
+              onClick={() => setQuickMode((current) => !current)}
+              className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
+                quickMode
+                  ? "bg-red-600 text-white hover:bg-red-700"
+                  : "border border-stone-200 text-stone-700 hover:border-terracotta/30 hover:text-terracotta"
+              }`}
+            >
+              {quickMode ? "Quick alert mode" : "Full detail mode"}
+            </button>
+            <p className="text-sm text-stone-500">
+              {quickMode
+                ? "Send the minimum alert first, then keep adding details."
+                : "Capture fuller details for a stronger search brief."}
+            </p>
+          </div>
         </div>
 
         {/* Section Navigation - No icons */}
@@ -416,6 +570,39 @@ export const ReportCasePage = () => {
               )}
             </button>
           ))}
+        </div>
+
+        <div className="mb-8 rounded-3xl border border-amber-200 bg-amber-50 p-5">
+          <h2 className="text-base font-semibold text-charcoal">
+            {language === "am" ? "አስቸኳይ የመጀመሪያ እርምጃ ዝርዝር" : "Immediate Action Checklist"}
+          </h2>
+          <div className="mt-3 space-y-2 text-sm text-stone-700">
+            {(language === "am"
+              ? IMMEDIATE_ACTION_CHECKLIST.am
+              : IMMEDIATE_ACTION_CHECKLIST.en
+            ).map((item) => (
+              <p key={item}>{item}</p>
+            ))}
+          </div>
+        </div>
+
+        <div className="mb-8 rounded-3xl border border-stone-200 bg-white p-5">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <h2 className="text-base font-semibold text-charcoal">
+                {quickMode ? "Fast submission status" : "Report status"}
+              </h2>
+              <p className="mt-1 text-sm text-stone-600">
+                {quickMode
+                  ? "Required now: name, last seen place, your name, phone, and relationship."
+                  : "Photos, date, clothing, and description help the search team move faster."}
+              </p>
+            </div>
+            <div className="text-sm text-stone-500">
+              <p>{isOnline ? "Online" : "Offline"}</p>
+              {draftStatus ? <p className="font-medium text-stone-700">{draftStatus}</p> : null}
+            </div>
+          </div>
         </div>
 
         <form onSubmit={handleSubmit}>

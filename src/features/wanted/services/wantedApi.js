@@ -2,7 +2,7 @@
 
 const cleanParams = (params) => {
   return Object.fromEntries(
-    Object.entries(params).filter(([_, value]) => {
+    Object.entries(params).filter(([, value]) => {
       if (value === null || value === undefined) return false;
       if (typeof value === "string" && value.trim() === "") return false;
       if (typeof value === "number" && Number.isNaN(value)) return false;
@@ -144,6 +144,8 @@ export const wantedApi = {
     axios.post(`/api/wanted/stories/${postId}/like`).then((res) => res.data),
   shareStory: (data) =>
     axios.post("/api/wanted/stories/share", data).then((res) => res.data.data),
-  getImpactStats: () =>
-    axios.get("/api/wanted/impact-stats").then((res) => res.data.data),
+  getImpactStats: (scope = "wanted") =>
+    axios
+      .get(scope === "global" ? "/api/cases/impact-stats" : "/api/wanted/impact-stats")
+      .then((res) => res.data.data),
 };
