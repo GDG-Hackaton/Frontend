@@ -25,6 +25,7 @@ import ReadMorePage from "../components/ReadMorePage";
 import FAQPage from "../components/FAQPage";
 import MapPage from "../pages/Map";
 import SettingsPage from "../pages/SettingsPage";
+import SupportPage from "../pages/SupportPage";
 
 const LegacyCaseRedirect = () => {
   const { id } = useParams();
@@ -82,6 +83,7 @@ export const Router = () => {
       <Route path="/map" element={<MapPage />} />
       <Route path="/how-it-works" element={<div>How It Works</div>} />
       <Route path="/contact" element={<div>Contact</div>} />
+      <Route path="/support" element={<SupportPage />} />
       <Route path="/privacy-policy" element={<div>Privacy Policy</div>} />
       <Route path="/terms-of-service" element={<div>Terms of Service</div>} />
       <Route path="/login" element={<Navigate to="/auth/login" replace />} />

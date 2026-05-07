@@ -29,6 +29,7 @@ import { useTheme } from "../../app/providers/ThemeProvider";
 const primaryLinks = [
   { path: "/cases", label: { en: "Cases", am: "ኬዞች" } },
   { path: "/report", label: { en: "Report Missing", am: "የጠፉ ሰዎችን ያመልክቱ" } },
+  { path: "/support", label: { en: "Support Us", am: "ይደግፉን" } },
   {
     path: "/volunteers",
     label: { en: "Volunteer Response", am: "የበጎ ፈቃደኞች ምላሽ" },

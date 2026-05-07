@@ -24,6 +24,7 @@ import { geocodeLocation } from "../services/locationService";
 import { useAuth } from "../hooks/useAuth";
 import { useOfflineSync } from "../features/wanted/hooks/useOfflineSync";
 import { offlineStorage } from "../features/wanted/services/offlineStorage";
+import ocrService from "../services/ocrService";
 
 const initialForm = {
   missingPersonName: "",
@@ -234,15 +235,19 @@ export const ReportCasePage = () => {
 
   const handleAiExtract = async () => {
     const content = voiceText || form.description;
-    if (!content.trim()) {
-      toast.error("Add a description or voice note first.");
+    if (!content.trim() && !photoPreview) {
+      toast.error("Add a description, voice note, or photo first.");
       return;
     }
 
     setExtracting(true);
     try {
       const response = await aiService.extractInfo({
-        text: content,
+        text: content || undefined,
+        imageBase64:
+          typeof photoPreview === "string"
+            ? photoPreview.replace(/^data:image\/[a-zA-Z0-9.+-]+;base64,/, "")
+            : undefined,
         language,
       });
 
@@ -265,6 +270,20 @@ export const ReportCasePage = () => {
           : form.clothing,
       );
       updateField("gender", extracted.gender || form.gender);
+      if (extracted.description && !form.description.trim()) {
+        updateField("description", extracted.description);
+      }
+
+      if (photo && (!content || !content.trim())) {
+        try {
+          const ocrResult = await ocrService.processImage(photo, language === "am" ? "amh" : "eng");
+          if (ocrResult?.text && ocrResult.text.length > 10 && !form.description.trim()) {
+            updateField("description", ocrResult.text);
+          }
+        } catch {
+          // OCR is best-effort and should not block AI extraction flow
+        }
+      }
 
       toast.success("AI details extracted into the report.");
     } catch {

@@ -111,6 +111,24 @@ const OrgHeroSection = () => {
                  {language === "am" ? "የጠፉቦትን ሰው ይፈልጉ" : "Report Missing"}
               </motion.button>
             </Link>
+            <Link to="/support">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.97 }}
+                className="
+                  px-8 py-4
+                  bg-white/20
+                  hover:bg-white/30
+                  rounded-full
+                  font-semibold
+                  shadow-lg
+                  backdrop-blur
+                  transition-all
+                "
+              >
+                {language === "am" ? "ይደግፉን" : "Support & Donate"}
+              </motion.button>
+            </Link>
 
             
 
@@ -397,7 +415,7 @@ const LossUnderstandingSection = () => {
 
 const ImpactSection = () => {
   const { language } = useLanguage();
-  const { data: stats } = useImpactStats();
+  const { data: stats } = useImpactStats("global");
 
   return (
     <section className="p-10 bg-white dark:from-black mt-24 dark:via-orange-950/20 dark:to-black dark:bg-gradient-to-b text-charcoal dark:text-white">
@@ -412,7 +430,7 @@ const ImpactSection = () => {
               : "Reconnecting Ethiopians worldwide and across Ethiopia."}
           </p>
         </div>
-         <ImpactStats />
+         <ImpactStats scope="global" />
       </div>
     </section>
   );

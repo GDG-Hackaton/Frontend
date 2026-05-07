@@ -91,6 +91,14 @@ export const MainFooter = () => {
                   {language === "am" ? "የተሳኩ ታሪኮች" : "Success Stories"}
                 </Link>
               </li>
+              <li>
+                <Link
+                  to="/support"
+                  className="text-white/60 transition-colors hover:text-white"
+                >
+                  {language === "am" ? "ይደግፉን" : "Support & Donate"}
+                </Link>
+              </li>
             </ul>
           </div>
 

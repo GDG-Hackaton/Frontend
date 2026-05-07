@@ -1,9 +1,10 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { CheckCircle2, RefreshCw, Send, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import api from "../services/api";
 import { caseService } from "../services/caseService";
 import integrationService from "../services/integrationService";
+import fundingService from "../services/fundingService";
 import { formatRelativeTime, getCaseAddress } from "../lib/caseFormatting";
 import { wantedApi } from "../features/wanted/services/wantedApi";
 
@@ -31,10 +32,15 @@ export const AdminControlPage = () => {
   const [broadcastForm, setBroadcastForm] = useState(defaultBroadcast);
   const [scrapeUrl, setScrapeUrl] = useState("");
   const [wantedPosts, setWantedPosts] = useState([]);
+  const [pendingKyc, setPendingKyc] = useState([]);
+  const [collaborationRequests, setCollaborationRequests] = useState([]);
+  const [supportRequests, setSupportRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [broadcasting, setBroadcasting] = useState(false);
   const [runningScrape, setRunningScrape] = useState(false);
   const [updatingWantedPostId, setUpdatingWantedPostId] = useState(null);
+  const [retryingInteractionId, setRetryingInteractionId] = useState(null);
+  const isLoadingRef = useRef(false);
 
   const integrationCards = useMemo(
     () => [
@@ -61,9 +67,11 @@ export const AdminControlPage = () => {
   );
 
   const loadDashboard = async () => {
+    if (isLoadingRef.current) return;
+    isLoadingRef.current = true;
     setLoading(true);
     try {
-      const [statsRes, analyticsRes, casesRes, languagesRes, monitoringRes, schoolRes, broadcastRes, scraperRes, scraperSourcesRes, moderationRes, wantedPostsRes] =
+      const [statsRes, analyticsRes, casesRes, languagesRes, monitoringRes, schoolRes, broadcastRes, scraperRes, scraperSourcesRes, moderationRes, wantedPostsRes, kycRes, collabRes, supportRes] =
         await Promise.allSettled([
           api.get("/dashboard/stats"),
           api.get("/dashboard/analytics", { params: { range: "24h" } }),
@@ -76,6 +84,9 @@ export const AdminControlPage = () => {
           api.get("/scrape/sources"),
           api.get("/cases/pending-verification"),
           wantedApi.getPosts({ limit: 6 }),
+          fundingService.getPendingKYC(),
+          fundingService.getCollaborationRequests(),
+          fundingService.getSupportRequests(),
         ]);
 
       const casesData =
@@ -114,6 +125,9 @@ export const AdminControlPage = () => {
       setWantedPosts(
         wantedPostsRes.status === "fulfilled" ? wantedPostsRes.value.data || [] : [],
       );
+      setPendingKyc(kycRes.status === "fulfilled" ? kycRes.value || [] : []);
+      setCollaborationRequests(collabRes.status === "fulfilled" ? collabRes.value || [] : []);
+      setSupportRequests(supportRes.status === "fulfilled" ? supportRes.value || [] : []);
 
       if (casesData.length > 0) {
         try {
@@ -127,6 +141,7 @@ export const AdminControlPage = () => {
       }
     } finally {
       setLoading(false);
+      isLoadingRef.current = false;
     }
   };
 
@@ -136,6 +151,14 @@ export const AdminControlPage = () => {
     };
 
     bootstrap();
+
+    const interval = window.setInterval(() => {
+      if (document.visibilityState === "visible") {
+        loadDashboard();
+      }
+    }, 20000);
+
+    return () => window.clearInterval(interval);
   }, []);
 
   const handleBroadcast = async (event) => {
@@ -251,6 +274,50 @@ export const AdminControlPage = () => {
     }
   };
 
+  const handleKycReview = async (id, decision) => {
+    try {
+      await fundingService.reviewKYC(id, { decision });
+      toast.success(`KYC ${decision}.`);
+      await loadDashboard();
+    } catch {
+      toast.error("Unable to review KYC.");
+    }
+  };
+
+  const handleCollaborationReview = async (id, decision) => {
+    try {
+      await fundingService.reviewCollaborationRequest(id, { decision });
+      toast.success(`Collaboration request ${decision}.`);
+      await loadDashboard();
+    } catch {
+      toast.error("Unable to review collaboration request.");
+    }
+  };
+
+  const handleSupportRequestStatus = async (id, status) => {
+    try {
+      await fundingService.updateSupportRequest(id, { status });
+      toast.success(`Support request moved to ${status}.`);
+      await loadDashboard();
+    } catch {
+      toast.error("Unable to update support request.");
+    }
+  };
+
+  const handleRetryTelegramInteraction = async (interactionId) => {
+    setRetryingInteractionId(interactionId);
+    try {
+      const response = await api.post(`/dashboard/telegram/retry/${interactionId}`);
+      const caseId = response?.data?.data?.caseId;
+      toast.success(caseId ? `Retry succeeded. Case ${caseId} created.` : "Retry executed.");
+      await loadDashboard();
+    } catch (error) {
+      toast.error(error?.response?.data?.error || "Retry failed.");
+    } finally {
+      setRetryingInteractionId(null);
+    }
+  };
+
   return (
     <div className="mt-16 min-h-screen mt24 bg-stone-50">
       <section className="border-b border-stone-200 bg-white">
@@ -313,6 +380,20 @@ export const AdminControlPage = () => {
               <p className="mt-2 text-3xl font-semibold text-charcoal">
                 {loading ? "..." : item.value}
               </p>
+            </div>
+          ))}
+        </div>
+        <div className="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-5">
+          {[
+            { label: "Telegram intake total", value: stats?.telegramIntake?.total ?? 0 },
+            { label: "Pending confirmation", value: stats?.telegramIntake?.pending ?? 0 },
+            { label: "Created cases", value: stats?.telegramIntake?.created ?? 0 },
+            { label: "Failed creations", value: stats?.telegramIntake?.failed ?? 0 },
+            { label: "Cancelled", value: stats?.telegramIntake?.cancelled ?? 0 },
+          ].map((item) => (
+            <div key={item.label} className="rounded-3xl border border-stone-200 bg-white p-5">
+              <p className="text-xs uppercase tracking-[0.18em] text-stone-500">{item.label}</p>
+              <p className="mt-2 text-2xl font-semibold text-charcoal">{item.value}</p>
             </div>
           ))}
         </div>
@@ -523,6 +604,160 @@ export const AdminControlPage = () => {
             </div>
 
             <div className="rounded-3xl border border-stone-200 bg-white p-6">
+              <h2 className="text-xl font-semibold text-charcoal">Organization collaboration requests</h2>
+              <div className="mt-5 space-y-3">
+                {collaborationRequests.length === 0 ? (
+                  <div className="rounded-2xl border border-dashed border-stone-300 bg-stone-50 p-6 text-sm text-stone-500">
+                    No collaboration requests.
+                  </div>
+                ) : (
+                  collaborationRequests.slice(0, 8).map((record) => (
+                    <div key={record._id} className="rounded-2xl border border-stone-200 p-4">
+                      <p className="font-semibold text-charcoal">
+                        {record.organizationName} ({record.organizationType}) - {record.status}
+                      </p>
+                      <p className="mt-1 text-sm text-stone-500">{record.proposal}</p>
+                      <div className="mt-3 flex gap-2">
+                        <button
+                          type="button"
+                          onClick={() => handleCollaborationReview(record._id, "approved")}
+                          className="rounded-full bg-success px-4 py-2 text-xs font-semibold text-white"
+                        >
+                          Approve
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleCollaborationReview(record._id, "on_hold")}
+                          className="rounded-full bg-amber-600 px-4 py-2 text-xs font-semibold text-white"
+                        >
+                          Hold
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleCollaborationReview(record._id, "rejected")}
+                          className="rounded-full bg-error px-4 py-2 text-xs font-semibold text-white"
+                        >
+                          Reject
+                        </button>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+
+            <div className="rounded-3xl border border-stone-200 bg-white p-6">
+              <h2 className="text-xl font-semibold text-charcoal">Operational support requests</h2>
+              <div className="mt-5 space-y-3">
+                {supportRequests.length === 0 ? (
+                  <div className="rounded-2xl border border-dashed border-stone-300 bg-stone-50 p-6 text-sm text-stone-500">
+                    No operational support requests.
+                  </div>
+                ) : (
+                  supportRequests.slice(0, 8).map((record) => (
+                    <div key={record._id} className="rounded-2xl border border-stone-200 p-4">
+                      <p className="font-semibold text-charcoal">
+                        {record.title} ({record.requestType}) - {record.status}
+                      </p>
+                      <p className="mt-1 text-xs text-stone-500">
+                        {record.organizationName} | urgency: {record.urgencyLevel}
+                      </p>
+                      <div className="mt-3 flex gap-2">
+                        <button
+                          type="button"
+                          onClick={() => handleSupportRequestStatus(record._id, "in_progress")}
+                          className="rounded-full bg-amber-600 px-4 py-2 text-xs font-semibold text-white"
+                        >
+                          In Progress
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleSupportRequestStatus(record._id, "resolved")}
+                          className="rounded-full bg-success px-4 py-2 text-xs font-semibold text-white"
+                        >
+                          Resolve
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleSupportRequestStatus(record._id, "cancelled")}
+                          className="rounded-full bg-error px-4 py-2 text-xs font-semibold text-white"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+
+            <div className="rounded-3xl border border-stone-200 bg-white p-6">
+              <h2 className="text-xl font-semibold text-charcoal">Pending KYC approvals</h2>
+              <div className="mt-5 space-y-3">
+                {pendingKyc.length === 0 ? (
+                  <div className="rounded-2xl border border-dashed border-stone-300 bg-stone-50 p-6 text-sm text-stone-500">
+                    No pending KYC submissions.
+                  </div>
+                ) : (
+                  pendingKyc.slice(0, 8).map((record) => (
+                    <div key={record._id} className="rounded-2xl border border-stone-200 p-4">
+                      <p className="font-semibold text-charcoal">
+                        {record.organizationName} ({record.organizationType})
+                      </p>
+                      <p className="mt-1 text-sm text-stone-500">{record.contactEmail}</p>
+                      <div className="mt-3 flex gap-2">
+                        <button
+                          type="button"
+                          onClick={() => handleKycReview(record._id, "approved")}
+                          className="rounded-full bg-success px-4 py-2 text-xs font-semibold text-white"
+                        >
+                          Approve
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleKycReview(record._id, "rejected")}
+                          className="rounded-full bg-error px-4 py-2 text-xs font-semibold text-white"
+                        >
+                          Reject
+                        </button>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+
+            <div className="rounded-3xl border border-stone-200 bg-white p-6">
+              <h2 className="text-xl font-semibold text-charcoal">Telegram intake failures</h2>
+              <div className="mt-5 space-y-3">
+                {(analytics?.telegramFailures || []).length === 0 ? (
+                  <div className="rounded-2xl border border-dashed border-stone-300 bg-stone-50 p-6 text-sm text-stone-500">
+                    No recent Telegram intake failures.
+                  </div>
+                ) : (
+                  analytics.telegramFailures.map((item) => (
+                    <div key={item._id} className="rounded-2xl border border-stone-200 p-4">
+                      <p className="font-semibold text-charcoal">{item.failureReason || "Unknown failure"}</p>
+                      <p className="mt-1 text-xs text-stone-500">
+                        Type: {item.interactionType || "n/a"} | Language: {item.detectedLanguage || "n/a"} | Confidence: {item.aiConfidence ?? "n/a"}
+                      </p>
+                      <div className="mt-3">
+                        <button
+                          type="button"
+                          onClick={() => handleRetryTelegramInteraction(item._id)}
+                          disabled={retryingInteractionId === item._id}
+                          className="rounded-full bg-charcoal px-4 py-2 text-xs font-semibold text-white transition hover:bg-charcoal/90 disabled:opacity-60"
+                        >
+                          {retryingInteractionId === item._id ? "Retrying..." : "Retry now"}
+                        </button>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+
+            <div className="rounded-3xl border border-stone-200 bg-white p-6">
               <h2 className="text-xl font-semibold text-charcoal">
                 Telegram/social moderation queue
               </h2>
@@ -604,11 +839,53 @@ export const AdminControlPage = () => {
                   </span>
                 </p>
                 <p className="mt-2">
+                  Current phase: {scraperStatus?.currentRun?.phase || "idle"}
+                </p>
+                <p className="mt-2">
+                  Active source: {scraperStatus?.currentRun?.activeSource || "none"}
+                </p>
+                <p className="mt-2">
+                  Processed this run: {scraperStatus?.currentRun?.processedPosts ?? 0}
+                </p>
+                <p className="mt-2">
                   Tracked posts: {scraperStatus?.trackedCount ?? 0}
                 </p>
                 <p className="mt-2">
                   Last errors: {scraperStatus?.lastRun?.errors?.length || 0}
                 </p>
+                <p className="mt-2">
+                  Last run created: {scraperStatus?.lastRun?.casesCreated ?? 0} case(s)
+                </p>
+                <p className="mt-2">
+                  Decisions logged: {scraperStatus?.lastRun?.decisions?.length || 0}
+                </p>
+                {(scraperStatus?.lastRun?.sources &&
+                  Object.entries(scraperStatus.lastRun.sources).length > 0) ? (
+                  <div className="mt-2 space-y-1">
+                    {Object.entries(scraperStatus.lastRun.sources).map(([source, details]) => (
+                      <p key={source}>
+                        {source}: {details?.status || "unknown"} ({details?.posts ?? 0} posts)
+                      </p>
+                    ))}
+                  </div>
+                ) : null}
+                {Array.isArray(scraperStatus?.lastRun?.decisions) &&
+                scraperStatus.lastRun.decisions.length > 0 ? (
+                  <div className="mt-3 rounded-xl bg-white p-3">
+                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-stone-500">
+                      Recent extraction decisions
+                    </p>
+                    <div className="mt-2 space-y-1 text-xs text-stone-700">
+                      {scraperStatus.lastRun.decisions.slice(-6).reverse().map((entry, idx) => (
+                        <p key={`${entry.timestamp}-${idx}`}>
+                          [{entry.source}] {entry.decision} - {entry.reasonCode}
+                          {entry.confidence !== undefined ? ` (confidence ${entry.confidence})` : ""}
+                          {entry.qualityScore !== undefined ? ` (quality ${entry.qualityScore})` : ""}
+                        </p>
+                      ))}
+                    </div>
+                  </div>
+                ) : null}
               </div>
 
               <div className="mt-4 grid gap-3">
