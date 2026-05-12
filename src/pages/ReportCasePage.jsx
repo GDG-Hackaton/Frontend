@@ -1314,8 +1314,8 @@ export const ReportCasePage = () => {
             </p>
           </div>
         </div>
-      </div>
-    </PageSurface>
+        </PageSurface>
+
   );
 };
 

@@ -197,9 +197,16 @@ const HeroSection = () => {
                         {language === 'am' ? item.description.am : item.description.en}
                       </p>
                     </div>
+                    
                   </motion.div>
                 ))}
               </div>
+              <Link
+              to="/wanted/create"
+              className="inline-flex mt-8 px-8 py-4 bg-black/90 text-white rounded-lg font-semibold hover:bg-black/70 transition-colors  shadow-lg"
+            >
+              {language === "am" ? "ትዝታ ያጋሩ" : "Create a Post"}
+            </Link>
             </motion.div>
           </div>
         </div>
