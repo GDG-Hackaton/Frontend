@@ -23,6 +23,7 @@ import { useAuth } from "../hooks/useAuth";
 import { useOfflineSync } from "../features/wanted/hooks/useOfflineSync";
 import { offlineStorage } from "../features/wanted/services/offlineStorage";
 import ocrService from "../services/ocrService";
+import { PageSurface } from "../components/layout/PageSurface";
 
 const initialForm = {
   missingPersonName: "",
@@ -520,10 +521,20 @@ export const ReportCasePage = () => {
   };
 
   return (
-    <div className="mt-24 min-h-screen bg-warm-white transition-colors">
-      {/* Header */}
-    
-      <div className=" dark:border-orange-500/40 dark:border-1 dark:rounded-lg max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
+    <PageSurface
+      eyebrow={language === "am" ? "አስቸኳይ ሪፖርት" : "Urgent report"}
+      title={
+        language === "am"
+          ? "የጠፋ ሰው ሪፖርት በፍጥነት እና በግልፅነት ያስገቡ"
+          : "Submit a missing-person report with clarity and speed"
+      }
+      description={
+        language === "am"
+          ? "መጀመሪያ አስፈላጊ መረጃን ያስገቡ፣ ከዚያ በኋላ ዝርዝር ያክሉ። ስርዓቱ ረቂቅዎን በራስ-ሰር ያስቀምጣል።"
+          : "Start with essential details, then add more information. Your draft is saved automatically."
+      }
+    >
+      <div className="dark:border-1 dark:border-orange-500/40 dark:rounded-lg mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8 lg:py-12">
         {/* Hero Section */}
         <div className="mb-5">
           <div className="flex items-center gap-3 mb-3">
@@ -1304,7 +1315,7 @@ export const ReportCasePage = () => {
           </div>
         </div>
       </div>
-    </div>
+    </PageSurface>
   );
 };
 

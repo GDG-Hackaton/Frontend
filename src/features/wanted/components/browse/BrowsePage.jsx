@@ -21,6 +21,7 @@ import { SuccessStories } from "../shared/SuccessStories";
 import { LoadingSkeleton } from "../shared/LoadingSkeleton";
 import { useLanguage } from "../../../../lib/i18n";
 import { Link } from "react-router-dom";
+import { PageSurface } from "../../../../components/layout/PageSurface";
 
 const assetImages = import.meta.glob(
   "../../../../assets/images/*.{png,jpg,jpeg,svg}",
@@ -506,7 +507,19 @@ export const BrowsePage = () => {
   }, [searchTerm]);
 
   return (
-    <div className="min-h-screen bg-warm-white">
+    <PageSurface
+      eyebrow={language === "am" ? "Reconnect Hub" : "Reconnect hub"}
+      title={
+        language === "am"
+          ? "ትዝታዎችን ያስሱ እና የጠፉ ግንኙነቶችን ያግኙ"
+          : "Browse memory posts and reconnect with lost contacts"
+      }
+      description={
+        language === "am"
+          ? "ፍለጋ፣ ማጣሪያ እና ልጥፍ ፍጠር በአንድ ግልፅ ሂደት።"
+          : "Search, filter, and post in a clearer workflow designed for real users."
+      }
+    >
       <HeroSection />
       <ProblemSection />
 
@@ -709,6 +722,6 @@ export const BrowsePage = () => {
           </div>
         </div>
       </section>
-    </div>
+    </PageSurface>
   );
 };

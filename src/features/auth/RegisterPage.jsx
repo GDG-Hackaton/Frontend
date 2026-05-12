@@ -16,6 +16,7 @@ import {
 import { useLanguage } from '../../lib/i18n';
 import { useAuth } from '../../hooks/useAuth';
 import { GoogleSignInButton } from './GoogleSignInButton';
+import { AuthShell } from '../../components/layout/AuthShell';
 
 export const RegisterPage = () => {
   const { language } = useLanguage();
@@ -109,14 +110,17 @@ export const RegisterPage = () => {
   };
 
   return (
-    <div className=" mt-24 min-h-screen flex items-center justify-center py-6 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-cream to-warm-white">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="max-w-md w-full"
-      >
-        <div className="text-center mb-2">
+    <AuthShell
+      title={language === 'am' ? 'መለያ ይፍጠሩ' : 'Create account'}
+      subtitle={
+        language === 'am'
+          ? 'አዲስ ሪፖርት እና ትክክለኛ ክትትል ለመጀመር መለያ ይፍጠሩ።'
+          : 'Create an account to report and track cases safely.'
+      }
+      backTo="/auth/login"
+      backLabel={language === 'am' ? 'ወደ መግቢያ ተመለስ' : 'Back to login'}
+    >
+        <div className="text-center mb-4">
           <h2 className="font-display text-3xl font-bold text-charcoal mb-1">
             {language === 'am' ? 'መለያ ይፍጠሩ' : 'Create Account'}
           </h2>
@@ -144,7 +148,7 @@ export const RegisterPage = () => {
         </div>
 
         {/* Register Form */}
-        <div className="bg-white rounded-2xl shadow-xl p-8 border border-warm-gray/30">
+        <div className="rounded-2xl border border-warm-gray/30 p-1">
           {step === 1 ? (
             <div className="mb-6">
               <GoogleSignInButton
@@ -400,7 +404,6 @@ export const RegisterPage = () => {
             {language === 'am' ? 'የግላዊነት ፖሊሲ' : 'Privacy Policy'}
           </Link>
         </p>
-      </motion.div>
-    </div>
+    </AuthShell>
   );
 };

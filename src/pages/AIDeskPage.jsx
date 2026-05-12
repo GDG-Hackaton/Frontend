@@ -21,6 +21,7 @@ import { aiService, normalizeAssistantResponse } from "../services/api";
 import { useLanguage } from "../lib/i18n";
 import { useAuth } from "../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
+import { PageSurface } from "../components/layout/PageSurface";
 
 const readFileAsBase64 = (file) =>
   new Promise((resolve, reject) => {
@@ -164,31 +165,18 @@ export const AIDeskPage = () => {
   ];
 
   return (
-    <div className="mt-15 min-h-screen bg-gradient-to-b from-stone-50 to-white dark:from-stone-900 dark:to-stone-950 transition-colors">
-      {/* HEADER */}
-      <section className="border-b border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900">
-        <div className="max-w-7xl mx-auto px-4 py-10 sm:px-6 lg:px-8">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="w-10 h-10 bg-gradient-to-br from-teal-500 to-teal-500 rounded-xl flex items-center justify-center shadow-lg shadow-orange-500/20">
-              <Bot className="w-5 h-5 text-white" />
-            </div>
-            <p className="text-sm font-semibold uppercase tracking-[0.24em] text-orange-600 dark:text-orange-400">
-              {language === "am" ? "የእርዳታ ዴስክ" : " Help Desk"}
-            </p>
-          </div>
-          <h1 className="text-3xl font-bold text-stone-900 dark:text-stone-100">
-            {language === "am" ? "AI ድጋፍ" : "AI support for reporting, extraction, and verification"}
-          </h1>
-          <p className="text-stone-600 dark:text-stone-400 mt-2">
-            {language === "am"
-              ? "AI ረዳት፣ መረጃ ማውጫ እና የፊት ማረጋገጫ"
-              : "AI assistant, extraction, and verification tools"}
-          </p>
-        </div>
-      </section>
+    <PageSurface
+      eyebrow={language === "am" ? "የእርዳታ ዴስክ" : "Help desk"}
+      title={language === "am" ? "AI ድጋፍ" : "AI support for reporting, extraction, and verification"}
+      description={
+        language === "am"
+          ? "AI ረዳት፣ መረጃ ማውጫ እና የፊት ማረጋገጫ በአንድ ቦታ።"
+          : "Use assistant guidance, structured extraction, and verification in one calm workspace."
+      }
+    >
 
       {/* MOBILE TABS */}
-      <div className="lg:hidden sticky top-0 z-20 bg-white/80 dark:bg-stone-900/80 backdrop-blur-xl border-b border-stone-200 dark:border-stone-700">
+      <div className="sticky top-0 z-20 border-b border-stone-200 bg-white/80 backdrop-blur-xl dark:border-stone-700 dark:bg-stone-900/80 lg:hidden">
         <div className="flex gap-1 p-2">
           {tabs.map((tab) => (
             <button
@@ -208,7 +196,7 @@ export const AIDeskPage = () => {
       </div>
 
       {/* MAIN CONTENT */}
-      <section className="max-w-7xl mx-auto px-4 py-8 grid lg:grid-cols-2 gap-6">
+      <section className="mx-auto grid max-w-7xl gap-6 px-4 py-8 lg:grid-cols-2">
         {/* === CHAT === */}
         <div className={`${activeTab === "assistant" ? "block" : "hidden lg:block"}`}>
           <div className="flex flex-col h-[650px] rounded-3xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 shadow-sm">
@@ -566,7 +554,7 @@ export const AIDeskPage = () => {
           </div>
         </div>
       </section>
-    </div>
+    </PageSurface>
   );
 };
 

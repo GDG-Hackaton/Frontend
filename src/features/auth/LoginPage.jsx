@@ -1,18 +1,10 @@
-import React, { useState } from 'react';
-import { Link, useNavigate, useLocation, useSearchParams } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { 
-  Mail, 
-  Lock, 
-  Eye, 
-  EyeOff, 
-  Heart,
-  ArrowRight,
-  AlertCircle
-} from 'lucide-react';
-import { useLanguage } from '../../lib/i18n';
-import { useAuth } from '../../hooks/useAuth';
-import { GoogleSignInButton } from './GoogleSignInButton';
+import { useState } from "react";
+import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
+import { AlertCircle, ArrowRight, Eye, EyeOff, Lock, Mail } from "lucide-react";
+import { useLanguage } from "../../lib/i18n";
+import { useAuth } from "../../hooks/useAuth";
+import { GoogleSignInButton } from "./GoogleSignInButton";
+import { AuthShell } from "../../components/layout/AuthShell";
 
 export const LoginPage = () => {
   const { language } = useLanguage();
@@ -21,33 +13,32 @@ export const LoginPage = () => {
   const location = useLocation();
   const [searchParams] = useSearchParams();
   
-  const [formData, setFormData] = useState({
-    email: '',
-    password: '',
-  });
+  const [formData, setFormData] = useState({ email: "", password: "" });
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
-  const [loginError, setLoginError] = useState('');
+  const [loginError, setLoginError] = useState("");
 
   const redirectTarget = searchParams.get("redirect");
   const safeRedirect =
     redirectTarget && redirectTarget.startsWith("/") && !redirectTarget.startsWith("//")
       ? redirectTarget
       : null;
-  const from = safeRedirect || location.state?.from?.pathname || '/wanted';
+  const from = safeRedirect || location.state?.from?.pathname || "/wanted";
 
   const validate = () => {
     const newErrors = {};
     
     if (!formData.email) {
-      newErrors.email = language === 'am' ? 'ኢሜይል ያስፈልጋል' : 'Email is required';
+      newErrors.email = language === "am" ? "ኢሜይል ያስፈልጋል" : "Email is required";
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = language === 'am' ? 'ትክክለኛ ኢሜይል አድራሻ አይደለም' : 'Invalid email address';
+      newErrors.email =
+        language === "am" ? "ትክክለኛ ኢሜይል አድራሻ አይደለም" : "Invalid email address";
     }
     
     if (!formData.password) {
-      newErrors.password = language === 'am' ? 'የይለፍ ቃል ያስፈልጋል' : 'Password is required';
+      newErrors.password =
+        language === "am" ? "የይለፍ ቃል ያስፈልጋል" : "Password is required";
     }
     
     setErrors(newErrors);
@@ -56,7 +47,7 @@ export const LoginPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoginError('');
+    setLoginError("");
     
     if (!validate()) return;
     
@@ -75,51 +66,32 @@ export const LoginPage = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
     if (errors[name]) {
-      setErrors(prev => ({ ...prev, [name]: '' }));
+      setErrors((prev) => ({ ...prev, [name]: "" }));
     }
   };
 
   return (
-    <div className="min-h-screen mt-24 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-cream to-warm-white">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="max-w-md w-full"
-      >
-        {/* Logo */}
-        <div className="text-center mb-5">
-          <h2 className="font-display text-3xl font-bold text-charcoal mb-2">
-            {language === 'am' ? 'እንኳን ደህና መጡ' : 'Welcome Back'}
-          </h2>
-          <p className="text-stone">
-            {language === 'am' 
-              ? 'ለመቀጠል Sign in ያርጉ'
-              : 'Sign in to continue'
-            }
-          </p>
-        </div> 
-
-        {/* Login Form */}
-        <div className="bg-white rounded-2xl shadow-xl p-8 border border-warm-gray/30">
+    <AuthShell
+      title={language === "am" ? "እንኳን ደህና መጡ" : "Welcome back"}
+      subtitle={
+        language === "am" ? "ሪፖርቶችን ለመቀጠል ይግቡ።" : "Sign in to continue your case workflow."
+      }
+      backTo="/"
+      backLabel={language === "am" ? "ወደ መነሻ ተመለስ" : "Back to home"}
+    >
           {loginError && (
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="mb-6 p-4 bg-error/10 border border-error/20 rounded-xl flex items-start gap-3"
-            >
+            <div className="mb-5 flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 p-3">
               <AlertCircle className="w-5 h-5 text-error flex-shrink-0 mt-0.5" />
               <p className="text-sm text-error">{loginError}</p>
-            </motion.div>
+            </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Email */}
+          <form onSubmit={handleSubmit} className="space-y-5">
             <div>
               <label className="block text-sm font-medium text-charcoal mb-1.5">
-                {language === 'am' ? 'ኢሜይል' : 'Email'}
+                {language === "am" ? "ኢሜይል" : "Email"}
               </label>
               <div className="relative">
                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-stone" />
@@ -128,9 +100,9 @@ export const LoginPage = () => {
                   name="email"
                   value={formData.email}
                   onChange={handleChange}
-                  placeholder={language === 'am' ? 'ኢሜይልዎን ያስገቡ' : 'Enter your email'}
-                  className={`w-full pl-11 pr-4 py-3 bg-cream/50 border rounded-xl focus:border-terracotta focus:ring-2 focus:ring-terracotta/20 outline-none transition-all ${
-                    errors.email ? 'border-error' : 'border-warm-gray'
+                  placeholder={language === "am" ? "ኢሜይልዎን ያስገቡ" : "Enter your email"}
+                  className={`w-full rounded-xl border px-11 py-3 outline-none transition focus:border-terracotta focus:ring-2 focus:ring-terracotta/20 ${
+                    errors.email ? "border-error" : "border-warm-gray"
                   }`}
                   autoComplete="email"
                 />
@@ -143,21 +115,20 @@ export const LoginPage = () => {
               )}
             </div>
 
-            {/* Password */}
             <div>
               <label className="block text-sm font-medium text-charcoal mb-1.5">
-                {language === 'am' ? 'የይለፍ ቃል' : 'Password'}
+                {language === "am" ? "የይለፍ ቃል" : "Password"}
               </label>
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-stone" />
                 <input
-                  type={showPassword ? 'text' : 'password'}
+                  type={showPassword ? "text" : "password"}
                   name="password"
                   value={formData.password}
                   onChange={handleChange}
-                  placeholder={language === 'am' ? 'የይለፍ ቃልዎትን ያስገቡ' : 'Enter your password'}
-                  className={`w-full pl-11 pr-12 py-3 bg-cream/50 border rounded-xl focus:border-terracotta focus:ring-2 focus:ring-terracotta/20 outline-none transition-all ${
-                    errors.password ? 'border-error' : 'border-warm-gray'
+                  placeholder={language === "am" ? "የይለፍ ቃልዎትን ያስገቡ" : "Enter your password"}
+                  className={`w-full rounded-xl border px-11 py-3 outline-none transition focus:border-terracotta focus:ring-2 focus:ring-terracotta/20 ${
+                    errors.password ? "border-error" : "border-warm-gray"
                   }`}
                   autoComplete="current-password"
                 />
@@ -177,44 +148,41 @@ export const LoginPage = () => {
               )}
             </div>
 
-            {/* Forgot Password */}
             <div className="flex justify-end">
               <Link
                 to="/auth/forgot-password"
                 className="text-sm text-terracotta hover:text-clay transition-colors"
               >
-                {language === 'am' ? 'የይለፍ ቃል ረሳው?' : 'Forgot password?'}
+                {language === "am" ? "የይለፍ ቃል ረሳው?" : "Forgot password?"}
               </Link>
             </div>
 
-            {/* Submit */}
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full py-3.5 bg-terracotta text-white rounded-full font-semibold hover:bg-clay transition-all shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="flex w-full items-center justify-center gap-2 rounded-xl bg-terracotta py-3 font-semibold text-white transition hover:bg-clay disabled:cursor-not-allowed disabled:opacity-50"
             >
               {isLoading ? (
                 <>
                   <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  <span>{language === 'am' ? 'ትንሽ ይጠብቁ...' : 'Signing in...'}</span>
+                  <span>{language === "am" ? "ትንሽ ይጠብቁ..." : "Signing in..."}</span>
                 </>
               ) : (
                 <>
-                  <span>{language === 'am' ? 'ይግቡ' : 'Sign In'}</span>
+                  <span>{language === "am" ? "ይግቡ" : "Sign In"}</span>
                   <ArrowRight className="w-4 h-4" />
                 </>
               )}
             </button>
           </form>
 
-          {/* Divider */}
-          <div className="relative my-6">
+          <div className="relative my-5">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-warm-gray/30"></div>
+              <div className="w-full border-t border-warm-gray/40"></div>
             </div>
             <div className="relative flex justify-center text-xs">
-              <span className="px-3 bg-white text-stone">
-                {language === 'am' ? 'ወይም' : 'or'}
+              <span className="bg-white px-3 text-stone">
+                {language === "am" ? "ወይም" : "or"}
               </span>
             </div>
           </div>
@@ -225,28 +193,15 @@ export const LoginPage = () => {
             }}
           />
 
-          {/* Register Link */}
           <p className="text-center text-sm text-stone mt-2">
-            {language === 'am' ? 'አካውንት የሎትም?' : 'Don\'t have an account?'}
-            {' '}
+            {language === "am" ? "አካውንት የሎትም?" : "Don't have an account?"}{" "}
             <Link
               to="/auth/register"
               className="text-terracotta hover:text-clay font-medium"
             >
-              {language === 'am' ? 'አሁኑኑ ይመዝገቡ' : 'Sign up now'}
+              {language === "am" ? "አሁኑኑ ይመዝገቡ" : "Sign up now"}
             </Link>
           </p>
-        </div>
-
-        {/* Trust Message */}
-        <p className="text-center text-xs text-stone mt-6">
-          <Lock className="inline w-3 h-3 mr-1" />
-          {language === 'am' 
-            ? 'የግል መረጃዎ ደህንነት የተጠበቀ ነው'
-            : 'Secure login • Your information is private'
-          }
-        </p>
-      </motion.div>
-    </div>
+    </AuthShell>
   );
 };

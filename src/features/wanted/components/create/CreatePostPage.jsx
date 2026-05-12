@@ -20,6 +20,7 @@ import { LocationPicker } from "./LocationPicker";
 import { QuestionBuilder } from "./QuestionBuilder";
 import { CategorySelector } from "./CategorySelector";
 import { GroupPostSettings } from "./GroupPostSettings";
+import { PageSurface } from "../../../../components/layout/PageSurface";
 
 const STEPS = [
   { id: "memory", label: { en: "Memory", am: "ትዝታ" } },
@@ -131,10 +132,17 @@ export const CreatePostPage = () => {
   };
 
   return (
-    <div className="mt-24 min-h-screen bg-warm-white">
-      {/* Header with Progress */}
-      <div className="sticky top-0 z-40 bg-warm-white/95 backdrop-blur-md border-b border-warm-gray/30">
-        <div className="container py-4">
+    <PageSurface
+      eyebrow={language === "am" ? "አዲስ ትዝታ ልጥፍ" : "New reconnect post"}
+      title={language === "am" ? "ልጥፍ ይፍጠሩ" : "Create a reconnect post"}
+      description={
+        language === "am"
+          ? "አጭር እና ግልፅ መረጃ ይሙሉ። ይህ ትክክለኛ ሰው ፈጥኖ እንዲገኝ ይረዳል።"
+          : "Share clear, essential details so the right person can recognize and respond safely."
+      }
+    >
+      <div className="sticky top-0 z-40 border-b border-warm-gray/30 bg-warm-white/95 backdrop-blur-md">
+        <div className="container py-3">
           <div className="flex items-center justify-between mb-4">
             <button
               onClick={() => navigate(-1)}
@@ -142,9 +150,9 @@ export const CreatePostPage = () => {
             >
               <ChevronLeft className="w-6 h-6" />
             </button>
-            <h1 className="font-display text-xl font-semibold text-charcoal">
-              {language === "am" ? "ልጥፍ ይፍጠሩ" : "Create a Post"}
-            </h1>
+            <h2 className="font-display text-lg font-semibold text-charcoal">
+              {language === "am" ? "እርምጃ በእርምጃ" : "Step by step"}
+            </h2>
             <div className="w-6" />
           </div>
 
@@ -185,7 +193,6 @@ export const CreatePostPage = () => {
         </div>
       </div>
 
-      {/* Form Content */}
       <div className="container py-12">
         <div className="max-w-3xl mx-auto">
           <AnimatePresence mode="wait">
@@ -448,6 +455,6 @@ export const CreatePostPage = () => {
           </div>
         </div>
       </div>
-    </div>
+    </PageSurface>
   );
 };

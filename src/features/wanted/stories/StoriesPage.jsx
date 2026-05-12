@@ -2,14 +2,23 @@ import React from "react";
 import { SuccessStories } from "../components/shared/SuccessStories";
 import { useLanguage } from "../../../lib/i18n";
 import { Heart, Sparkles } from "lucide-react";
+import { PageSurface } from "../../../components/layout/PageSurface";
 
 export const StoriesPage = () => {
   const { language } = useLanguage();
 
   return (
-    <div className="mt-17 min-h-screen bg-warm-white">
+    <PageSurface
+      eyebrow={language === "am" ? "የተሳኩ ታሪኮች" : "Success stories"}
+      title={language === "am" ? "ዳግም የተገናኙ ታሪኮች" : "Stories of successful reconnection"}
+      description={
+        language === "am"
+          ? "በReunite በኩል እንደገና የተገናኙ ሰዎች ተስፋ የሚሰጡ ታሪኮች።"
+          : "Heartwarming accounts of people and families reunited through Reunite."
+      }
+    >
       {/* Hero Header with Video Background */}
-      <div className="relative py-20 md:py-28 overflow-hidden">
+      <div className="relative overflow-hidden py-14 md:py-20">
         {/* Background Video */}
         <div className="absolute inset-0">
           <video
@@ -79,7 +88,7 @@ export const StoriesPage = () => {
           </div>
         </div>
       </div>
-    </div>
+    </PageSurface>
   );
 };
 

@@ -5,6 +5,7 @@ import fundingService from "../services/fundingService";
 import integrationService from "../services/integrationService";
 import { useAuth } from "../hooks/useAuth";
 import { isAdminRole, normalizeRole } from "../lib/authRoles";
+import { PageSurface } from "../components/layout/PageSurface";
 
 const initialDonation = {
   donorType: "individual",
@@ -246,17 +247,11 @@ export default function SupportPage() {
   };
 
   return (
-    <div className="mt-16 min-h-screen bg-stone-50">
-      <section className="border-b border-stone-200 bg-white">
-        <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-          <p className="text-sm font-semibold uppercase tracking-[0.24em] text-terracotta">
-            Support Reunite
-          </p>
-          <h1 className="mt-3 text-4xl font-semibold text-charcoal">
-            School and organization dashboard for meaningful contribution
-          </h1>
-        </div>
-      </section>
+    <PageSurface
+      eyebrow="Support Reunite"
+      title="Partner operations, contribution workflows, and institutional readiness"
+      description="Manage donations, KYC, organization collaboration, and support requests in a safer, clearer workflow."
+    >
 
       <section className="mx-auto grid max-w-7xl gap-6 px-4 py-8 sm:px-6 lg:grid-cols-3 lg:px-8">
         {[
@@ -689,6 +684,6 @@ export default function SupportPage() {
         </div>
       </section>
       ) : null}
-    </div>
+    </PageSurface>
   );
 }

@@ -7,6 +7,7 @@ import integrationService from "../services/integrationService";
 import fundingService from "../services/fundingService";
 import { formatRelativeTime, getCaseAddress } from "../lib/caseFormatting";
 import { wantedApi } from "../features/wanted/services/wantedApi";
+import { PageSurface } from "../components/layout/PageSurface";
 
 const defaultBroadcast = {
   platform: "all",
@@ -319,34 +320,21 @@ export const AdminControlPage = () => {
   };
 
   return (
-    <div className="mt-16 min-h-screen mt24 bg-stone-50">
-      <section className="border-b border-stone-200 bg-white">
-        <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-          <div className="flex flex-wrap items-center justify-between gap-4">
-            <div>
-              <p className="text-sm font-semibold uppercase tracking-[0.24em] text-terracotta">
-                Admin Control
-              </p>
-              <h1 className="mt-3 text-4xl font-semibold text-charcoal">
-                Command center for missing-person response and system operations
-              </h1>
-              <p className="mt-4 max-w-3xl text-base leading-7 text-stone">
-                This page pulls together dashboard, analytics, monitoring,
-                school network, prediction, broadcast, and scraping endpoints so
-                admin workflows stay aligned to the backend.
-              </p>
-            </div>
-            <button
-              type="button"
-              onClick={loadDashboard}
-              className="inline-flex items-center gap-2 rounded-full border border-stone-200 px-4 py-3 text-sm font-semibold text-stone-700 transition hover:border-terracotta/30 hover:text-terracotta"
-            >
-              <RefreshCw className="h-4 w-4" />
-              Refresh control data
-            </button>
-          </div>
-        </div>
-      </section>
+    <PageSurface
+      eyebrow="Admin control"
+      title="Command center for response reliability and operational intelligence"
+      description="Unified oversight across cases, moderation, partner operations, broadcast, and scraper controls."
+      actions={
+        <button
+          type="button"
+          onClick={loadDashboard}
+          className="inline-flex items-center gap-2 rounded-xl border border-stone-200 bg-white px-4 py-2.5 text-sm font-semibold text-stone-700 transition hover:border-terracotta/30 hover:text-terracotta"
+        >
+          <RefreshCw className="h-4 w-4" />
+          Refresh control data
+        </button>
+      }
+    >
 
       <section className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
@@ -980,7 +968,7 @@ export const AdminControlPage = () => {
           </div>
         </div>
       </section>
-    </div>
+    </PageSurface>
   );
 };
 

@@ -22,6 +22,7 @@ import { ClaimSection } from "./ClaimSection";
 import { PostDetailSkeleton } from "./PostDetailSkeleton";
 import { formatRelativeTime } from "../../utils/formatters";
 import { PostNotFound } from "./PostNotFound";
+import { PageSurface } from "../../../../components/layout/PageSurface";
 
 export const PostDetailPage = () => {
   const { id } = useParams();
@@ -52,18 +53,21 @@ export const PostDetailPage = () => {
   };
 
   return (
-    <div className="mt-24 min-h-screen bg-warm-white">
-      <section className="relative bg-gradient-to-b from-cream to-transparent pt-20 pb-12">
-        <div className="container mb-8">
-          <button
-            onClick={() => navigate(-1)}
-            className="inline-flex items-center gap-2 text-olive transition-colors group hover:text-terracotta"
-          >
-            <ChevronLeft className="h-5 w-5 transition-transform group-hover:-translate-x-1" />
-            <span>{language === "am" ? "ወደ ኋላ" : "Back"}</span>
-          </button>
-        </div>
-
+    <PageSurface
+      eyebrow={language === "am" ? "የትዝታ ዝርዝር" : "Memory detail"}
+      title={post.personDetails?.personName || post.posterProfile?.realName || "Reconnect post"}
+      description={memoryText?.slice?.(0, 180) || ""}
+      actions={
+        <button
+          onClick={() => navigate(-1)}
+          className="inline-flex items-center gap-2 rounded-xl border border-stone-200 bg-white px-4 py-2.5 text-sm font-semibold text-stone-700 transition hover:border-terracotta/30 hover:text-terracotta"
+        >
+          <ChevronLeft className="h-4 w-4" />
+          <span>{language === "am" ? "ወደ ኋላ" : "Back"}</span>
+        </button>
+      }
+    >
+      <section className="relative bg-gradient-to-b from-cream/60 to-transparent pb-8 pt-6">
         <div className="container">
           <div className="mx-auto max-w-4xl">
             <div
@@ -304,7 +308,7 @@ export const PostDetailPage = () => {
         onClose={() => setShowShareModal(false)}
         post={post}
       />
-    </div>
+    </PageSurface>
   );
 };
 

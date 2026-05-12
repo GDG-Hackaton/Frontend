@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import api from "../services/api";
 import { caseService } from "../services/caseService";
 import { useAuth } from "../hooks/useAuth";
+import { PageSurface } from "../components/layout/PageSurface";
 import {
   buildGoogleMapsUrl,
   formatRelativeTime,
@@ -198,28 +199,27 @@ export const VolunteerOperationsPage = () => {
   };
 
   return (
-    <div className="mt-24 min-h-screen bg-stone-50">
-      <section className="border-b border-stone-200 bg-white">
-        <div className="mx-auto max-w-6xl p-4 sm:px-6 lg:px-8">
-          <p className="text-sm font-semibold uppercase tracking-[0.24em] text-terracotta">
-            {language === "am" ?"የበጎ ፊቃዳኞች ምላሽ" : "Volunteer Response"}
-          </p>
-          <h1 className="mt-3 text-4xl font-semibold text-charcoal">
-            {language === "am" ?"በጎ ፈቃደኞችን መመዝገብ፣ አድሻቸውን መለየት እና በአቅራቢያ ስለታዩበት ሁኔታ ሪፖርት ማድረግ" :"Register volunteers, capture field location, and report nearby sightings"}
-          </h1>
-          <p className="mt-2 max-w-3xl text-base leading-7 text-stone">
-            {language === "am" ?"ይህ ገጽ የበጎ ፈቃደኞችን መረጃ ለመመዝገብ፣ የጠፉበትን አካባቢ ለመለየት እና የተገኙ መረጃዎችን በፍጥነት ሪፖርት በማድረግ የፍለጋ ሥራዎችን ያቀናጅልዎታል።" : "This page is focused on the missing-person backend. It supports volunteer intake, location-based nearby case lookup, and the quick sighting endpoint for field response."}
-          </p>
-          <div className="mt-6 flex flex-wrap gap-3">
-            <Link
-              to="/cases"
-              className="rounded-full border border-stone-200 px-5 py-3 text-sm font-semibold text-stone-700 transition hover:border-terracotta/30 hover:text-terracotta"
-            >
-              Back to cases
-            </Link>
-          </div>
-        </div>
-      </section>
+    <PageSurface
+      eyebrow={language === "am" ? "የበጎ ፈቃደኞች ምላሽ" : "Volunteer response"}
+      title={
+        language === "am"
+          ? "በጎ ፈቃደኞችን ያቀናጁ፣ ቦታ ይመዝግቡ እና ሪፖርቶችን በፍጥነት ያስገቡ"
+          : "Coordinate volunteers, capture location, and submit field sightings fast"
+      }
+      description={
+        language === "am"
+          ? "በመስክ ላይ ያሉ በጎ ፈቃደኞች በቀላሉ እንዲመዘገቡ እና አቅራቢያ ጉዳዮችን እንዲታዩ ተዘጋጅቷል።"
+          : "Built for fast field response with low confusion: intake, location capture, nearby cases, and quick sightings."
+      }
+      actions={
+        <Link
+          to="/cases"
+          className="rounded-xl border border-stone-200 bg-white px-4 py-2.5 text-sm font-semibold text-stone-700 transition hover:border-terracotta/30 hover:text-terracotta"
+        >
+          Back to cases
+        </Link>
+      }
+    >
 
       <section className="mx-auto grid max-w-6xl gap-6 px-4 py-8 sm:px-6 lg:grid-cols-[0.95fr_1.05fr] lg:px-8">
         <div className="space-y-6">
@@ -476,7 +476,7 @@ export const VolunteerOperationsPage = () => {
           </div>
         </div>
       </section>
-    </div>
+    </PageSurface>
   );
 };
 

@@ -27,6 +27,7 @@ import { VerificationStatus } from './VerificationStatus';
 import { ProfileForm } from './ProfileForm';
 import { LoadingSkeleton } from '../shared/LoadingSkeleton';
 import { formatDate } from '../../utils/formatters';
+import { PageSurface } from '../../../../components/layout/PageSurface';
 
 const StatCard = ({ icon: Icon, value, label, color = 'text-terracotta' }) => (
   <div className="bg-cream rounded-xl p-4 border border-warm-gray/30 text-center">
@@ -83,7 +84,15 @@ export const ProfilePage = () => {
   }
 
   return (
-    <div className="min-h-screen mt-24 bg-warm-white">
+    <PageSurface
+      eyebrow={language === 'am' ? 'የተጠቃሚ ፕሮፋይል' : 'User profile'}
+      title={profile.realName || (language === 'am' ? 'ፕሮፋይል' : 'Profile')}
+      description={
+        language === 'am'
+          ? 'የእርስዎን ታማኝነት እና የልጥፍ እንቅስቃሴ በአንድ ቦታ ይከታተሉ።'
+          : 'Manage trust status, reconnect activity, and post history in one place.'
+      }
+    >
       {/* Profile Header */}
       <div className="bg-gradient-to-b from-cream to-transparent pt-8 pb-12">
         <div className="container">
@@ -384,6 +393,6 @@ export const ProfilePage = () => {
           />
         )}
       </AnimatePresence>
-    </div>
+    </PageSurface>
   );
 };

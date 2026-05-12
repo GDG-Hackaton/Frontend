@@ -22,6 +22,7 @@ import { TrustBadge } from "../profile/TrustBadge";
 import { ChatSkeleton } from "./ChatSkeleton";
 import { toast } from "sonner";
 import { wantedApi } from "../../services/wantedApi";
+import { PageSurface } from "../../../../components/layout/PageSurface";
 
 export const ChatPage = () => {
   const { roomId } = useParams();
@@ -180,7 +181,16 @@ export const ChatPage = () => {
   // No room selected - show sidebar + empty state
   if (!roomId) {
     return (
-      <div className="h-screen mt-24 flex bg-stone-50 font-sans">
+      <PageSurface
+        eyebrow={language === "am" ? "ውይይት" : "Chat"}
+        title={language === "am" ? "ውይይት ይምረጡ" : "Select a conversation"}
+        description={
+          language === "am"
+            ? "የተፈቀዱ ግንኙነቶችን በደህንነት ለመቀጠል ውይይት ይምረጡ።"
+            : "Choose a conversation to continue secure communication."
+        }
+      >
+      <div className="h-[72vh] flex bg-stone-50 font-sans">
         {/* Sidebar - visible on desktop, hidden on mobile unless toggled */}
         <div className={`${showSidebar ? 'block' : 'hidden'} lg:block`}>
           <ChatSidebar
@@ -224,12 +234,22 @@ export const ChatPage = () => {
           </div>
         </div>
       </div>
+      </PageSurface>
     );
   }
 
   // Active chat room
   return (
-    <div className="h-screen mt-24 flex bg-stone-50 font-sans">
+    <PageSurface
+      eyebrow={language === "am" ? "ውይይት" : "Chat"}
+      title={language === "am" ? "የግል ውይይት" : "Private conversation"}
+      description={
+        language === "am"
+          ? "ማንነት ከተረጋገጠ በኋላ የሚደረግ ደህንነቱ የተጠበቀ ግንኙነት።"
+          : "Secure chat between approved participants."
+      }
+    >
+    <div className="h-[72vh] flex bg-stone-50 font-sans">
       {/* Sidebar */}
       <div className={`${showSidebar ? 'block' : 'hidden'} lg:block`}>
         <ChatSidebar
@@ -390,5 +410,6 @@ export const ChatPage = () => {
         </div>
       </div>
     </div>
+    </PageSurface>
   );
 };

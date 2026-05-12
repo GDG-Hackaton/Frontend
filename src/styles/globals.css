@@ -111,7 +111,7 @@
   }
   
   body {
-    @apply bg-warm-white text-charcoal font-body antialiased;
+    @apply bg-warm-white text-charcoal font-body antialiased leading-relaxed;
   }
   
   h1, h2, h3, h4, h5, h6 {
@@ -141,9 +141,10 @@
 /* Component Utilities */
 @utility container {
   margin-inline: auto;
-  padding-inline: 1rem;
+  padding-inline: 0.875rem;
   
   @media (width >= 640px) {
+    padding-inline: 1rem;
     max-width: 640px;
   }
   
@@ -173,29 +174,57 @@
     @apply bg-gradient-to-r from-terracotta to-sahara bg-clip-text text-transparent;
   }
   
+  .btn-base {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition;
+  }
+
   /* Button Variants */
   .btn-primary {
-    @apply px-6 py-3 bg-terracotta text-white rounded-full font-medium
-           hover:bg-clay transition-all duration-200 
-           shadow-sm hover:shadow-md active:scale-95
+    @apply btn-base bg-terracotta text-white hover:bg-clay
+           shadow-sm hover:shadow-md active:scale-[0.99]
            disabled:opacity-50 disabled:cursor-not-allowed;
   }
   
   .btn-secondary {
-    @apply px-6 py-3 bg-sahara text-white rounded-full font-medium
-           hover:bg-sahara-dark transition-all duration-200
-           shadow-sm hover:shadow-md active:scale-95;
+    @apply btn-base bg-sahara text-white hover:bg-sahara-dark
+           shadow-sm hover:shadow-md active:scale-[0.99];
   }
   
   .btn-outline {
-    @apply px-6 py-3 border-2 border-olive text-olive rounded-full font-medium
-           hover:bg-olive hover:text-white transition-all duration-200
-           active:scale-95;
+    @apply btn-base border border-olive text-olive hover:bg-olive hover:text-white
+           active:scale-[0.99];
   }
   
   .btn-ghost {
-    @apply px-6 py-3 text-olive hover:text-terracotta font-medium
-           transition-colors duration-200;
+    @apply btn-base text-olive hover:text-terracotta;
+  }
+
+  .surface-card {
+    @apply rounded-2xl border border-stone-200 bg-white p-4 sm:p-5;
+  }
+
+  .surface-card-dense {
+    @apply rounded-2xl border border-stone-200 bg-white p-3.5 sm:p-4;
+  }
+
+  .status-badge {
+    @apply inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide;
+  }
+
+  .status-active {
+    @apply bg-red-50 text-red-700 ring-1 ring-red-200;
+  }
+
+  .status-pending {
+    @apply bg-amber-50 text-amber-800 ring-1 ring-amber-200;
+  }
+
+  .status-resolved {
+    @apply bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200;
+  }
+
+  .status-high-risk {
+    @apply bg-red-600 text-white;
   }
   
   /* Impact Stat Card */

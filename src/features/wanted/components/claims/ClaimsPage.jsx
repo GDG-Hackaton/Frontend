@@ -22,6 +22,7 @@ import { LoadingSkeleton } from '../shared/LoadingSkeleton';
 import { EmptyState } from '../browse/EmptyState';
 import { formatRelativeTime } from '../../utils/formatters';
 import { toast } from 'sonner';
+import { PageSurface } from '../../../../components/layout/PageSurface';
 
 const ClaimCard = ({ claim, onReview }) => {
   const { language } = useLanguage();
@@ -157,20 +158,18 @@ export const ClaimsPage = () => {
   };
 
   return (
-    <div className="min-h-screen mt-24 bg-warm-white">
+    <PageSurface
+      eyebrow={language === 'am' ? 'የይገባኛል ጥያቄዎች' : 'Claims queue'}
+      title={language === 'am' ? 'የይገባኛል ጥያቄዎች' : 'Review pending claims'}
+      description={
+        language === 'am'
+          ? 'ማንነት እና ደህንነት በመጠበቅ ጥያቄዎችን ያጽድቁ ወይም ውድቅ ያድርጉ።'
+          : 'Approve or reject claim requests with safer, clearer moderation flow.'
+      }
+    >
       <div className="container py-8">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="font-display text-3xl md:text-4xl font-bold text-charcoal mb-2">
-            {language === 'am' ? 'የይገባኛል ጥያቄዎች' : 'Claims'}
-          </h1>
-          <p className="text-stone">
-            {language === 'am'
-              ? 'እርስዎን የሚፈልጉ ሰዎች የላኳቸው መልእክቶች'
-              : 'Messages from people who think they know you'
-            }
-          </p>
-        </div>
+        <div className="mb-4" />
 
         {/* Claims List */}
         <div className="max-w-3xl">
@@ -205,6 +204,6 @@ export const ClaimsPage = () => {
           )}
         </div>
       </div>
-    </div>
+    </PageSurface>
   );
 };
