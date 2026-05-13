@@ -91,7 +91,7 @@ const HeroSection = () => {
       }
     }
   ];
-
+  
   return (
     <section className="relative bg-white">
       {/* ===== DESKTOP LAYOUT ===== */}
